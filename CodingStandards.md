@@ -16,12 +16,12 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 
 - **Directory Layout**
     - **Modular Approach** 
-    - `/src`
-    - `/ui` (Components, views, screens)
-    - `/logic` (Business logic and utilities)
-    - `/model` (Data models)
-    - `/persistence` (API, DB access, or storage layer)
-    - `/tests` (test files??)
+        - `/src`
+        - `/ui` (Components, views, screens)
+        - `/logic` (Business logic and utilities)
+        - `/model` (Data models)
+        - `/persistence` (API, DB access, or storage layer)
+        - `/tests` (test files??)
 
 ---
 
@@ -44,14 +44,12 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 ## 3. Formatting & Style
 
 - **Indentation**
-    - JavaScript/TypeScript: 2 spaces
-    - Python/Java: 4 spaces
+    - Java: 4 spaces
 
 - **Line Length**: 
     - Max 100 characters
 
 - **Braces**
-    - JavaScript: opening brace on same line
     - Java: brace on new line for classes/methods
 
 - **Blank Lines**
@@ -78,11 +76,11 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 ## 5. Code Organization
 
 - **Order in Classes**
-1. Constants
-2. Fields
-3. Constructors
-4. Public methods
-5. Private methods
+    1. Constants
+    2. Fields
+    3. Constructors
+    4. Public methods
+    5. Private methods
 
 - **Access Control**
     - Use `private` or `protected` where possible
@@ -93,13 +91,12 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 ## 6. Error Handling
 
 - **Use `try-catch`** for:
-    - Network calls ??
     - File operations ??
     - Critical logic prone to failure
 
 - **Exception Handling**
     - Catch only expected exceptions
-    - Log and rethrow unexpected issues
+    - Log and re-throw unexpected issues
     - Use custom exception classes where helpful (e.g., `SlotUnavailableError`)
 
 ---
@@ -107,9 +104,9 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 ## 7. Version Control Practices
 
 - **Branch Naming**
-- `feature/appointment-form`
-- `bugfix/cancel-crash`
-- `chore/update-docs`
+    - `appointment-form`
+    - `cancel-crash`
+    - `update-docs`
 
 - **Commit Messages**
     - [type]: short message
@@ -140,7 +137,6 @@ This document outlines the agreed coding standards for the *PhysicianConnect* pr
 
 - **Structure**
     - Group by feature/component
-    - Follow Given–When–Then pattern
 
 - **Mocks**
     - Use mocks for APIs and dependencies
