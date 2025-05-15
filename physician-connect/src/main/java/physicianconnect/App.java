@@ -2,8 +2,7 @@ package physicianconnect;
 
 import javax.swing.SwingUtilities;
 
-
-public class PhysicianConnect {
+public class App {
     public static void main(String[] args) {
  
     }
