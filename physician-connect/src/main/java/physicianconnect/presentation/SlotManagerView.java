@@ -1,7 +1,8 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.TimeSlot;
 import java.util.List;
+
+import physicianconnect.objects.TimeSlot;
 
 public interface SlotManagerView extends Viewable {
     void setExistingSlots(List<TimeSlot> slots);

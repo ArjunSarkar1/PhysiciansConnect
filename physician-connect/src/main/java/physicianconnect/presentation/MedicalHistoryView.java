@@ -1,7 +1,8 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.MedicalHistory;
 import java.util.List;
+
+import physicianconnect.objects.MedicalHistory;
 
 public interface MedicalHistoryView extends Viewable {
     void setHistoryEntries(List<MedicalHistory> entries);

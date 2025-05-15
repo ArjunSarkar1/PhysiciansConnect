@@ -1,4 +1,4 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
 public interface Viewable {
     // void showLoading();

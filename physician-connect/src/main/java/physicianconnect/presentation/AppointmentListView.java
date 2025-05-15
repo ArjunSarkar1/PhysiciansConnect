@@ -1,8 +1,9 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
 
-import com.physicianconnect.objects.Appointment;
 import java.util.List;
+
+import physicianconnect.objects.Appointment;
 
 //managge upcoming appointments
 public interface AppointmentListView extends Viewable {

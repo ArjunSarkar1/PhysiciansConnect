@@ -1,7 +1,8 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.Patient;
 import java.util.List;
+
+import physicianconnect.objects.Patient;
 
 public interface PhysicianDashboardView extends Viewable {
     void displayAssignedPatients(List<Patient> patients);

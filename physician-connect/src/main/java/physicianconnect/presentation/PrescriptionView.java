@@ -1,7 +1,8 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.Prescription;
 import java.util.List;
+
+import physicianconnect.objects.Prescription;
 
 public interface PrescriptionView extends Viewable {
     void setPrescriptions(List<Prescription> prescriptions);

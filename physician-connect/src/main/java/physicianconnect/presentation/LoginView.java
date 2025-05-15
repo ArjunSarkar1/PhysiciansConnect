@@ -1,4 +1,4 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
 public interface LoginView extends Viewable {
     void promptCredentials();

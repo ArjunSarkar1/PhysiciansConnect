@@ -1,7 +1,8 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.Referral;
 import java.util.List;
+
+import physicianconnect.objects.Referral;
 
 public interface ReferralView extends Viewable {
     void setReferrals(List<Referral> referrals);

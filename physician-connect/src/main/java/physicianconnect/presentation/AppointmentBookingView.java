@@ -1,8 +1,9 @@
-package com.physicianconnect.presentation;
+package physicianconnect.presentation;
 
-import com.physicianconnect.objects.Appointment;
-import com.physicianconnect.objects.TimeSlot;
 import java.util.List;
+
+import physicianconnect.objects.Appointment;
+import physicianconnect.objects.TimeSlot;
 
 public interface AppointmentBookingView extends Viewable {
     void showAvailablePhysicians(List<Physician> physicians);
