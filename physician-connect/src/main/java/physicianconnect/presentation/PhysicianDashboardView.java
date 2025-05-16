@@ -13,22 +13,21 @@ import java.awt.font.TextAttribute;
  * PhysicianDashboardView
  *
  * Main dashboard UI for physicians:
- * • Header with user info + logout
- * • Tab bar for navigation
- * • Split view of upcoming appointments and availability
+ * - Header with user info + logout
+ * - Tab bar for navigation
+ * - Split view of upcoming appointments and availability
  *
- * UI-only, professionally styled.
  */
 public class PhysicianDashboardView extends JFrame {
 
     /*-------------------------------------------------------------------------*/
-    /* Constants - Modernized Look & Feel                                      */
+    /* Constants                                                               */
     /*-------------------------------------------------------------------------*/
     private static final int FRAME_W = 1300;
     private static final int FRAME_H = 800;
 
     // Palette
-    private static final Color COLOR_PRIMARY_ACCENT = new Color(0x1976D2); // Deep Blue (e.g., Material Blue 700)
+    private static final Color COLOR_PRIMARY_ACCENT = new Color(0x1976D2); // Deep Blue 
     private static final Color COLOR_PRIMARY_ACCENT_LIGHT = new Color(0x63A4FF); // Lighter blue for hover/highlights
     private static final Color COLOR_BACKGROUND_MAIN = new Color(0xF5F5F5); // Light Gray (overall background)
     private static final Color COLOR_BACKGROUND_COMPONENT = Color.WHITE;     // Cards, pop-ups
@@ -47,7 +46,7 @@ public class PhysicianDashboardView extends JFrame {
     private static final Font FONT_BUTTON = new Font(FONT_FAMILY, Font.BOLD, 14);
     private static final Font FONT_LINK_BUTTON = new Font(FONT_FAMILY, Font.PLAIN, 14);
 
-    // Icons (Unicode - consider proper icon library for production)
+    // Icons
     private static final String ICON_LOGOUT = "🚪"; // Or "->|"
     private static final String ICON_EDIT = "✏️";
     private static final String ICON_CANCEL = "❌";
@@ -66,7 +65,6 @@ public class PhysicianDashboardView extends JFrame {
     /* Constructor                                                             */
     /*-------------------------------------------------------------------------*/
     public PhysicianDashboardView() {
-        // For potentially smoother text rendering (OS dependent)
         System.setProperty("awt.useSystemAAFontSettings","on");
         System.setProperty("swing.aatext", "true");
 
@@ -74,7 +72,7 @@ public class PhysicianDashboardView extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(FRAME_W, FRAME_H);
         setLocationRelativeTo(null);
-        setResizable(false); // As per original requirement
+        setResizable(false);
 
         initComponents();
     }
@@ -99,7 +97,7 @@ public class PhysicianDashboardView extends JFrame {
 
         contentWrapperPanel.add(tabBarPanel, BorderLayout.NORTH);
         contentWrapperPanel.add(mainSplitPane, BorderLayout.CENTER);
-        // Add some overall padding around the content area (tabs + split pane)
+        // Adding some overall padding around the content area (tabs + split pane)
         contentWrapperPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
 
@@ -178,7 +176,6 @@ public class PhysicianDashboardView extends JFrame {
         JPanel tabBarWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         tabBarWrapper.setOpaque(false);
         tabBarWrapper.add(tabBar);
-        // tabBarWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0)); // Align with card content start
 
         return tabBarWrapper;
     }
@@ -188,7 +185,7 @@ public class PhysicianDashboardView extends JFrame {
      */
     private JSplitPane createMainContentSplitPane() {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(FRAME_W * 2 / 3 - 50); // Adjust ratio as needed (e.g. 2/3 for left)
+        splitPane.setDividerLocation(FRAME_W * 2 / 3 - 50); 
         splitPane.setDividerSize(8); // Make divider more visible/grabbable
         splitPane.setBorder(null); // No border for the split pane itself
         splitPane.setContinuousLayout(true);
@@ -321,9 +318,6 @@ public class PhysicianDashboardView extends JFrame {
                         BorderFactory.createEmptyBorder(20, 20, 20, 20) // Inner padding
                 )
         ));
-        // Set a preferred size to guide the split pane, good since frame is not resizable.
-        // For a resizable frame, rely more on layout managers.
-        // card.setPreferredSize(new Dimension(FRAME_W / 2 - 60, FRAME_H - 200)); // Example dynamic sizing
 
         JLabel lblCardTitle = new JLabel(titleText);
         lblCardTitle.setFont(FONT_CARD_TITLE);
@@ -405,7 +399,7 @@ public class PhysicianDashboardView extends JFrame {
                 BorderFactory.createEmptyBorder(10, 20, 10, 20) // Padding
         ));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true); // Ensure background is painted
+        button.setOpaque(true);
 
         // Hover effect
         Color originalBg = button.getBackground();
@@ -435,7 +429,7 @@ public class PhysicianDashboardView extends JFrame {
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setMargin(new Insets(5,5,5,5)); // Clickable area
+        button.setMargin(new Insets(5,5,5,5)); 
 
         // Store original font for underline toggling
         Font originalFont = button.getFont();
@@ -461,7 +455,7 @@ public class PhysicianDashboardView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* Main Method (for standalone preview)                                    */
+    /* Main Method                                                             */
     /*-------------------------------------------------------------------------*/
     public static void main(String[] args) {
         // Apply a modern Look and Feel if available
@@ -481,8 +475,8 @@ public class PhysicianDashboardView extends JFrame {
  * This border provides its own insets for the shadow space.
  */
 class FadingBottomShadowBorder extends AbstractBorder {
-    private static final int SHADOW_HEIGHT = 6; // How many pixels the shadow extends downwards
-    private static final int MAX_ALPHA = 45;    // Max transparency of the shadow (0-255)
+    private static final int SHADOW_HEIGHT = 6; 
+    private static final int MAX_ALPHA = 45;   
     public FadingBottomShadowBorder() {
         new Insets(1, 1, SHADOW_HEIGHT + 1, SHADOW_HEIGHT + 1);
     }
