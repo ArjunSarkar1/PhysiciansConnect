@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import logic.enums.AppointmentStatus;
+import logic.AppointmentStatus;
 
 public class Appointment {
 
@@ -37,19 +37,19 @@ public class Appointment {
     // Optionally include a constructor that accepts medications
     public Appointment(Physician assignedPhysician, Patient patient, int officeId,
             LocalDateTime time, int durationMins, String preAppointmentNotes,
-            String feedback, User referral, List<Prescription> prescriptionLis, AppointmentStatus statust) {
-        this.assignedPhysician = assignedPhysician;
-        this.patient = patient;
-        this.officeId = officeId;
-        this.time = time;
-        this.durationMins = durationMins;
-        this.preAppointmentNotes = preAppointmentNotes;
-        this.feedback = feedback;
-        this.referral = referral;
-        if (prescriptionList != null) {
-            this.prescriptionList.addAll(prescriptionList);
-        }
-        this.status = status;
+            String feedback, User referral, List<Prescription> prescriptionLis, AppointmentStatus statust, AppointmentStatus status) {
+                    this.assignedPhysician = assignedPhysician;
+                    this.patient = patient;
+                    this.officeId = officeId;
+                    this.time = time;
+                    this.durationMins = durationMins;
+                    this.preAppointmentNotes = preAppointmentNotes;
+                    this.feedback = feedback;
+                    this.referral = referral;
+                    if (prescriptionList != null) {
+                        this.prescriptionList.addAll(prescriptionList);
+                    }
+                    this.status = status;
     }
 
     // Getters and Setters

@@ -1,4 +1,4 @@
-package physicianconnect.persistence;
+package persistence;
 
 public class Persistence{
 

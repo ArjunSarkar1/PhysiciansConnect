@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package logic;
 
 public class Logic{
 

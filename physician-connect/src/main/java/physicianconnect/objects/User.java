@@ -2,6 +2,7 @@ package objects;
 
 abstract public class User {
 
+    @SuppressWarnings("unused")
     private int id;
     private String firstName;
     private String lastName;

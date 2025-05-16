@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class Prescription {
 
+    @SuppressWarnings("unused")
     private int id;
     private String name;
     private String dosage;
