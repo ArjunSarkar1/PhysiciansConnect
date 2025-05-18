@@ -27,7 +27,7 @@ public class MedicalHistory {
 
     // Getters and Setters
     public String getPastConditions() {
-        return pastConditions;
+        return this.pastConditions;
     }
 
     public void setPastConditions(String pastConditions) {
@@ -35,7 +35,7 @@ public class MedicalHistory {
     }
 
     public String getSurgeries() {
-        return surgeries;
+        return this.surgeries;
     }
 
     public void setSurgeries(String surgeries) {
@@ -43,7 +43,7 @@ public class MedicalHistory {
     }
 
     public String getAllergies() {
-        return allergies;
+        return this.allergies;
     }
 
     public void setAllergies(String allergies) {
@@ -51,7 +51,7 @@ public class MedicalHistory {
     }
 
     public String getImmunizations() {
-        return immunizations;
+        return this.immunizations;
     }
 
     public void setImmunizations(String immunizations) {
@@ -59,7 +59,7 @@ public class MedicalHistory {
     }
 
     public String getHospitalizations() {
-        return hospitalizations;
+        return this.hospitalizations;
     }
 
     public void setHospitalizations(String hospitalizations) {
@@ -67,7 +67,7 @@ public class MedicalHistory {
     }
 
     public String getFamilyHistory() {
-        return familyHistory;
+        return this.familyHistory;
     }
 
     public void setFamilyHistory(String familyHistory) {

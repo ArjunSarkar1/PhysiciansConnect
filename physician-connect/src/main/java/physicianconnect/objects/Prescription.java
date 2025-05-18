@@ -4,28 +4,33 @@ import java.time.LocalDate;
 
 public class Prescription {
 
-    @SuppressWarnings("unused")
     private int id;
     private String name;
     private String dosage;
     private String frequency;
+    private String doctorsNote;
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Prescription(int id, String name, String dosage, String frequency, String route, LocalDate startDate,
+    public Prescription(int id, String name, String dosage, String frequency, String doctorsNote, LocalDate startDate,
             LocalDate endDate) {
 
         this.id = id;
         this.name = name;
         this.dosage = dosage;
         this.frequency = frequency;
+        this.doctorsNote = doctorsNote;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
     // Getters and Setters
+    public int getPrescriptionId() {
+        return this.id;
+    }
+
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -33,7 +38,7 @@ public class Prescription {
     }
 
     public String getDosage() {
-        return dosage;
+        return this.dosage;
     }
 
     public void setDosage(String dosage) {
@@ -41,15 +46,23 @@ public class Prescription {
     }
 
     public String getFrequency() {
-        return frequency;
+        return this.frequency;
     }
 
     public void setFrequency(String frequency) {
         this.frequency = frequency;
     }
 
+    public String getDoctorsNote() {
+        return this.doctorsNote;
+    }
+
+    public void setDoctorsNote(String doctorsNote) {
+        this.doctorsNote = doctorsNote;
+    }
+
     public LocalDate getStartDate() {
-        return startDate;
+        return this.startDate;
     }
 
     public void setStartDate(LocalDate startDate) {
@@ -57,15 +70,10 @@ public class Prescription {
     }
 
     public LocalDate getEndDate() {
-        return endDate;
+        return this.endDate;
     }
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s %s (%s) from %s to %s.", name, dosage, frequency, startDate, endDate);
     }
 }

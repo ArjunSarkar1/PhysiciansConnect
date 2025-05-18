@@ -1,10 +1,8 @@
 package objects;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import logic.AppointmentStatus;
 
 public class Appointment {
@@ -12,49 +10,50 @@ public class Appointment {
     private Physician assignedPhysician;
     private Patient patient;
     private int officeId;
-    private LocalDateTime time;
     private int durationMins;
+    private String reasonForVisit;
     private String preAppointmentNotes;
-    private String feedback;
+    private String patientFeedback;
     private User referral;
-    private ArrayList<Prescription> prescriptionList = new ArrayList<>();
+    private List<Prescription> prescriptionList = new ArrayList<>();
     private AppointmentStatus status;
 
-    public Appointment(Physician assignedPhysician, Patient patient, int officeId,
-            LocalDateTime time, int durationMins, String preAppointmentNotes,
-            String feedback, User referral, AppointmentStatus status) {
+    public Appointment(Physician assignedPhysician, Patient patient, int officeId, int durationMins,
+            String reasonForVisit, String preAppointmentNotes,
+            String patientFeedback, User referral, AppointmentStatus status) {
         this.assignedPhysician = assignedPhysician;
         this.patient = patient;
         this.officeId = officeId;
-        this.time = time;
         this.durationMins = durationMins;
+        this.reasonForVisit = reasonForVisit;
         this.preAppointmentNotes = preAppointmentNotes;
-        this.feedback = feedback;
+        this.patientFeedback = patientFeedback;
         this.referral = referral;
         this.status = status;
     }
 
     // Optionally include a constructor that accepts medications
-    public Appointment(Physician assignedPhysician, Patient patient, int officeId,
-            LocalDateTime time, int durationMins, String preAppointmentNotes,
-            String feedback, User referral, List<Prescription> prescriptionLis, AppointmentStatus statust, AppointmentStatus status) {
-                    this.assignedPhysician = assignedPhysician;
-                    this.patient = patient;
-                    this.officeId = officeId;
-                    this.time = time;
-                    this.durationMins = durationMins;
-                    this.preAppointmentNotes = preAppointmentNotes;
-                    this.feedback = feedback;
-                    this.referral = referral;
-                    if (prescriptionList != null) {
-                        this.prescriptionList.addAll(prescriptionList);
-                    }
-                    this.status = status;
+    public Appointment(Physician assignedPhysician, Patient patient, int officeId, int durationMins,
+            String reasonForVisit, String preAppointmentNotes,
+            String patientFeedback, User referral, List<Prescription> prescriptionLis, AppointmentStatus statust,
+            AppointmentStatus status) {
+        this.assignedPhysician = assignedPhysician;
+        this.patient = patient;
+        this.officeId = officeId;
+        this.durationMins = durationMins;
+        this.reasonForVisit = reasonForVisit;
+        this.preAppointmentNotes = preAppointmentNotes;
+        this.patientFeedback = patientFeedback;
+        this.referral = referral;
+        if (prescriptionList != null) {
+            this.prescriptionList.addAll(prescriptionList);
+        }
+        this.status = status;
     }
 
     // Getters and Setters
     public Physician getAssignedPhysician() {
-        return assignedPhysician;
+        return this.assignedPhysician;
     }
 
     public void setAssignedPhysician(Physician assignedPhysician) {
@@ -62,7 +61,7 @@ public class Appointment {
     }
 
     public Patient getPatient() {
-        return patient;
+        return this.patient;
     }
 
     public void setPatient(Patient patient) {
@@ -70,31 +69,31 @@ public class Appointment {
     }
 
     public int getOfficeId() {
-        return officeId;
+        return this.officeId;
     }
 
     public void setOfficeId(int officeId) {
         this.officeId = officeId;
     }
 
-    public LocalDateTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
-
     public int getDurationMins() {
-        return durationMins;
+        return this.durationMins;
     }
 
     public void setDurationMins(int durationMins) {
         this.durationMins = durationMins;
     }
 
+    public String getReasonForVisit() {
+        return this.reasonForVisit;
+    }
+
+    public void setReasonForVisit(String reasonForVisit) {
+        this.reasonForVisit = reasonForVisit;
+    }
+
     public String getPreAppointmentNotes() {
-        return preAppointmentNotes;
+        return this.preAppointmentNotes;
     }
 
     public void setPreAppointmentNotes(String preAppointmentNotes) {
@@ -102,15 +101,15 @@ public class Appointment {
     }
 
     public String getFeedback() {
-        return feedback;
+        return this.patientFeedback;
     }
 
-    public void setFeedback(String feedback) {
-        this.feedback = feedback;
+    public void setFeedback(String patientFeedback) {
+        this.patientFeedback = patientFeedback;
     }
 
     public User getReferral() {
-        return referral;
+        return this.referral;
     }
 
     public void setReferral(User referral) {
@@ -121,11 +120,11 @@ public class Appointment {
         return Collections.unmodifiableList(prescriptionList);
     }
 
-    public void addToMedicationList(Prescription prescription) {
+    public void addToPrescriptionList(Prescription prescription) {
         this.prescriptionList.add(prescription);
     }
 
-    public void removeFromMedicationList(Prescription prescription) {
+    public void removeFromPrescriptionList(Prescription prescription) {
         this.prescriptionList.remove(prescription);
     }
 

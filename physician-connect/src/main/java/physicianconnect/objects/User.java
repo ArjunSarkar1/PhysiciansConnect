@@ -2,14 +2,13 @@ package objects;
 
 abstract public class User {
 
-    @SuppressWarnings("unused")
     private int id;
     private String firstName;
     private String lastName;
     private String email;
 
     public User(int id, String firstName, String lastName, String email) {
-        
+
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -17,6 +16,10 @@ abstract public class User {
     }
 
     // Getters and Setters
+    public int getUserId() {
+        return this.id;
+    }
+
     public String getFirstName() {
         return this.firstName;
     }
@@ -39,10 +42,5 @@ abstract public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s %s (Email: %s)", firstName, lastName, email);
     }
 }
