@@ -1,3 +1,4 @@
+package stub;
 import objects.AppointmentSlot;
 import java.util.*;
 
