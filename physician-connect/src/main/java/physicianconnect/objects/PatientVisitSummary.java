@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final public class PatientVisitSummary {
+    private int visitId;
     private LocalDateTime visitDateTime;
     private String physicianName;
     private int officeId;
@@ -15,6 +16,7 @@ final public class PatientVisitSummary {
     private List<Prescription> prescriptionList = new ArrayList<>();
 
     public PatientVisitSummary(
+            int visitId,
             LocalDateTime visitDateTime,
             String physicianName,
             int officeId,
@@ -23,6 +25,7 @@ final public class PatientVisitSummary {
             String patientFeedback,
             String referralName,
             List<Prescription> prescriptionList) {
+        this.visitId = visitId;
         this.visitDateTime = visitDateTime;
         this.physicianName = physicianName;
         this.officeId = officeId;
@@ -36,6 +39,11 @@ final public class PatientVisitSummary {
     }
 
     // Getters only (this is an immutable class)
+
+    public int getVisitId(){
+        return this.visitId;
+    }
+
     public LocalDateTime getVisitDateTime() {
         return this.visitDateTime;
     }

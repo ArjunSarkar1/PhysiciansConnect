@@ -1,7 +1,8 @@
 package objects;
 
 public class MedicalHistory {
-
+    
+    private int medicalHistoryId;
     private String pastConditions;
     private String surgeries;
     private String allergies;
@@ -10,13 +11,15 @@ public class MedicalHistory {
     private String familyHistory;
 
     public MedicalHistory(
+            int medicalHistoryId,
             String pastConditions,
             String surgeries,
             String allergies,
             String immunizations,
             String hospitalizations,
             String familyHistory) {
-
+        
+        this.medicalHistoryId = medicalHistoryId;
         this.pastConditions = pastConditions;
         this.surgeries = surgeries;
         this.allergies = allergies;
@@ -26,6 +29,11 @@ public class MedicalHistory {
     }
 
     // Getters and Setters
+
+    public int getMedicalHistoryId(){
+        return this.medicalHistoryId;
+    }
+
     public String getPastConditions() {
         return this.pastConditions;
     }

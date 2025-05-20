@@ -1,10 +1,9 @@
-import physicianconnect.objects.Patient;
-import physicianconnect.object.MedicalHistory;
+import objects.Patient;
 
 import java.util.*;
 
 public class PatientStub{
-    private final Map<Integer, User> patients = new HashMap<>();
+    private final Map<Integer, Patient> patients = new HashMap<>();
     private int patientId = 1;
 
     private static final PatientStub instance = new PatientStub();
@@ -12,10 +11,60 @@ public class PatientStub{
     private PatientStub(){}
 
     public static PatientStub getInstance(){
-        return this.instance;
+        return instance;
     }
 
-    public Patient
+    public Patient getPatient(int patientId){
+        Patient toReturn = this.patients.get(patientId);
+        Patient result = null;
+        if(toReturn != null){
+            result = createCopy(toReturn.getUserId(), toReturn);
+        }
+        return result;
+    }
+
+    public Map<Integer, Patient> getAllPatients(){
+        return Collections.unmodifiableMap(this.patients);
+    }
+
+    public Patient addPatient(Patient patient){
+        Patient toAdd = createCopy(this.patientId++, patient);
+        this.patients.put(toAdd.getUserId(), toAdd);
+        return toAdd;
+    }
+
+    public Patient updatePatient(Patient toUpdate){
+        Patient updatedPatient = null;
+        if( patients.containsKey(toUpdate.getUserId())){
+            updatedPatient = createCopy(toUpdate.getUserId(), toUpdate);
+            patients.put(updatedPatient.getUserId(), updatedPatient);
+        }
+        return updatedPatient;
+    }
+
+    public Patient deletePatient(int patientId){
+        Patient toDelete = patients.get(patientId);
+        Patient result = null;
+        if(toDelete != null){
+            result = createCopy(toDelete.getUserId(), toDelete);
+            this.patients.remove(patientId);
+        }
+        return result;
+    }
+
+
+    private Patient createCopy(int copyId, Patient toCopy){
+        return new Patient(
+            copyId,
+            toCopy.getFirstName(), 
+            toCopy.getLastName(), 
+            toCopy.getEmail(), 
+            toCopy.getSIN(),
+            toCopy.getPHIN(),
+            null,
+            toCopy.getMedicalHistory()
+        );
+    }
 }
 
 
