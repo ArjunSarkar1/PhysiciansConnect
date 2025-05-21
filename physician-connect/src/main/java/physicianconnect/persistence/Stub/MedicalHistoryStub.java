@@ -1,3 +1,4 @@
+package stub;
 import objects.MedicalHistory;
 
 import java.util.*;

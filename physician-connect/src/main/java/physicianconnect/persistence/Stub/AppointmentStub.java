@@ -1,4 +1,4 @@
-package stub
+package stub;
 import objects.Appointment;
 
 import java.util.*;
