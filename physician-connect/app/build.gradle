@@ -23,6 +23,7 @@ dependencies {
 
     // This dependency is used by the application.
     implementation libs.guava
+    testImplementation 'junit:junit:4.13.2'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -34,21 +35,8 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'org.example.App'
+    mainClass = 'physicianconnect.App'
 
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs = ['app/src/main/java/physicianconnect']
-        }
-    }
-    test {
-        java {
-            srcDirs = ['app/src/test/java/physicianconnect']
-        }
-    }
 }
 
 tasks.named('test') {

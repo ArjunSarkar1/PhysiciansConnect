@@ -11,9 +11,8 @@ import java.awt.*;
  */
 public class LoginView extends JPanel {
 
-    // Constants (from original LoginView)
-    //private static final int FRAME_WIDTH = 1000;       // REMOVED: used in JFrame setup
-    //private static final int FRAME_HEIGHT = 700;       // REMOVED: used in JFrame setup
+    // Constants 
+
     private static final Color BACKGROUND_COLOR = new Color(245, 248, 255);
     private static final Color PANEL_COLOR = Color.WHITE;
     private static final Color BORDER_COLOR = new Color(200, 200, 200);
@@ -46,7 +45,7 @@ public class LoginView extends JPanel {
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND_COLOR);
 
-        initializeComponents(onDashboard); // NEW: component setup
+        initializeComponents(onDashboard); 
     }
 
     /**

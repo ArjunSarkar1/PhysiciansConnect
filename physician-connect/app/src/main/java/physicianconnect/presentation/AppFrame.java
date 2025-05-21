@@ -6,35 +6,40 @@ import java.awt.*;
 /**
  * AppFrame
  *
- * Hosts the LoginPanel and DashboardPanel in a CardLayout.
- * Passes a lambda to LoginPanel so that “Go to Dashboard” will flip cards.
+ * Hosts the LoginView and the main application panel (PhysicianDashboardView) in a CardLayout.
+ * Passes callbacks for navigation.
  */
 public class AppFrame extends JFrame {
 
-    // Constants
     private static final String LOGIN_CARD = "login";
-    private static final String DASHBOARD_CARD = "dashboard";
-    private static final int FRAME_WIDTH = 1000;
-    private static final int FRAME_HEIGHT = 700;
+    private static final String MAIN_APP_CARD = "main_app";
+    // Using constants from PhysicianDashboardView for consistent sizing
+    private static final int FRAME_WIDTH = PhysicianDashboardView.FRAME_W; 
+    private static final int FRAME_HEIGHT = PhysicianDashboardView.FRAME_H;
 
-    // Fields
+
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cards = new JPanel(cardLayout);
 
-    /**
-     * Constructs the application frame and initializes UI.
-     */
+    private LoginView loginPanel;
+    private PhysicianDashboardView mainApplicationPanel; 
+
     public AppFrame() {
         super("PhysicianConnect");
-
+        // It's good practice to set UIManager properties early, e.g., in App.java or here.
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            System.setProperty("awt.useSystemAAFontSettings", "on");
+            System.setProperty("swing.aatext", "true");
+        } catch (Exception e) {
+            System.err.println("Failed to set Look and Feel or System Properties: " + e.getMessage());
+        }
+        
         initializeFrame();
         initializeComponents();
-        showLoginCard();
+        showLoginCard(); 
     }
 
-    /**
-     * Sets up frame properties.
-     */
     private void initializeFrame() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -42,30 +47,32 @@ public class AppFrame extends JFrame {
         setResizable(false);
     }
 
-    /**
-     * Creates and adds cards for login and dashboard.
-     */
     private void initializeComponents() {
-        // Create panels with appropriate callbacks
-        LoginView loginPanel = new LoginView(this::showDashboardCard);
-        PhysicianDashboardView dashboardPanel = new PhysicianDashboardView();
-
-        // Add to card container
+        loginPanel = new LoginView(this::showMainApplicationScreen); 
         cards.add(loginPanel, LOGIN_CARD);
-        cards.add(dashboardPanel, DASHBOARD_CARD);
         setContentPane(cards);
     }
 
-    /**
-     * Displays the login card.
-     */
     private void showLoginCard() {
+        if (mainApplicationPanel != null) {
+            cards.remove(mainApplicationPanel);
+            mainApplicationPanel = null; 
+        }
         cardLayout.show(cards, LOGIN_CARD);
+        // Optional: resize frame back to login size if it's different
+        // setSize(LoginView.FRAME_WIDTH, LoginView.FRAME_HEIGHT); // If LoginView had its own dimensions
+        // setLocationRelativeTo(null);
     }
 
-    // Displays the dashboard card
-    private void showDashboardCard() {
-        cardLayout.show(cards, DASHBOARD_CARD);
+    private void showMainApplicationScreen() {
+        // In a real app, physicianId would come from the login process.
+        int physicianId = 0; // Default/Placeholder
+        mainApplicationPanel = new PhysicianDashboardView(physicianId, this::showLoginCard); 
+        
+        cards.add(mainApplicationPanel, MAIN_APP_CARD);
+        // Ensure frame is sized for the main application
+        setSize(FRAME_WIDTH, FRAME_HEIGHT);
+        setLocationRelativeTo(null); // Re-center after potential resize
+        cardLayout.show(cards, MAIN_APP_CARD);
     }
-
 }
