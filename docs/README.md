@@ -1,12 +1,9 @@
-Here’s an updated `RELEASE.md` that includes **setup instructions** and a **note about using the temporary "Go to Dashboard" button** due to the login system not being implemented yet:
 
 ---
 
-# RELEASE.md
-
 ## PhysicianConnect – Initial Release
 
-PhysicianConnect is a patient-physician collaboration platform designed to enhance communication, appointment scheduling, and care planning. This release lays the groundwork for a secure, user-friendly system that connects patients with their healthcare providers efficiently.
+PhysicianConnect is a patient-physician collaboration platform designed to enhance communication, appointment scheduling, and care planning. 
 
 ---
 
@@ -34,56 +31,28 @@ PhysicianConnect is a patient-physician collaboration platform designed to enhan
 1. **Ensure Prerequisites:**
 
    * Java JDK 21 or compatible runtime installed.
-   * Gradle installed (7.6 or newer recommended).
+   * Gradle installed (7.6 or newer recommended) []
    * SQLite is used as the embedded database.
 
-2. **Clone the Repository & Navigate to the Project Folder:**
+
 
    ```bash
    git clone https://code.cs.umanitoba.ca/comp3350-summer2025/a01-g08-todo-everything.git
    cd physicianconnect
+   gradle build -x test 
+   gradle run
    ```
 
-3. **Build and Run the Application:**
-
-   ```bash
-   ./gradlew run
-   ```
 
 4. **Launching the Interface:**
    Once the application starts, you’ll see the launch screen.
 
    > **Login functionality is not yet implemented.**
-   > For now, click the **“Go to Dashboard”** button to proceed to the application interface.
+   > **Test does not seem to work for now hence**
+   > **Features except the Physician Name is not working we wil fix that**
+   > For now, click the **“Go to Dashboard”** button to proceed to the application interface. 
 
 
 ---
 
-## Performance Goals
 
-This version is expected to:
-
-* Improve appointment booking time by 30% or more.
-* Reduce administrative coordination costs by at least 25%.
-* Achieve 85%+ satisfaction from patients and providers in feedback surveys.
-
----
-
-## Roadmap
-
-Future updates will include:
-
-* Full login and user management system.
-* Integrated messaging and teleconsultation tools.
-* Automatic import of external medical data.
-* Enhanced accessibility and multilingual support.
-
----
-
-## Summary
-
-PhysicianConnect is a patient-centered healthcare app that simplifies administrative workflows and enhances the quality of patient-physician interaction. This initial release provides core functionality with a focus on clarity, privacy, and ease of use.
-
-We welcome feedback to help shape future iterations. For issues, suggestions, or contributions, please reach out to the development team or refer to the project documentation.
-
----
