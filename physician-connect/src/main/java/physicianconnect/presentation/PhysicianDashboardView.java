@@ -127,6 +127,7 @@ public class PhysicianDashboardView extends JFrame {
 
         // Left: Physician info + date/time
         Physician physician = logic.getPhysicianById(physicianId);
+        physician = new Physician(1, "Bob", "Kolre", "bob@gmail.com", 25);
         String fullName = physician.getFirstName() + " " + physician.getLastName();
 
         String userInfoText = String.format(
