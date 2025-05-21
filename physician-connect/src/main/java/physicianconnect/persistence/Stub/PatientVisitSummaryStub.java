@@ -1,11 +1,11 @@
-package physicianconnect.persistence.stub;
+package stub;
 
 import objects.PatientVisitSummary;
 
 import java.util.*;
 
 public class PatientVisitSummaryStub {
-    private final Map<Integer, PatientVisitSummary> visitSummaries  = new HashMap<>();
+    private final Map<Integer, PatientVisitSummary> visitSummaries = new HashMap<>();
     private int visitId = 1;
 
     private static final PatientVisitSummaryStub instance = new PatientVisitSummaryStub();
@@ -21,7 +21,7 @@ public class PatientVisitSummaryStub {
     public PatientVisitSummary getPatientVisitSummary(int visitId) {
         PatientVisitSummary toReturn = this.visitSummaries.get(visitId);
         PatientVisitSummary result = null;
-        if(toReturn != null) {
+        if (toReturn != null) {
             result = createCopy(toReturn.getVisitId(), toReturn);
         }
         return result;
@@ -39,7 +39,7 @@ public class PatientVisitSummaryStub {
 
     public PatientVisitSummary updatePatientVisitSummary(PatientVisitSummary toUpdate) {
         PatientVisitSummary updatedVisitSummary = null;
-        if(visitSummaries.containsKey(toUpdate.getVisitId())) {
+        if (visitSummaries.containsKey(toUpdate.getVisitId())) {
             updatedVisitSummary = createCopy(toUpdate.getVisitId(), toUpdate);
             visitSummaries.put(updatedVisitSummary.getVisitId(), updatedVisitSummary);
         }
@@ -49,7 +49,7 @@ public class PatientVisitSummaryStub {
     public PatientVisitSummary deletePatientVisitSummary(int visitId) {
         PatientVisitSummary toDelete = visitSummaries.get(visitId);
         PatientVisitSummary result = null;
-        if(toDelete != null) {
+        if (toDelete != null) {
             result = createCopy(toDelete.getVisitId(), toDelete);
             this.visitSummaries.remove(visitId);
         }
@@ -58,14 +58,13 @@ public class PatientVisitSummaryStub {
 
     private PatientVisitSummary createCopy(int copyId, PatientVisitSummary toCopy) {
         return new PatientVisitSummary(copyId,
-            toCopy.getVisitDateTime(),
-            toCopy.getPhysicianName(),
-            toCopy.getOfficeId(),
-            toCopy.getDurationMins(),
-            toCopy.getReasonForVisit(),
-            toCopy.getPatientFeedback(),
-            toCopy.getReferralName(),
-            toCopy.getPrescribedMedications()
-        );
+                toCopy.getVisitDateTime(),
+                toCopy.getPhysicianName(),
+                toCopy.getOfficeId(),
+                toCopy.getDurationMins(),
+                toCopy.getReasonForVisit(),
+                toCopy.getPatientFeedback(),
+                toCopy.getReferralName(),
+                toCopy.getPrescribedMedications());
     }
 }
