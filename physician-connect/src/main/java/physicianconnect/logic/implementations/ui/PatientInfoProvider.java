@@ -11,13 +11,11 @@ public class PatientInfoProvider implements PatientInfoService {
 
     @Override
     public List<MedicalHistory> searchPatientHistoryByKeyword(List<MedicalHistory> patientMedicalHistory) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchPatientHistoryByKeyword'");
     }
 
     @Override
     public List<PatientVisitSummary> getPatientPastVisitSummary(Patient patient) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getPatientPastVisitSummary'");
     }
 

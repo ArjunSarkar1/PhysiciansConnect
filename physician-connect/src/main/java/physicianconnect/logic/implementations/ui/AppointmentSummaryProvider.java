@@ -8,7 +8,6 @@ public class AppointmentSummaryProvider implements AppointmentSummaryService {
 
     @Override
     public void exportAppointmentSummary(Appointment appointment, OutputStream out) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'exportAppointmentSummary'");
     }
 

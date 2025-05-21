@@ -1,7 +1,8 @@
 package logic.stub;
 
-import stub.*;
 import objects.AppointmentSlot;
+import persistence.stub.AppointmentSlotStub;
+
 import java.util.*;
 
 public class AppointmentSlotLogic {

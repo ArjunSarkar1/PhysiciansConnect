@@ -1,10 +1,10 @@
-package physicianconnect.logic.stub;
+package logic.stub;
 
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import objects.PatientVisitSummary;
-import physicianconnect.persistence.stub.PatientVisitSummaryStub;
+import persistence.stub.PatientVisitSummaryStub;
 
 public class PatientVisitsSummaryLogic {
     private static final Logger LOGGER = Logger.getLogger(PatientVisitsSummaryLogic.class.getName());

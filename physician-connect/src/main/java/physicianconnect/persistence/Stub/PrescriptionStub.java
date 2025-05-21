@@ -1,3 +1,5 @@
+package persistence.stub;
+
 import objects.Prescription;
 
 import java.util.*;

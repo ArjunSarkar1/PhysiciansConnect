@@ -1,7 +1,8 @@
 package logic.stub;
 
-import stub.*;
 import objects.MedicalHistory;
+import persistence.stub.MedicalHistoryStub;
+
 import java.util.*;
 
 public class MedicalHistoryLogic {

@@ -1,4 +1,5 @@
-package stub;
+package persistence.stub;
+
 import objects.AppointmentSlot;
 import java.util.*;
 
