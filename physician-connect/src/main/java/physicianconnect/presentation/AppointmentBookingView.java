@@ -21,7 +21,7 @@ import java.util.Date;
 public class AppointmentBookingView extends JFrame {
 
     /*-------------------------------------------------------------------------*/
-    /* Constants - Modernized Look & Feel (aligned with PhysicianDashboardView)*/
+    /* Constants - Modernized Look & Feel (aligned with PhysicianDashboardView) */
     /*-------------------------------------------------------------------------*/
     private static final int FRAME_W = 1300;
     private static final int FRAME_H = 800;
@@ -30,13 +30,12 @@ public class AppointmentBookingView extends JFrame {
     private static final Color COLOR_PRIMARY_ACCENT = new Color(0x1976D2); // Deep Blue
     private static final Color COLOR_PRIMARY_ACCENT_LIGHT = new Color(0x63A4FF); // Lighter blue for hover/highlights
     private static final Color COLOR_BACKGROUND_MAIN = new Color(0xF5F5F5); // Light Gray
-    private static final Color COLOR_BACKGROUND_COMPONENT = Color.WHITE;     // Cards, pop-ups
-    private static final Color COLOR_TEXT_PRIMARY = new Color(0x212121);      // Dark Gray
-    private static final Color COLOR_TEXT_SECONDARY = new Color(0x757575);    // Medium Gray
-    private static final Color COLOR_BORDER_SUBTLE = new Color(0xE0E0E0);      // Even lighter gray
+    private static final Color COLOR_BACKGROUND_COMPONENT = Color.WHITE; // Cards, pop-ups
+    private static final Color COLOR_TEXT_PRIMARY = new Color(0x212121); // Dark Gray
+    private static final Color COLOR_TEXT_SECONDARY = new Color(0x757575); // Medium Gray
+    private static final Color COLOR_BORDER_SUBTLE = new Color(0xE0E0E0); // Even lighter gray
     private static final Color COLOR_BUTTON_SECONDARY_BG = new Color(0xDEDEDE); // Light gray for secondary button
     private static final Color COLOR_BUTTON_SECONDARY_HOVER_BG = new Color(0xCFCFCF); // Darker gray for secondary hover
-
 
     // Fonts
     private static final String FONT_FAMILY = Font.SANS_SERIF;
@@ -60,7 +59,7 @@ public class AppointmentBookingView extends JFrame {
     private static final String ICON_DISCARD = "❌"; // For Discard button
 
     /*-------------------------------------------------------------------------*/
-    /* Fields                                                                  */
+    /* Fields */
     /*-------------------------------------------------------------------------*/
     private JButton btnDashboard, btnManageAppointments, btnPatientHistory, btnPrescribe, btnLogout;
     private JTextField patientField;
@@ -73,10 +72,10 @@ public class AppointmentBookingView extends JFrame {
     private JButton discardButton;
 
     /*-------------------------------------------------------------------------*/
-    /* Constructor                                                             */
+    /* Constructor */
     /*-------------------------------------------------------------------------*/
     public AppointmentBookingView() {
-        System.setProperty("awt.useSystemAAFontSettings","on");
+        System.setProperty("awt.useSystemAAFontSettings", "on");
         System.setProperty("swing.aatext", "true");
 
         setTitle("PhysicianConnect – Appointment Management");
@@ -89,7 +88,7 @@ public class AppointmentBookingView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* UI Initialization                                                       */
+    /* UI Initialization */
     /*-------------------------------------------------------------------------*/
     private void initComponents() {
         JPanel rootPanel = new JPanel(new BorderLayout());
@@ -106,7 +105,6 @@ public class AppointmentBookingView extends JFrame {
         JPanel formCardHolder = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20)); // Add some top margin
         formCardHolder.setOpaque(false);
         formCardHolder.add(formCardPanel);
-
 
         contentWrapperPanel.add(tabBarPanel, BorderLayout.NORTH);
         contentWrapperPanel.add(formCardHolder, BorderLayout.CENTER); // Add holder instead of direct card
@@ -126,13 +124,11 @@ public class AppointmentBookingView extends JFrame {
         header.setBackground(COLOR_BACKGROUND_COMPONENT);
         header.setBorder(new CompoundBorder(
                 new MatteBorder(0, 0, 1, 0, COLOR_BORDER_SUBTLE),
-                BorderFactory.createEmptyBorder(15, 20, 15, 20)
-        ));
+                BorderFactory.createEmptyBorder(15, 20, 15, 20)));
 
         String userInfoText = String.format(
                 "<html><b>Physician:</b> Dr. Eleanor Vance<br/><font color='#757575'>%s</font></html>",
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy  hh:mm a"))
-        );
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy  hh:mm a")));
         JLabel lblUserInfo = new JLabel(userInfoText);
         lblUserInfo.setFont(FONT_SUBTITLE);
         lblUserInfo.setForeground(COLOR_TEXT_PRIMARY);
@@ -161,15 +157,14 @@ public class AppointmentBookingView extends JFrame {
         tabBar.setBackground(COLOR_BACKGROUND_COMPONENT);
         tabBar.setBorder(new CompoundBorder(
                 new MatteBorder(0, 0, 1, 0, COLOR_BORDER_SUBTLE),
-                BorderFactory.createEmptyBorder(5,0,5,0)
-        ));
+                BorderFactory.createEmptyBorder(5, 0, 5, 0)));
 
         btnDashboard = createTab(ICON_DASHBOARD + " Dashboard", false);
         btnManageAppointments = createTab(ICON_MANAGE_APPTS + " Manage Appointments", true); // Active tab
         btnPatientHistory = createTab(ICON_PATIENT_HISTORY + " Patient History", false);
         btnPrescribe = createTab(ICON_PRESCRIBE + " Prescribe Medication", false);
 
-        Dimension tabSpacing = new Dimension(5,0);
+        Dimension tabSpacing = new Dimension(5, 0);
         tabBar.add(btnDashboard);
         tabBar.add(Box.createRigidArea(tabSpacing));
         tabBar.add(btnManageAppointments);
@@ -191,22 +186,27 @@ public class AppointmentBookingView extends JFrame {
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false); // Transparent as it's inside a card
-        // panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding for form content
+        // panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding
+        // for form content
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(8, 8, 8, 8); // Uniform padding
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST; // Align components to the left
 
         // Patient Name
-        c.gridx = 0; c.gridy = 0; c.weightx = 0.1; // Label column weight
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0.1; // Label column weight
         panel.add(makeLabel("Patient Name:"), c);
-        c.gridx = 1; c.weightx = 0.9; // Field column weight
+        c.gridx = 1;
+        c.weightx = 0.9; // Field column weight
         patientField = new JTextField(25); // Set preferred column width
         styleFormField(patientField);
         panel.add(patientField, c);
 
         // Reason
-        c.gridx = 0; c.gridy = 1;
+        c.gridx = 0;
+        c.gridy = 1;
         panel.add(makeLabel("Reason for Visit:"), c);
         c.gridx = 1;
         reasonField = new JTextField(25);
@@ -214,7 +214,8 @@ public class AppointmentBookingView extends JFrame {
         panel.add(reasonField, c);
 
         // Date
-        c.gridx = 0; c.gridy = 2;
+        c.gridx = 0;
+        c.gridy = 2;
         panel.add(makeLabel("Appointment Date:"), c);
         c.gridx = 1;
         dateSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
@@ -224,7 +225,9 @@ public class AppointmentBookingView extends JFrame {
         panel.add(dateSpinner, c);
 
         // Available Slots
-        c.gridx = 0; c.gridy = 3; c.gridwidth = 2;
+        c.gridx = 0;
+        c.gridy = 3;
+        c.gridwidth = 2;
         panel.add(makeLabel("Available Time Slots (suggested):"), c);
         c.gridy = 4;
         DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -241,7 +244,9 @@ public class AppointmentBookingView extends JFrame {
         panel.add(scrollPane, c);
 
         // Custom Time Selection
-        c.gridy = 5; c.gridwidth = 1; c.gridx = 0;
+        c.gridy = 5;
+        c.gridwidth = 1;
+        c.gridx = 0;
         panel.add(makeLabel("Or Select Custom Time:"), c);
         c.gridx = 1;
         JPanel timePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -265,7 +270,9 @@ public class AppointmentBookingView extends JFrame {
         panel.add(timePanel, c);
 
         // Action Buttons
-        c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
+        c.gridy = 6;
+        c.gridx = 0;
+        c.gridwidth = 2;
         c.anchor = GridBagConstraints.CENTER; // Center the button panel
         c.fill = GridBagConstraints.NONE; // Don't stretch the button panel
         c.insets = new Insets(20, 10, 10, 10); // More top padding for buttons
@@ -284,16 +291,15 @@ public class AppointmentBookingView extends JFrame {
         panel.add(buttonPanel, c);
 
         // Add a bottom filler to push content up if panel is taller
-        c.gridy = 7; c.weighty = 1.0;
+        c.gridy = 7;
+        c.weighty = 1.0;
         panel.add(Box.createGlue(), c);
-
 
         return panel;
     }
 
-
     /*-------------------------------------------------------------------------*/
-    /* UI Element Creation Helpers (aligned with PhysicianDashboardView)       */
+    /* UI Element Creation Helpers (aligned with PhysicianDashboardView) */
     /*-------------------------------------------------------------------------*/
 
     /**
@@ -320,6 +326,7 @@ public class AppointmentBookingView extends JFrame {
                 public void mouseEntered(MouseEvent e) {
                     tabButton.setBackground(COLOR_PRIMARY_ACCENT_LIGHT.brighter().brighter());
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     tabButton.setBackground(COLOR_BACKGROUND_COMPONENT);
@@ -339,15 +346,13 @@ public class AppointmentBookingView extends JFrame {
                 new FadingBottomShadowBorder(),
                 new CompoundBorder(
                         BorderFactory.createLineBorder(COLOR_BORDER_SUBTLE),
-                        BorderFactory.createEmptyBorder(20, 20, 20, 20)
-                )
-        ));
+                        BorderFactory.createEmptyBorder(20, 20, 20, 20))));
         card.setPreferredSize(new Dimension(FRAME_W * 2 / 3, FRAME_H * 2 / 3)); // Give card a preferred size
 
         JLabel lblCardTitle = new JLabel(titleText);
         lblCardTitle.setFont(FONT_CARD_TITLE);
         lblCardTitle.setForeground(COLOR_PRIMARY_ACCENT.darker());
-        lblCardTitle.setBorder(BorderFactory.createEmptyBorder(0,0,15,0)); // Space below title
+        lblCardTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0)); // Space below title
 
         card.add(lblCardTitle, BorderLayout.NORTH);
         return card;
@@ -371,15 +376,14 @@ public class AppointmentBookingView extends JFrame {
         field.setForeground(COLOR_TEXT_PRIMARY);
         field.setBackground(Color.WHITE);
         field.setBorder(new CompoundBorder(
-            BorderFactory.createLineBorder(COLOR_BORDER_SUBTLE, 1),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10) // Padding inside the field
+                BorderFactory.createLineBorder(COLOR_BORDER_SUBTLE, 1),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10) // Padding inside the field
         ));
         field.setCaretColor(COLOR_PRIMARY_ACCENT); // For better visibility
     }
 
-
     /*-------------------------------------------------------------------------*/
-    /* Button Styling Helpers (aligned with PhysicianDashboardView)            */
+    /* Button Styling Helpers (aligned with PhysicianDashboardView) */
     /*-------------------------------------------------------------------------*/
 
     private void stylePrimaryButton(JButton button) {
@@ -389,8 +393,7 @@ public class AppointmentBookingView extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(new CompoundBorder(
                 BorderFactory.createLineBorder(COLOR_PRIMARY_ACCENT.darker(), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         button.setOpaque(true);
 
@@ -401,6 +404,7 @@ public class AppointmentBookingView extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(hoverBg);
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(originalBg);
@@ -415,8 +419,7 @@ public class AppointmentBookingView extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(new CompoundBorder(
                 BorderFactory.createLineBorder(COLOR_TEXT_SECONDARY, 1), // Subtle border
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         button.setOpaque(true);
 
@@ -427,13 +430,13 @@ public class AppointmentBookingView extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(hoverBg);
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(originalBg);
             }
         });
     }
-
 
     private void styleLinkButton(JButton button, boolean usePrimaryAccent) {
         button.setFont(FONT_LINK_BUTTON);
@@ -445,7 +448,7 @@ public class AppointmentBookingView extends JFrame {
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setMargin(new Insets(5,5,5,5));
+        button.setMargin(new Insets(5, 5, 5, 5));
 
         Font originalFont = button.getFont();
         @SuppressWarnings("unchecked")
@@ -458,6 +461,7 @@ public class AppointmentBookingView extends JFrame {
                 attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
                 button.setFont(originalFont.deriveFont(attributes));
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setForeground(baseColor);
@@ -468,7 +472,7 @@ public class AppointmentBookingView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* Main Method (for standalone preview)                                    */
+    /* Main Method (for standalone preview) */
     /*-------------------------------------------------------------------------*/
     public static void main(String[] args) {
         try {
@@ -481,7 +485,8 @@ public class AppointmentBookingView extends JFrame {
 }
 
 /**
- * FadingBottomShadowBorder (Copied from PhysicianDashboardView for card styling)
+ * FadingBottomShadowBorder (Copied from PhysicianDashboardView for card
+ * styling)
  * Renders a soft, fading shadow effect primarily at the bottom of a component.
  */
 class FadingBottomShadowBorder extends AbstractBorder {
@@ -494,9 +499,10 @@ class FadingBottomShadowBorder extends AbstractBorder {
 
     @Override
     public Insets getBorderInsets(Component c) {
-        return new Insets(0,0,SHADOW_HEIGHT,0);
+        return new Insets(0, 0, SHADOW_HEIGHT, 0);
     }
-     @Override
+
+    @Override
     public Insets getBorderInsets(Component c, Insets newInsets) {
         newInsets.top = 0;
         newInsets.left = 0;
@@ -519,7 +525,8 @@ class FadingBottomShadowBorder extends AbstractBorder {
 
         for (int i = 0; i < SHADOW_HEIGHT; i++) {
             int currentAlpha = MAX_ALPHA - (i * (MAX_ALPHA / SHADOW_HEIGHT));
-            if (currentAlpha < 0) currentAlpha = 0;
+            if (currentAlpha < 0)
+                currentAlpha = 0;
 
             g2.setColor(new Color(0, 0, 0, currentAlpha));
             g2.drawLine(x + 1, shadowStartY + i, x + width - 2, shadowStartY + i);
