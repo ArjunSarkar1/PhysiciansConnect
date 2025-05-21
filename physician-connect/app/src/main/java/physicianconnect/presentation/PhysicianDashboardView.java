@@ -3,6 +3,10 @@ package physicianconnect.presentation;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import physicianconnect.logic.stub.AppointmentLogic;
+import physicianconnect.logic.stub.PhysicianLogic;
+import physicianconnect.objects.Physician;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -62,7 +66,6 @@ public class PhysicianDashboardView extends JPanel {
     private int physicianId;
     private PhysicianLogic logic = new PhysicianLogic();
     AppointmentLogic appointmentLogic = new AppointmentLogic();
-    List<Appointment> appointments = appointmentLogic.getAppointmentsForPhysician(physicianId);
     Physician physician = logic.getPhysicianById(physicianId);
 
     private Runnable onLogout;
