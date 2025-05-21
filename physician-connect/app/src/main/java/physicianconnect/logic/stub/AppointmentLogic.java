@@ -1,7 +1,13 @@
 package physicianconnect.logic.stub;
 
+<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/logic/stub/AppointmentLogic.java
+import objects.Appointment;
+import persistence.stub.AppointmentStub;
+
+=======
 import physicianconnect.persistence.stub.*;
 import physicianconnect.objects.Appointment;
+>>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/logic/stub/AppointmentLogic.java
 import java.util.*;
 
 public class AppointmentLogic {

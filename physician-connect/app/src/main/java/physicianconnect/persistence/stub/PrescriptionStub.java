@@ -1,3 +1,8 @@
+<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/PrescriptionStub.java
+package persistence.stub;
+
+import objects.Prescription;
+=======
 package physicianconnect.persistence.stub;
 
 import physicianconnect.objects.Prescription;
@@ -5,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+>>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/PrescriptionStub.java
 
 public class PrescriptionStub {
     private final Map<Integer, Prescription> prescriptions = new HashMap<>();

@@ -1,8 +1,16 @@
+<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/PhysicianStub.java
+package persistence.stub;
+
+import objects.Physician;
+
+import java.util.*;
+=======
 package physicianconnect.persistence.stub;
 import physicianconnect.objects.Physician;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+>>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/PhysicianStub.java
 
 
 public class PhysicianStub {

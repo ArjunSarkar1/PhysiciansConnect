@@ -1,4 +1,10 @@
+<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/PatientStub.java
+package persistence.stub;
+
+import objects.Patient;
+=======
 package physicianconnect.persistence.stub;
+>>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/PatientStub.java
 
 import physicianconnect.objects.Patient;
 import java.util.Collections;

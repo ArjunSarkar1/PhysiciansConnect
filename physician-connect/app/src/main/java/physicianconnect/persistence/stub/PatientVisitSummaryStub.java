@@ -1,4 +1,5 @@
-package physicianconnect.persistence.stub;
+package persistence.stub;
+
 
 import physicianconnect.objects.PatientVisitSummary;
 import java.util.Collections;
