@@ -1,5 +1,9 @@
 import javax.swing.*;
 import javax.swing.border.*;
+
+import logic.stub.PhysicianLogic;
+import objects.Physician;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -7,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.awt.font.TextAttribute;
-
 
 /**
  * PhysicianDashboardView
@@ -21,19 +24,20 @@ import java.awt.font.TextAttribute;
 public class PhysicianDashboardView extends JFrame {
 
     /*-------------------------------------------------------------------------*/
-    /* Constants                                                               */
+    /* Constants */
     /*-------------------------------------------------------------------------*/
     private static final int FRAME_W = 1300;
     private static final int FRAME_H = 800;
 
     // Palette
-    private static final Color COLOR_PRIMARY_ACCENT = new Color(0x1976D2); // Deep Blue 
+    private static final Color COLOR_PRIMARY_ACCENT = new Color(0x1976D2); // Deep Blue
     private static final Color COLOR_PRIMARY_ACCENT_LIGHT = new Color(0x63A4FF); // Lighter blue for hover/highlights
     private static final Color COLOR_BACKGROUND_MAIN = new Color(0xF5F5F5); // Light Gray (overall background)
-    private static final Color COLOR_BACKGROUND_COMPONENT = Color.WHITE;     // Cards, pop-ups
-    private static final Color COLOR_TEXT_PRIMARY = new Color(0x212121);      // Dark Gray (for main text)
-    private static final Color COLOR_TEXT_SECONDARY = new Color(0x757575);    // Medium Gray (for subtitles, secondary info)
-    private static final Color COLOR_BORDER_SUBTLE = new Color(0xE0E0E0);      // Even lighter gray
+    private static final Color COLOR_BACKGROUND_COMPONENT = Color.WHITE; // Cards, pop-ups
+    private static final Color COLOR_TEXT_PRIMARY = new Color(0x212121); // Dark Gray (for main text)
+    private static final Color COLOR_TEXT_SECONDARY = new Color(0x757575); // Medium Gray (for subtitles, secondary
+                                                                           // info)
+    private static final Color COLOR_BORDER_SUBTLE = new Color(0xE0E0E0); // Even lighter gray
 
     // Fonts (Using logical SansSerif for portability)
     private static final String FONT_FAMILY = Font.SANS_SERIF;
@@ -55,17 +59,21 @@ public class PhysicianDashboardView extends JFrame {
     private static final String ICON_PATIENT_HISTORY = "📜";
     private static final String ICON_PRESCRIBE = "℞";
 
-
     /*-------------------------------------------------------------------------*/
-    /* Fields                                                                  */
+    /* Fields */
     /*-------------------------------------------------------------------------*/
     private JButton btnDashboard, btnManage, btnHistory, btnPrescribe, btnLogout;
+    private int physicianId;
+    private PhysicianLogic logic = new PhysicianLogic();
 
     /*-------------------------------------------------------------------------*/
-    /* Constructor                                                             */
+    /* Constructor */
     /*-------------------------------------------------------------------------*/
-    public PhysicianDashboardView() {
-        System.setProperty("awt.useSystemAAFontSettings","on");
+    public PhysicianDashboardView(int physicianId) {
+
+        this.physicianId = physicianId;
+
+        System.setProperty("awt.useSystemAAFontSettings", "on");
         System.setProperty("swing.aatext", "true");
 
         setTitle("PhysicianConnect – Dashboard");
@@ -78,7 +86,7 @@ public class PhysicianDashboardView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* UI Initialization                                                       */
+    /* UI Initialization */
     /*-------------------------------------------------------------------------*/
 
     /**
@@ -100,7 +108,6 @@ public class PhysicianDashboardView extends JFrame {
         // Adding some overall padding around the content area (tabs + split pane)
         contentWrapperPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
-
         rootPanel.add(headerPanel, BorderLayout.NORTH);
         rootPanel.add(contentWrapperPanel, BorderLayout.CENTER);
 
@@ -119,10 +126,14 @@ public class PhysicianDashboardView extends JFrame {
         ));
 
         // Left: Physician info + date/time
+        Physician physician = logic.getPhysicianById(physicianId);
+        String fullName = physician.getFirstName() + " " + physician.getLastName();
+
         String userInfoText = String.format(
-                "<html><b>Physician:</b> Dr. Eleanor Vance<br/><font color='#757575'>%s</font></html>", // Using secondary text color
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy  hh:mm a"))
-        );
+                "<html><b>Physician:</b> Dr. %s<br/><font color='#757575'>%s</font></html>",
+                fullName,
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy  hh:mm a")));
+
         JLabel lblUserInfo = new JLabel(userInfoText);
         lblUserInfo.setFont(FONT_SUBTITLE);
         lblUserInfo.setForeground(COLOR_TEXT_PRIMARY);
@@ -153,9 +164,8 @@ public class PhysicianDashboardView extends JFrame {
         tabBar.setBackground(COLOR_BACKGROUND_COMPONENT);
         tabBar.setBorder(new CompoundBorder(
                 new MatteBorder(0, 0, 1, 0, COLOR_BORDER_SUBTLE),
-                BorderFactory.createEmptyBorder(5,0,5,0) // Vertical padding for tabs
+                BorderFactory.createEmptyBorder(5, 0, 5, 0) // Vertical padding for tabs
         ));
-
 
         btnDashboard = createTab(ICON_DASHBOARD + " Dashboard", true);
         btnManage = createTab(ICON_MANAGE_APPTS + " Manage Appointments", false);
@@ -163,7 +173,7 @@ public class PhysicianDashboardView extends JFrame {
         btnPrescribe = createTab(ICON_PRESCRIBE + " Prescribe Medication", false);
 
         // Add some spacing between tabs if not handled by button margins
-        Dimension tabSpacing = new Dimension(5,0);
+        Dimension tabSpacing = new Dimension(5, 0);
         tabBar.add(btnDashboard);
         tabBar.add(Box.createRigidArea(tabSpacing));
         tabBar.add(btnManage);
@@ -185,7 +195,7 @@ public class PhysicianDashboardView extends JFrame {
      */
     private JSplitPane createMainContentSplitPane() {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(FRAME_W * 2 / 3 - 50); 
+        splitPane.setDividerLocation(FRAME_W * 2 / 3 - 50);
         splitPane.setDividerSize(8); // Make divider more visible/grabbable
         splitPane.setBorder(null); // No border for the split pane itself
         splitPane.setContinuousLayout(true);
@@ -196,16 +206,19 @@ public class PhysicianDashboardView extends JFrame {
         JPanel appointmentsListPanel = new JPanel();
         appointmentsListPanel.setLayout(new BoxLayout(appointmentsListPanel, BoxLayout.Y_AXIS));
         appointmentsListPanel.setOpaque(false); // Transparent background for the list itself
-        appointmentsListPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,0)); // Padding for the list
+        appointmentsListPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Padding for the list
 
-        appointmentsListPanel.add(createAppointmentEntry("Alice Smith", "21 Jul 2025 • 10:30 – 12:00", "Cataract Surgery Follow-up"));
+        appointmentsListPanel.add(
+                createAppointmentEntry("Alice Smith", "21 Jul 2025 • 10:30 – 12:00", "Cataract Surgery Follow-up"));
         appointmentsListPanel.add(Box.createVerticalStrut(15));
-        appointmentsListPanel.add(createAppointmentEntry("Bob Johnson", "21 Jul 2025 • 12:30 – 14:00", "Annual Physical Examination"));
+        appointmentsListPanel.add(
+                createAppointmentEntry("Bob Johnson", "21 Jul 2025 • 12:30 – 14:00", "Annual Physical Examination"));
         appointmentsListPanel.add(Box.createVerticalStrut(15));
-        appointmentsListPanel.add(createAppointmentEntry("Charlie Lee", "22 Jul 2025 • 09:00 – 10:00", "General Consultation - Flu Symptoms"));
+        appointmentsListPanel.add(createAppointmentEntry("Charlie Lee", "22 Jul 2025 • 09:00 – 10:00",
+                "General Consultation - Flu Symptoms"));
         appointmentsListPanel.add(Box.createVerticalStrut(15));
-        appointmentsListPanel.add(createAppointmentEntry("Diana Ross", "22 Jul 2025 • 11:00 – 11:30", "Prescription Refill Request"));
-
+        appointmentsListPanel.add(
+                createAppointmentEntry("Diana Ross", "22 Jul 2025 • 11:00 – 11:30", "Prescription Refill Request"));
 
         JScrollPane appointmentsScrollPane = new JScrollPane(appointmentsListPanel);
         appointmentsScrollPane.setBorder(null); // No border for scroll pane
@@ -219,8 +232,7 @@ public class PhysicianDashboardView extends JFrame {
         JPanel availabilityListPanel = new JPanel();
         availabilityListPanel.setLayout(new BoxLayout(availabilityListPanel, BoxLayout.Y_AXIS));
         availabilityListPanel.setOpaque(false);
-        availabilityListPanel.setBorder(BorderFactory.createEmptyBorder(10,5,10,5));
-
+        availabilityListPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
 
         String[] availabilityDays = {
                 "Monday    • 09:00 – 17:00",
@@ -243,7 +255,8 @@ public class PhysicianDashboardView extends JFrame {
             availabilityListPanel.add(lblDay);
             availabilityListPanel.add(Box.createVerticalStrut(10));
         }
-        availabilityCard.add(new JScrollPane(availabilityListPanel), BorderLayout.CENTER); // Make it scrollable if many items
+        availabilityCard.add(new JScrollPane(availabilityListPanel), BorderLayout.CENTER); // Make it scrollable if many
+                                                                                           // items
 
         JButton btnChangeAvailability = new JButton("Change Availability");
         stylePrimaryButton(btnChangeAvailability);
@@ -258,16 +271,14 @@ public class PhysicianDashboardView extends JFrame {
         splitPane.setRightComponent(availabilityCard);
 
         // Set background of splitpane components to be transparent so root shows
-        ((JPanel)splitPane.getLeftComponent()).setOpaque(false);
-        ((JPanel)splitPane.getRightComponent()).setOpaque(false);
-
+        ((JPanel) splitPane.getLeftComponent()).setOpaque(false);
+        ((JPanel) splitPane.getRightComponent()).setOpaque(false);
 
         return splitPane;
     }
 
-
     /*-------------------------------------------------------------------------*/
-    /* UI Element Creation Helpers                                             */
+    /* UI Element Creation Helpers */
     /*-------------------------------------------------------------------------*/
 
     /**
@@ -295,6 +306,7 @@ public class PhysicianDashboardView extends JFrame {
                 public void mouseEntered(MouseEvent e) {
                     tabButton.setBackground(COLOR_PRIMARY_ACCENT_LIGHT.brighter().brighter()); // Very light blue/gray
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     tabButton.setBackground(COLOR_BACKGROUND_COMPONENT);
@@ -316,13 +328,12 @@ public class PhysicianDashboardView extends JFrame {
                 new CompoundBorder(
                         BorderFactory.createLineBorder(COLOR_BORDER_SUBTLE), // Subtle line border
                         BorderFactory.createEmptyBorder(20, 20, 20, 20) // Inner padding
-                )
-        ));
+                )));
 
         JLabel lblCardTitle = new JLabel(titleText);
         lblCardTitle.setFont(FONT_CARD_TITLE);
         lblCardTitle.setForeground(COLOR_PRIMARY_ACCENT.darker());
-        lblCardTitle.setBorder(BorderFactory.createEmptyBorder(0,0,10,0)); // Space below title
+        lblCardTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // Space below title
 
         card.add(lblCardTitle, BorderLayout.NORTH);
         return card;
@@ -335,10 +346,9 @@ public class PhysicianDashboardView extends JFrame {
         JPanel entryPanel = new JPanel(new BorderLayout(15, 0)); // Add horizontal gap
         entryPanel.setOpaque(false); // Transparent background
         entryPanel.setBorder(new CompoundBorder(
-            BorderFactory.createMatteBorder(0,0,1,0, COLOR_BORDER_SUBTLE), // Bottom separator line
-            BorderFactory.createEmptyBorder(10, 10, 10, 10)) // Padding
+                BorderFactory.createMatteBorder(0, 0, 1, 0, COLOR_BORDER_SUBTLE), // Bottom separator line
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)) // Padding
         );
-
 
         // Info Panel (Patient Name, Time, Reason)
         JPanel infoPanel = new JPanel();
@@ -382,7 +392,7 @@ public class PhysicianDashboardView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* Button Styling Helpers                                                  */
+    /* Button Styling Helpers */
     /*-------------------------------------------------------------------------*/
 
     /**
@@ -409,6 +419,7 @@ public class PhysicianDashboardView extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(hoverBg);
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(originalBg);
@@ -429,13 +440,12 @@ public class PhysicianDashboardView extends JFrame {
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setMargin(new Insets(5,5,5,5)); 
+        button.setMargin(new Insets(5, 5, 5, 5));
 
         // Store original font for underline toggling
         Font originalFont = button.getFont();
         @SuppressWarnings("unchecked")
         Map<TextAttribute, Object> attributes = (Map<TextAttribute, Object>) originalFont.getAttributes();
-
 
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -455,7 +465,7 @@ public class PhysicianDashboardView extends JFrame {
     }
 
     /*-------------------------------------------------------------------------*/
-    /* Main Method                                                             */
+    /* Main Method */
     /*-------------------------------------------------------------------------*/
     public static void main(String[] args) {
         // Apply a modern Look and Feel if available
@@ -464,7 +474,9 @@ public class PhysicianDashboardView extends JFrame {
         } catch (Exception e) {
             System.err.println("Failed to set System Look and Feel: " + e.getMessage());
         }
-        SwingUtilities.invokeLater(() -> new PhysicianDashboardView().setVisible(true));
+        // TODO: Physicians would be able to sign in, we get their id from backend and
+        // pass to this constructor
+        SwingUtilities.invokeLater(() -> new PhysicianDashboardView(0).setVisible(true));
     }
 }
 
@@ -475,17 +487,19 @@ public class PhysicianDashboardView extends JFrame {
  * This border provides its own insets for the shadow space.
  */
 class FadingBottomShadowBorder extends AbstractBorder {
-    private static final int SHADOW_HEIGHT = 6; 
-    private static final int MAX_ALPHA = 45;   
+    private static final int SHADOW_HEIGHT = 6;
+    private static final int MAX_ALPHA = 45;
+
     public FadingBottomShadowBorder() {
         new Insets(1, 1, SHADOW_HEIGHT + 1, SHADOW_HEIGHT + 1);
     }
 
     @Override
     public Insets getBorderInsets(Component c) {
-        return new Insets(0,0,SHADOW_HEIGHT,0); // Only bottom space for shadow
+        return new Insets(0, 0, SHADOW_HEIGHT, 0); // Only bottom space for shadow
     }
-     @Override
+
+    @Override
     public Insets getBorderInsets(Component c, Insets newInsets) {
         newInsets.top = 0;
         newInsets.left = 0;
@@ -510,8 +524,10 @@ class FadingBottomShadowBorder extends AbstractBorder {
         for (int i = 0; i < SHADOW_HEIGHT; i++) {
             // Alpha decreases as we move away (downwards) from the component's edge
             int currentAlpha = MAX_ALPHA - (i * (MAX_ALPHA / SHADOW_HEIGHT));
-            if (currentAlpha < 0) currentAlpha = 0;
-            if (currentAlpha > 255) currentAlpha = 255; // Should not happen with MAX_ALPHA <= 255
+            if (currentAlpha < 0)
+                currentAlpha = 0;
+            if (currentAlpha > 255)
+                currentAlpha = 255; // Should not happen with MAX_ALPHA <= 255
 
             g2.setColor(new Color(0, 0, 0, currentAlpha));
             // Draw a horizontal line for the shadow.
