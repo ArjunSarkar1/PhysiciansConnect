@@ -127,7 +127,6 @@ public class PhysicianDashboardView extends JFrame {
 
         // Left: Physician info + date/time
         Physician physician = logic.getPhysicianById(physicianId);
-        physician = new Physician(1, "Bob", "Kolre", "bob@gmail.com", 25);
         String fullName = physician.getFirstName() + " " + physician.getLastName();
 
         String userInfoText = String.format(
@@ -477,7 +476,7 @@ public class PhysicianDashboardView extends JFrame {
         }
         // TODO: Physicians would be able to sign in, we get their id from backend and
         // pass to this constructor
-        SwingUtilities.invokeLater(() -> new PhysicianDashboardView(0).setVisible(true));
+        SwingUtilities.invokeLater(() -> new PhysicianDashboardView(1).setVisible(true));
     }
 }
 
