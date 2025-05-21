@@ -1,13 +1,7 @@
 package physicianconnect.logic.stub;
 
-<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/logic/stub/MedicalHistoryLogic.java
-import objects.MedicalHistory;
-import persistence.stub.MedicalHistoryStub;
-
-=======
 import physicianconnect.persistence.stub.*;
 import physicianconnect.objects.MedicalHistory;
->>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/logic/stub/MedicalHistoryLogic.java
 import java.util.*;
 
 public class MedicalHistoryLogic {

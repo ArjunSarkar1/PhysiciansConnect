@@ -1,16 +1,9 @@
-<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/AppointmentStub.java
-package persistence.stub;
-
-import objects.Appointment;
-
-import java.util.*;
-=======
 package physicianconnect.persistence.stub;
+
 import physicianconnect.objects.Appointment;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
->>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/AppointmentStub.java
 
 public class AppointmentStub {
     private final Map<Integer, Appointment> appointments = new HashMap<>();

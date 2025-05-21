@@ -1,10 +1,4 @@
-<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/PatientStub.java
-package persistence.stub;
-
-import objects.Patient;
-=======
 package physicianconnect.persistence.stub;
->>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/PatientStub.java
 
 import physicianconnect.objects.Patient;
 import java.util.Collections;
@@ -52,15 +46,16 @@ public class PatientStub {
         return updatedPatient;
     }
 
-    public Patient deletePatient(int patientId){
+    public Patient deletePatient(int patientId) {
         Patient toDelete = patients.get(patientId);
         Patient result = null;
-        if(toDelete != null){
+        if (toDelete != null) {
             result = createCopy(toDelete.getUserId(), toDelete);
             this.patients.remove(patientId);
         }
         return result;
     }
+
     private Patient createCopy(int copyId, Patient toCopy) {
         return new Patient(
                 copyId,

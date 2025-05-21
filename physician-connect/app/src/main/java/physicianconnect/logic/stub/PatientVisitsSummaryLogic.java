@@ -1,15 +1,10 @@
-package logic.stub;
+package physicianconnect.logic.stub;
 
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/logic/stub/PatientVisitsSummaryLogic.java
-import objects.PatientVisitSummary;
-import persistence.stub.PatientVisitSummaryStub;
-=======
 import physicianconnect.objects.PatientVisitSummary;
 import physicianconnect.persistence.stub.PatientVisitSummaryStub;
->>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/logic/stub/PatientVisitsSummaryLogic.java
 
 public class PatientVisitsSummaryLogic {
     private static final Logger LOGGER = Logger.getLogger(PatientVisitsSummaryLogic.class.getName());

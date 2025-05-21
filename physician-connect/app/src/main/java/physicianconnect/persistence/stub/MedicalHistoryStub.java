@@ -1,11 +1,6 @@
-<<<<<<< HEAD:physician-connect/src/main/java/physicianconnect/persistence/Stub/MedicalHistoryStub.java
-package persistence.stub;
-
-import objects.MedicalHistory;
-=======
 package physicianconnect.persistence.stub;
+
 import physicianconnect.objects.MedicalHistory;
->>>>>>> 757cf7da1123155a4a972bfd438e6ec544ce05bd:physician-connect/app/src/main/java/physicianconnect/persistence/stub/MedicalHistoryStub.java
 
 import java.util.Collections;
 import java.util.HashMap;
