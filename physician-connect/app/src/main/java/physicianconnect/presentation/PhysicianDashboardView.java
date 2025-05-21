@@ -61,6 +61,8 @@ public class PhysicianDashboardView extends JPanel {
 
     private int physicianId;
     private PhysicianLogic logic = new PhysicianLogic();
+    AppointmentLogic appointmentLogic = new AppointmentLogic();
+    List<Appointment> appointments = appointmentLogic.getAppointmentsForPhysician(physicianId);
     Physician physician = logic.getPhysicianById(physicianId);
 
     private Runnable onLogout;

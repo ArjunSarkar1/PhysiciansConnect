@@ -6,7 +6,8 @@ import java.awt.*;
 /**
  * AppFrame
  *
- * Hosts the LoginView and the main application panel (PhysicianDashboardView) in a CardLayout.
+ * Hosts the LoginView and the main application panel (PhysicianDashboardView)
+ * in a CardLayout.
  * Passes callbacks for navigation.
  */
 public class AppFrame extends JFrame {
@@ -14,19 +15,19 @@ public class AppFrame extends JFrame {
     private static final String LOGIN_CARD = "login";
     private static final String MAIN_APP_CARD = "main_app";
     // Using constants from PhysicianDashboardView for consistent sizing
-    private static final int FRAME_WIDTH = PhysicianDashboardView.FRAME_W; 
+    private static final int FRAME_WIDTH = PhysicianDashboardView.FRAME_W;
     private static final int FRAME_HEIGHT = PhysicianDashboardView.FRAME_H;
-
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cards = new JPanel(cardLayout);
 
     private LoginView loginPanel;
-    private PhysicianDashboardView mainApplicationPanel; 
+    private PhysicianDashboardView mainApplicationPanel;
 
     public AppFrame() {
         super("PhysicianConnect");
-        // It's good practice to set UIManager properties early, e.g., in App.java or here.
+        // It's good practice to set UIManager properties early, e.g., in App.java or
+        // here.
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             System.setProperty("awt.useSystemAAFontSettings", "on");
@@ -34,10 +35,10 @@ public class AppFrame extends JFrame {
         } catch (Exception e) {
             System.err.println("Failed to set Look and Feel or System Properties: " + e.getMessage());
         }
-        
+
         initializeFrame();
         initializeComponents();
-        showLoginCard(); 
+        showLoginCard();
     }
 
     private void initializeFrame() {
@@ -48,7 +49,7 @@ public class AppFrame extends JFrame {
     }
 
     private void initializeComponents() {
-        loginPanel = new LoginView(this::showMainApplicationScreen); 
+        loginPanel = new LoginView(this::showMainApplicationScreen);
         cards.add(loginPanel, LOGIN_CARD);
         setContentPane(cards);
     }
@@ -56,19 +57,20 @@ public class AppFrame extends JFrame {
     private void showLoginCard() {
         if (mainApplicationPanel != null) {
             cards.remove(mainApplicationPanel);
-            mainApplicationPanel = null; 
+            mainApplicationPanel = null;
         }
         cardLayout.show(cards, LOGIN_CARD);
         // Optional: resize frame back to login size if it's different
-        // setSize(LoginView.FRAME_WIDTH, LoginView.FRAME_HEIGHT); // If LoginView had its own dimensions
+        // setSize(LoginView.FRAME_WIDTH, LoginView.FRAME_HEIGHT); // If LoginView had
+        // its own dimensions
         // setLocationRelativeTo(null);
     }
 
     private void showMainApplicationScreen() {
         // In a real app, physicianId would come from the login process.
-        int physicianId = 0; // Default/Placeholder
-        mainApplicationPanel = new PhysicianDashboardView(physicianId, this::showLoginCard); 
-        
+        int physicianId = 1; // Default/Placeholder
+        mainApplicationPanel = new PhysicianDashboardView(physicianId, this::showLoginCard);
+
         cards.add(mainApplicationPanel, MAIN_APP_CARD);
         // Ensure frame is sized for the main application
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
