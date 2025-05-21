@@ -6,12 +6,14 @@ import java.awt.*;
 /**
  * LoginPanel
  *
- * This view provides a user interface for logging in to the PhysicianConnect system.
- * It includes email and password fields, with options to register or reset a forgotten password
+ * This view provides a user interface for logging in to the PhysicianConnect
+ * system.
+ * It includes email and password fields, with options to register or reset a
+ * forgotten password
  */
 public class LoginView extends JPanel {
 
-    // Constants 
+    // Constants
 
     private static final Color BACKGROUND_COLOR = new Color(245, 248, 255);
     private static final Color PANEL_COLOR = Color.WHITE;
@@ -41,11 +43,10 @@ public class LoginView extends JPanel {
         // setLocationRelativeTo(null); // center on screen
         // setResizable(false);
 
-
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND_COLOR);
 
-        initializeComponents(onDashboard); 
+        initializeComponents(onDashboard);
     }
 
     /**
@@ -59,8 +60,7 @@ public class LoginView extends JPanel {
         formPanel.setBackground(PANEL_COLOR);
         formPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER_COLOR),
-                BorderFactory.createEmptyBorder(50, 70, 50, 70)
-        ));
+                BorderFactory.createEmptyBorder(50, 70, 50, 70)));
 
         // Title
         JLabel titleLabel = new JLabel("PHYSICIAN CONNECT");
@@ -100,7 +100,7 @@ public class LoginView extends JPanel {
         loginButton = new JButton("LOGIN");
         loginButton.setFont(BUTTON_FONT);
         loginButton.setBackground(PRIMARY_COLOR);
-        loginButton.setForeground(Color.WHITE); // NEW: Set text color to white
+        loginButton.setForeground(Color.BLACK); // NEW: Set text color to white
         loginButton.setFocusPainted(false);
         loginButton.setPreferredSize(new Dimension(160, 45));
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -112,7 +112,7 @@ public class LoginView extends JPanel {
         dashButton = new JButton("Go to Dashboard"); // NEW: bypass login functionality
         dashButton.setFont(BUTTON_FONT);
         dashButton.setBackground(Color.GRAY);
-        dashButton.setForeground(Color.WHITE);
+        dashButton.setForeground(Color.BLACK);
         dashButton.setFocusPainted(false);
         dashButton.setPreferredSize(new Dimension(160, 45));
         dashButton.setAlignmentX(Component.CENTER_ALIGNMENT);
