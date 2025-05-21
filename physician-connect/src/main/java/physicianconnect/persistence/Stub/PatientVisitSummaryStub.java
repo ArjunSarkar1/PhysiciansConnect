@@ -1,8 +1,9 @@
-package stub;
+package persistence.stub;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import objects.PatientVisitSummary;
-
-import java.util.*;
 
 public class PatientVisitSummaryStub {
     private final Map<Integer, PatientVisitSummary> visitSummaries = new HashMap<>();

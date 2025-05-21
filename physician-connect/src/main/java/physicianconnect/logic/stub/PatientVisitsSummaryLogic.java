@@ -3,7 +3,7 @@ package logic.stub;
 import java.util.Map;
 import java.util.logging.Logger;
 import objects.PatientVisitSummary;
-import stub.PatientVisitSummaryStub;
+import persistence.stub.PatientVisitSummaryStub;
 import java.util.logging.Level;
 
 public class PatientVisitsSummaryLogic {

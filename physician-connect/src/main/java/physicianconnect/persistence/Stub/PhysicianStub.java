@@ -1,5 +1,8 @@
+package persistence.stub;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import objects.Physician;
 
 public class PhysicianStub {

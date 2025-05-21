@@ -1,8 +1,8 @@
 package logic.stub;
 
-import stub.PrescriptionStub;
+import persistence.stub.PrescriptionStub;
 import objects.Prescription;
-import java.util.*;
+import java.util.Map;
 
 public class PrescriptionLogic {
     private static final PrescriptionStub tempDB = PrescriptionStub.getInstance();

@@ -1,8 +1,8 @@
 package logic.stub;
 
-import stub.PhysicianStub;
+import persistence.stub.PhysicianStub;
 import objects.Physician;
-import java.util.*;
+import java.util.Map;
 
 public class PhysicianLogic {
 

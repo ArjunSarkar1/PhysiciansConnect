@@ -1,8 +1,8 @@
 package logic.stub;
 
-import stub.*;
+import persistence.stub.AppointmentStub;
 import objects.Appointment;
-import java.util.*;
+import java.util.Map;
 
 public class AppointmentLogic {
     private static final AppointmentStub tempDB = AppointmentStub.getInstance();

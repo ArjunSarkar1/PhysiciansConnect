@@ -1,8 +1,8 @@
 package logic.stub;
 
-import stub.PatientStub;
+import persistence.stub.PatientStub;
 import objects.Patient;
-import java.util.*;
+import java.util.Map;
 
 public class PatientLogic {
     private static final PatientStub tempDB = PatientStub.getInstance();

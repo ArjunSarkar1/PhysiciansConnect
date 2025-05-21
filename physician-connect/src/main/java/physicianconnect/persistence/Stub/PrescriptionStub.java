@@ -1,6 +1,9 @@
-import objects.Prescription;
+package persistence.stub;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import objects.Prescription;
 
 public class PrescriptionStub {
     private final Map<Integer, Prescription> prescriptions = new HashMap<>();
