@@ -8,6 +8,7 @@ import physicianconnect.objects.PatientVisitSummary;
 import physicianconnect.persistence.stub.PatientVisitSummaryStub;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class PatientVisitSummaryStubTest {
@@ -30,14 +31,14 @@ public class PatientVisitSummaryStubTest {
             "Regular checkup",
             "Good experience",
             "Dr. Sarah Johnson", // referralName
-            "Amoxicillin 500mg" // prescribedMedications
+            new ArrayList<>() // prescriptionList
         );
     }
 
     @Test
     public void testGetPatientVisitSummary_ValidId() {
         // Add a visit summary first
-        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
+        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
         
         // Test getting the visit summary
@@ -57,8 +58,8 @@ public class PatientVisitSummaryStubTest {
     @Test
     public void testGetAllVisitSummaries() {
         // Add multiple visit summaries
-        PatientVisitSummary summary1 = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
-        PatientVisitSummary summary2 = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
+        PatientVisitSummary summary1 = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
+        PatientVisitSummary summary2 = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
         
         Map<Integer, PatientVisitSummary> allSummaries = visitSummaryStub.getAllVisitSummaries();
         assertNotNull("All visit summaries map should not be null", allSummaries);
@@ -67,7 +68,7 @@ public class PatientVisitSummaryStubTest {
 
     @Test
     public void testAddPatientVisitSummary_Valid() {
-        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
+        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
         assertTrue("Visit ID should be positive", added.getVisitId() > 0);
         assertEquals("Reason for visit should match", "Regular checkup", added.getReasonForVisit());
@@ -76,19 +77,29 @@ public class PatientVisitSummaryStubTest {
 
     @Test
     public void testAddPatientVisitSummary_Null() {
-        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummaryy(null);
+        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummary(null);
         assertNull("Added visit summary should be null for null input", added);
     }
 
     @Test
     public void testUpdatePatientVisitSummary_Valid() {
         // Add a visit summary first
-        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
+        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
         
         // Update the visit summary
-        added.setPatientFeedback("Excellent experience");
-        PatientVisitSummary updated = visitSummaryStub.updatePatientVisitSummary(added);
+        PatientVisitSummary updatedSummary = new PatientVisitSummary(
+            added.getVisitId(),
+            added.getVisitDateTime(),
+            added.getPhysicianName(),
+            added.getOfficeId(),
+            added.getDurationMins(),
+            added.getReasonForVisit(),
+            "Excellent experience", // Updated patient feedback
+            added.getReferralName(),
+            added.getPrescribedMedications()
+        );
+        PatientVisitSummary updated = visitSummaryStub.updatePatientVisitSummary(updatedSummary);
         assertNotNull("Updated visit summary should not be null", updated);
         assertEquals("Patient feedback should be updated", "Excellent experience", updated.getPatientFeedback());
     }
@@ -102,7 +113,7 @@ public class PatientVisitSummaryStubTest {
     @Test
     public void testDeletePatientVisitSummary_Valid() {
         // Add a visit summary first
-        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummaryy(testVisitSummary);
+        PatientVisitSummary added = visitSummaryStub.addPatientVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
         
         // Delete the visit summary

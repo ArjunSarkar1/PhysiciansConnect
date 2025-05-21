@@ -6,6 +6,8 @@ import org.junit.Test;
 import physicianconnect.logic.stub.PatientLogic;
 import physicianconnect.objects.Patient;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PatientLogicTest {
     private PatientLogic patientLogic;
@@ -21,9 +23,9 @@ public class PatientLogicTest {
                 "John",
                 "Doe",
                 "john.doe@example.com",
-                "password123",
                 "123456789",
                 "PHIN123456",
+                new ArrayList<>(),
                 null // medical history will be added later
         );
     }

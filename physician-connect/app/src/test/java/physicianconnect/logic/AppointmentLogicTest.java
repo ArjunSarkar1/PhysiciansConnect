@@ -23,7 +23,7 @@ public class AppointmentLogicTest {
         testPhysician = new Physician(1, "John", "Doe", "john.doe@example.com", 123);
 
         // Create test patient
-        testPatient = new Patient(1, "Jane", "Smith", "jane.smith@example.com", "password123");
+        testPatient = new Patient(1, "Jane", "Smith", "jane.smith@example.com", "password123","PHIN123456", null, null);
 
         // Create test appointment
         testAppointment = new Appointment(
@@ -35,8 +35,8 @@ public class AppointmentLogicTest {
                 "Regular checkup",
                 "No special notes",
                 "No feedback yet",
-                "No referral",
-                "PENDING");
+                null, // referral
+                AppointmentStatus.PENDING);
     }
 
     @Test

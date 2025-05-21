@@ -5,21 +5,21 @@ import org.junit.Before;
 import org.junit.Test;
 import physicianconnect.logic.stub.PrescriptionLogic;
 import physicianconnect.objects.Prescription;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Map;
 
 public class PrescriptionLogicTest {
     private PrescriptionLogic prescriptionLogic;
     private Prescription testPrescription;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @Before
     public void setUp() {
         prescriptionLogic = new PrescriptionLogic();
 
         // Create test dates
-        startDate = LocalDateTime.now();
+        startDate = LocalDate.now();
         endDate = startDate.plusMonths(1);
 
         // Create test prescription
