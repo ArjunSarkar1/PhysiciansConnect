@@ -1,68 +1,67 @@
-package stub;
 import objects.Patient;
 
 import java.util.*;
- 
-public class PatientStub{
+
+public class PatientStub {
     private final Map<Integer, Patient> patients = new HashMap<>();
     private int patientId = 1;
 
     private static final PatientStub instance = new PatientStub();
- 
-    
-    private PatientStub(){}
- 
-    public static PatientStub getInstance(){
+
+    private PatientStub() {
+    }
+
+    public static PatientStub getInstance() {
         return instance;
     }
- 
-    public Patient getPatient(int patientId){
+
+    public Patient getPatient(int patientId) {
         Patient toReturn = this.patients.get(patientId);
-        Pa tient result = nul l;
-        if(toReturn != null){
+        Patient result = null;
+        if (toReturn != null) {
             result = createCopy(toReturn.getUserId(), toReturn);
         }
         return result;
     }
- 
-    public Map<Integer, Patient> getAllPatients(){
+
+    public Map<Integer, Patient> getAllPatients() {
         return Collections.unmodifiableMap(this.patients);
     }
- 
-    public Patient addPatient(Patient patient){
+
+    public Patient addPatient(Patient patient) {
         Patient toAdd = createCopy(this.patientId++, patient);
         this.patients.put(toAdd.getUserId(), toAdd);
         return toAdd;
     }
- 
-    public Patient updatePatient(Patient toUpdate){
-        Pa tent updatedPatient = null; 
-        if( patients.containsKey(toUpdate.getUserId())){
+
+    public Patient updatePatient(Patient toUpdate) {
+        Patient updatedPatient = null;
+        if (patients.containsKey(toUpdate.getUserId())) {
             updatedPatient = createCopy(toUpdate.getUserId(), toUpdate);
             patients.put(updatedPatient.getUserId(), updatedPatient);
         }
         return updatedPatient;
     }
- 
-    public Patient deletePatient(int patientId){
+
+    public Patient deletePatient(int patientId) {
         Patient toDelete = patients.get(patientId);
-        Pa tient result = nul l;
-        if(toDelete != null){
+        Patient result = null;
+        if (toDelete != null) {
             result = createCopy(toDelete.getUserId(), toDelete);
             this.patients.remove(patientId);
         }
-     
+        return result;
+    }
 
-     
-    private Patient createC
-                rn new 
+    private Patient createCopy(int copyId, Patient toCopy) {
+        return new Patient(
                 copyId,
-                toCopy.getFirstName()
-                toCopy.getLastName
-                toCopy.getEmail(
+                toCopy.getFirstName(),
+                toCopy.getLastName(),
+                toCopy.getEmail(),
                 toCopy.getSIN(),
-                toCop
-                null,    toCopy.getMedicalHistory()
-        );
- 
-
+                toCopy.getPHIN(),
+                null,
+                toCopy.getMedicalHistory());
+    }
+}
