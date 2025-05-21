@@ -1,8 +1,10 @@
 package physicianconnect.persistence.stub;
 
 import physicianconnect.objects.Prescription;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.*;
 
 public class PrescriptionStub {
     private final Map<Integer, Prescription> prescriptions = new HashMap<>();

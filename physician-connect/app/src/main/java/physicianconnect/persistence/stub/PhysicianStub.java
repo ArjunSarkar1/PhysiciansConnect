@@ -1,7 +1,8 @@
 package physicianconnect.persistence.stub;
 import physicianconnect.objects.Physician;
-import java.util.*;
-
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class PhysicianStub {

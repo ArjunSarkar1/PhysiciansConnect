@@ -38,6 +38,19 @@ application {
 
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['app/src/main/java/physicianconnect']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['app/src/test/java/physicianconnect']
+        }
+    }
+}
+
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()

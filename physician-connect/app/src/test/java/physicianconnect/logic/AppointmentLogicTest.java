@@ -18,26 +18,25 @@ public class AppointmentLogicTest {
     @Before
     public void setUp() {
         appointmentLogic = new AppointmentLogic();
-        
+
         // Create test physician
         testPhysician = new Physician(1, "John", "Doe", "john.doe@example.com", 123);
-        
+
         // Create test patient
         testPatient = new Patient(1, "Jane", "Smith", "jane.smith@example.com", "password123");
-        
+
         // Create test appointment
         testAppointment = new Appointment(
-            0, // ID will be assigned by the stub
-            testPhysician,
-            testPatient,
-            1, // officeId
-            30, // duration in minutes
-            "Regular checkup",
-            "No special notes",
-            "No feedback yet",
-            "No referral",
-            "PENDING"
-        );
+                0, // ID will be assigned by the stub
+                testPhysician,
+                testPatient,
+                1, // officeId
+                30, // duration in minutes
+                "Regular checkup",
+                "No special notes",
+                "No feedback yet",
+                "No referral",
+                "PENDING");
     }
 
     @Test
@@ -45,7 +44,7 @@ public class AppointmentLogicTest {
         // Add an appointment first
         Appointment added = appointmentLogic.addAppointment(testAppointment);
         assertNotNull("Added appointment should not be null", added);
-        
+
         // Test getting the appointment
         Appointment retrieved = appointmentLogic.getAppointmentById(added.getAppointmentId());
         assertNotNull("Retrieved appointment should not be null", retrieved);
@@ -63,7 +62,7 @@ public class AppointmentLogicTest {
         // Add multiple appointments
         Appointment appointment1 = appointmentLogic.addAppointment(testAppointment);
         Appointment appointment2 = appointmentLogic.addAppointment(testAppointment);
-        
+
         Map<Integer, Appointment> allAppointments = appointmentLogic.getAllAppointments();
         assertNotNull("All appointments map should not be null", allAppointments);
         assertTrue("Should contain at least 2 appointments", allAppointments.size() >= 2);
@@ -87,7 +86,7 @@ public class AppointmentLogicTest {
         // Add an appointment first
         Appointment added = appointmentLogic.addAppointment(testAppointment);
         assertNotNull("Added appointment should not be null", added);
-        
+
         // Update the appointment
         added.setReasonForVisit("Updated reason");
         Appointment updated = appointmentLogic.updateAppointment(added);
@@ -106,12 +105,12 @@ public class AppointmentLogicTest {
         // Add an appointment first
         Appointment added = appointmentLogic.addAppointment(testAppointment);
         assertNotNull("Added appointment should not be null", added);
-        
+
         // Delete the appointment
         Appointment deleted = appointmentLogic.deleteAppointment(added.getAppointmentId());
         assertNotNull("Deleted appointment should not be null", deleted);
         assertEquals("Deleted appointment ID should match", added.getAppointmentId(), deleted.getAppointmentId());
-        
+
         // Verify it's deleted
         Appointment retrieved = appointmentLogic.getAppointmentById(added.getAppointmentId());
         assertNull("Retrieved appointment should be null after deletion", retrieved);
@@ -122,4 +121,4 @@ public class AppointmentLogicTest {
         Appointment deleted = appointmentLogic.deleteAppointment(-1);
         assertNull("Deleted appointment should be null for invalid ID", deleted);
     }
-} 
+}

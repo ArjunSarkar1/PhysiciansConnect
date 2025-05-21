@@ -1,10 +1,10 @@
-package persistence;
+package physicianconnect.logic;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import persistence.stub.PhysicianStub;
-import objects.Physician;
+import physicianconnect.persistence.stub.PhysicianStub;
+import physicianconnect.objects.Physician;
 import java.util.Map;
 
 public class PhysicianStubTest {

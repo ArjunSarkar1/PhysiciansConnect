@@ -14,17 +14,17 @@ public class PatientLogicTest {
     @Before
     public void setUp() {
         patientLogic = new PatientLogic();
-        
+
         // Create test patient
         testPatient = new Patient(
-            0, // ID will be assigned by the stub
-            "John",
-            "Doe",
-            "john.doe@example.com",
-            "password123",
-            "123456789",
-            "PHIN123456",
-            null // medical history will be added later
+                0, // ID will be assigned by the stub
+                "John",
+                "Doe",
+                "john.doe@example.com",
+                "password123",
+                "123456789",
+                "PHIN123456",
+                null // medical history will be added later
         );
     }
 
@@ -33,7 +33,7 @@ public class PatientLogicTest {
         // Add a patient first
         Patient added = patientLogic.addPatient(testPatient);
         assertNotNull("Added patient should not be null", added);
-        
+
         // Test getting the patient
         Patient retrieved = patientLogic.getPatientById(added.getUserId());
         assertNotNull("Retrieved patient should not be null", retrieved);
@@ -51,7 +51,7 @@ public class PatientLogicTest {
         // Add multiple patients
         Patient patient1 = patientLogic.addPatient(testPatient);
         Patient patient2 = patientLogic.addPatient(testPatient);
-        
+
         Map<Integer, Patient> allPatients = patientLogic.getAllPatients();
         assertNotNull("All patients map should not be null", allPatients);
         assertTrue("Should contain at least 2 patients", allPatients.size() >= 2);
@@ -76,7 +76,7 @@ public class PatientLogicTest {
         // Add a patient first
         Patient added = patientLogic.addPatient(testPatient);
         assertNotNull("Added patient should not be null", added);
-        
+
         // Update the patient
         added.setEmail("updated.email@example.com");
         Patient updated = patientLogic.updatePatient(added);
@@ -95,12 +95,12 @@ public class PatientLogicTest {
         // Add a patient first
         Patient added = patientLogic.addPatient(testPatient);
         assertNotNull("Added patient should not be null", added);
-        
+
         // Delete the patient
         Patient deleted = patientLogic.deletePatient(added.getUserId());
         assertNotNull("Deleted patient should not be null", deleted);
         assertEquals("Deleted patient ID should match", added.getUserId(), deleted.getUserId());
-        
+
         // Verify it's deleted
         Patient retrieved = patientLogic.getPatientById(added.getUserId());
         assertNull("Retrieved patient should be null after deletion", retrieved);
@@ -111,4 +111,4 @@ public class PatientLogicTest {
         Patient deleted = patientLogic.deletePatient(-1);
         assertNull("Deleted patient should be null for invalid ID", deleted);
     }
-} 
+}

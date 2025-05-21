@@ -5,7 +5,7 @@ import physicianconnect.objects.MedicalHistory;
 import java.util.*;
 
 public class MedicalHistoryLogic {
-    
+
     private static final MedicalHistoryStub tempDB = MedicalHistoryStub.getInstance();
 
     public MedicalHistory getMedicalHistoryById(int historyId) {
@@ -60,4 +60,4 @@ public class MedicalHistoryLogic {
         return result;
     }
 
-} 
+}

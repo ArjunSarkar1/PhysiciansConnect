@@ -58,4 +58,4 @@ public class AppointmentSlotLogic {
         }
         return result;
     }
-} 
+}

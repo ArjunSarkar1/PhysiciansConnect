@@ -1,8 +1,9 @@
 package physicianconnect.persistence.stub;
 
 import physicianconnect.objects.PatientVisitSummary;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PatientVisitSummaryStub {
     private final Map<Integer, PatientVisitSummary> visitSummaries = new HashMap<>();

@@ -17,21 +17,20 @@ public class PrescriptionLogicTest {
     @Before
     public void setUp() {
         prescriptionLogic = new PrescriptionLogic();
-        
+
         // Create test dates
         startDate = LocalDateTime.now();
         endDate = startDate.plusMonths(1);
-        
+
         // Create test prescription
         testPrescription = new Prescription(
-            0, // ID will be assigned by the stub
-            "Amoxicillin",
-            "500mg",
-            "Twice daily",
-            "Take with food",
-            startDate,
-            endDate
-        );
+                0, // ID will be assigned by the stub
+                "Amoxicillin",
+                "500mg",
+                "Twice daily",
+                "Take with food",
+                startDate,
+                endDate);
     }
 
     @Test
@@ -39,7 +38,7 @@ public class PrescriptionLogicTest {
         // Add a prescription first
         Prescription added = prescriptionLogic.addPrescription(testPrescription);
         assertNotNull("Added prescription should not be null", added);
-        
+
         // Test getting the prescription
         Prescription retrieved = prescriptionLogic.getPrescriptionById(added.getPrescriptionId());
         assertNotNull("Retrieved prescription should not be null", retrieved);
@@ -57,7 +56,7 @@ public class PrescriptionLogicTest {
         // Add multiple prescriptions
         Prescription prescription1 = prescriptionLogic.addPrescription(testPrescription);
         Prescription prescription2 = prescriptionLogic.addPrescription(testPrescription);
-        
+
         Map<Integer, Prescription> allPrescriptions = prescriptionLogic.getAllPrescriptions();
         assertNotNull("All prescriptions map should not be null", allPrescriptions);
         assertTrue("Should contain at least 2 prescriptions", allPrescriptions.size() >= 2);
@@ -83,7 +82,7 @@ public class PrescriptionLogicTest {
         // Add a prescription first
         Prescription added = prescriptionLogic.addPrescription(testPrescription);
         assertNotNull("Added prescription should not be null", added);
-        
+
         // Update the prescription
         added.setDosage("750mg");
         Prescription updated = prescriptionLogic.updatePrescription(added);
@@ -102,12 +101,12 @@ public class PrescriptionLogicTest {
         // Add a prescription first
         Prescription added = prescriptionLogic.addPrescription(testPrescription);
         assertNotNull("Added prescription should not be null", added);
-        
+
         // Delete the prescription
         Prescription deleted = prescriptionLogic.deletePrescription(added.getPrescriptionId());
         assertNotNull("Deleted prescription should not be null", deleted);
         assertEquals("Deleted prescription ID should match", added.getPrescriptionId(), deleted.getPrescriptionId());
-        
+
         // Verify it's deleted
         Prescription retrieved = prescriptionLogic.getPrescriptionById(added.getPrescriptionId());
         assertNull("Retrieved prescription should be null after deletion", retrieved);
@@ -118,4 +117,4 @@ public class PrescriptionLogicTest {
         Prescription deleted = prescriptionLogic.deletePrescription(-1);
         assertNull("Deleted prescription should be null for invalid ID", deleted);
     }
-} 
+}
