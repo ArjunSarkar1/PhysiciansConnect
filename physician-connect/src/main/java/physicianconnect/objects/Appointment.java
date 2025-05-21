@@ -7,6 +7,7 @@ import logic.AppointmentStatus;
 
 public class Appointment {
 
+    private int appointmentId;
     private Physician assignedPhysician;
     private Patient patient;
     private int officeId;
@@ -18,7 +19,7 @@ public class Appointment {
     private List<Prescription> prescriptionList = new ArrayList<>();
     private AppointmentStatus status;
 
-    public Appointment(Physician assignedPhysician, Patient patient, int officeId, int durationMins,
+    public Appointment(int appointmentId, Physician assignedPhysician, Patient patient, int officeId, int durationMins,
             String reasonForVisit, String preAppointmentNotes,
             String patientFeedback, User referral, AppointmentStatus status) {
         this.assignedPhysician = assignedPhysician;
@@ -134,5 +135,9 @@ public class Appointment {
 
     public AppointmentStatus getAppointmentStatus() {
         return this.status;
+    }
+
+    public int getAppointmentId(){
+        return this.appointmentId;
     }
 }

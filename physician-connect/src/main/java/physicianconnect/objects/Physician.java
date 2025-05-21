@@ -6,7 +6,7 @@ public class Physician extends User {
 
     private int officeId;
 
-    Physician(int id, String firstName, String lastName, String email, int officeId) {
+    public Physician(int id, String firstName, String lastName, String email, int officeId) {
 
         super(id, firstName, lastName, email);
         this.officeId = officeId;
