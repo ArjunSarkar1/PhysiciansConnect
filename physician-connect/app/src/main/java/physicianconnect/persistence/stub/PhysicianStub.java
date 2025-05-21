@@ -20,6 +20,11 @@ public class PhysicianStub {
     private static final PhysicianStub instance = new PhysicianStub();
 
     private PhysicianStub() {
+        addPhysician(new Physician(0, "Gregory", "House", "house.md@princetonplainsboro.com", 201));
+        addPhysician(new Physician(0, "Meredith", "Grey", "meredith.grey@greysloan.com", 202));
+        addPhysician(new Physician(0, "John", "Dorian", "jdorian@sacredheart.com", 203));
+        addPhysician(new Physician(0, "Stephen", "Strange", "sstrange@kamar-taj.org", 204));
+        addPhysician(new Physician(0, "Doogie", "Howser", "dhowser@californiahospital.org", 205));
     }
 
     public static PhysicianStub getInstance() {
