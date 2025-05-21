@@ -3,6 +3,7 @@ package logic;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
 import logic.stub.AppointmentSlotLogic;
 import objects.AppointmentSlot;
 import java.time.LocalDateTime;
@@ -17,19 +18,19 @@ public class AppointmentSlotLogicTest {
     @Before
     public void setUp() {
         appointmentSlotLogic = new AppointmentSlotLogic();
-        
+
         // Create test time slots
         startTime = LocalDateTime.now().plusDays(1).withHour(9).withMinute(0);
         endTime = startTime.plusHours(1);
-        
+
         // Create test appointment slot
         testSlot = new AppointmentSlot(
-            0, // ID will be assigned by the stub
-            1, // physicianId
-            startTime,
-            endTime,
-            true, // available
-            null // no appointments yet
+                0, // ID will be assigned by the stub
+                1, // physicianId
+                startTime,
+                endTime,
+                true, // available
+                null // no appointments yet
         );
     }
 
@@ -38,7 +39,7 @@ public class AppointmentSlotLogicTest {
         // Add a slot first
         AppointmentSlot added = appointmentSlotLogic.addAppointmentSlot(testSlot);
         assertNotNull("Added slot should not be null", added);
-        
+
         // Test getting the slot
         AppointmentSlot retrieved = appointmentSlotLogic.getAppointmentSlotById(added.getSlotId());
         assertNotNull("Retrieved slot should not be null", retrieved);
@@ -56,7 +57,7 @@ public class AppointmentSlotLogicTest {
         // Add multiple slots
         AppointmentSlot slot1 = appointmentSlotLogic.addAppointmentSlot(testSlot);
         AppointmentSlot slot2 = appointmentSlotLogic.addAppointmentSlot(testSlot);
-        
+
         Map<Integer, AppointmentSlot> allSlots = appointmentSlotLogic.getAllAppointmentSlots();
         assertNotNull("All slots map should not be null", allSlots);
         assertTrue("Should contain at least 2 slots", allSlots.size() >= 2);
@@ -82,7 +83,7 @@ public class AppointmentSlotLogicTest {
         // Add a slot first
         AppointmentSlot added = appointmentSlotLogic.addAppointmentSlot(testSlot);
         assertNotNull("Added slot should not be null", added);
-        
+
         // Update the slot
         added.setAvailable(false);
         AppointmentSlot updated = appointmentSlotLogic.updateAppointmentSlot(added);
@@ -101,12 +102,12 @@ public class AppointmentSlotLogicTest {
         // Add a slot first
         AppointmentSlot added = appointmentSlotLogic.addAppointmentSlot(testSlot);
         assertNotNull("Added slot should not be null", added);
-        
+
         // Delete the slot
         AppointmentSlot deleted = appointmentSlotLogic.deleteAppointmentSlot(added.getSlotId());
         assertNotNull("Deleted slot should not be null", deleted);
         assertEquals("Deleted slot ID should match", added.getSlotId(), deleted.getSlotId());
-        
+
         // Verify it's deleted
         AppointmentSlot retrieved = appointmentSlotLogic.getAppointmentSlotById(added.getSlotId());
         assertNull("Retrieved slot should be null after deletion", retrieved);
@@ -117,4 +118,4 @@ public class AppointmentSlotLogicTest {
         AppointmentSlot deleted = appointmentSlotLogic.deleteAppointmentSlot(-1);
         assertNull("Deleted slot should be null for invalid ID", deleted);
     }
-} 
+}

@@ -1,6 +1,6 @@
 package logic.stub;
 
-import persistence.stub.*;
+import stub.PatientStub;
 import objects.Patient;
 import java.util.*;
 
@@ -58,4 +58,4 @@ public class PatientLogic {
         }
         return result;
     }
-} 
+}

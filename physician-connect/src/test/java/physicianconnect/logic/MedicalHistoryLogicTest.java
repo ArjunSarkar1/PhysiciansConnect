@@ -3,6 +3,7 @@ package logic;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
 import logic.stub.MedicalHistoryLogic;
 import objects.MedicalHistory;
 import objects.PatientVisitSummary;
@@ -19,29 +20,27 @@ public class MedicalHistoryLogicTest {
     public void setUp() {
         medicalHistoryLogic = new MedicalHistoryLogic();
         visitDate = LocalDateTime.now();
-        
+
         // Create test medical history
         testHistory = new MedicalHistory(
-            0, // ID will be assigned by the stub
-            1, // patientId
-            "Hypertension",
-            "High blood pressure diagnosis",
-            "Prescribed medication",
-            visitDate,
-            "Regular monitoring required"
-        );
-        
+                0, // ID will be assigned by the stub
+                1, // patientId
+                "Hypertension",
+                "High blood pressure diagnosis",
+                "Prescribed medication",
+                visitDate,
+                "Regular monitoring required");
+
         // Create test visit summary
         testVisitSummary = new PatientVisitSummary(
-            0, // ID will be assigned by the stub
-            1, // patientId
-            1, // physicianId
-            visitDate,
-            "Regular checkup",
-            "Patient is stable",
-            "Continue current medication",
-            "Follow up in 3 months"
-        );
+                0, // ID will be assigned by the stub
+                1, // patientId
+                1, // physicianId
+                visitDate,
+                "Regular checkup",
+                "Patient is stable",
+                "Continue current medication",
+                "Follow up in 3 months");
     }
 
     @Test
@@ -49,7 +48,7 @@ public class MedicalHistoryLogicTest {
         // Add a history first
         MedicalHistory added = medicalHistoryLogic.addMedicalHistory(testHistory);
         assertNotNull("Added history should not be null", added);
-        
+
         // Test getting the history
         MedicalHistory retrieved = medicalHistoryLogic.getMedicalHistoryById(added.getMedicalHistoryId());
         assertNotNull("Retrieved history should not be null", retrieved);
@@ -67,7 +66,7 @@ public class MedicalHistoryLogicTest {
         // Add multiple histories
         MedicalHistory history1 = medicalHistoryLogic.addMedicalHistory(testHistory);
         MedicalHistory history2 = medicalHistoryLogic.addMedicalHistory(testHistory);
-        
+
         Map<Integer, MedicalHistory> allHistories = medicalHistoryLogic.getAllMedicalHistory();
         assertNotNull("All histories map should not be null", allHistories);
         assertTrue("Should contain at least 2 histories", allHistories.size() >= 2);
@@ -92,7 +91,7 @@ public class MedicalHistoryLogicTest {
         // Add a history first
         MedicalHistory added = medicalHistoryLogic.addMedicalHistory(testHistory);
         assertNotNull("Added history should not be null", added);
-        
+
         // Update the history
         added.setCondition("Updated condition");
         MedicalHistory updated = medicalHistoryLogic.updateMedicalHistory(added);
@@ -111,12 +110,12 @@ public class MedicalHistoryLogicTest {
         // Add a history first
         MedicalHistory added = medicalHistoryLogic.addMedicalHistory(testHistory);
         assertNotNull("Added history should not be null", added);
-        
+
         // Delete the history
         MedicalHistory deleted = medicalHistoryLogic.deleteMedicalHistory(added.getMedicalHistoryId());
         assertNotNull("Deleted history should not be null", deleted);
         assertEquals("Deleted history ID should match", added.getMedicalHistoryId(), deleted.getMedicalHistoryId());
-        
+
         // Verify it's deleted
         MedicalHistory retrieved = medicalHistoryLogic.getMedicalHistoryById(added.getMedicalHistoryId());
         assertNull("Retrieved history should be null after deletion", retrieved);
@@ -133,7 +132,7 @@ public class MedicalHistoryLogicTest {
         // Add a visit summary first
         PatientVisitSummary added = medicalHistoryLogic.addVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
-        
+
         // Test getting the visit summary
         PatientVisitSummary retrieved = medicalHistoryLogic.getVisitSummaryById(added.getSummaryId());
         assertNotNull("Retrieved visit summary should not be null", retrieved);
@@ -151,7 +150,7 @@ public class MedicalHistoryLogicTest {
         // Add multiple visit summaries
         PatientVisitSummary summary1 = medicalHistoryLogic.addVisitSummary(testVisitSummary);
         PatientVisitSummary summary2 = medicalHistoryLogic.addVisitSummary(testVisitSummary);
-        
+
         Map<Integer, PatientVisitSummary> allSummaries = medicalHistoryLogic.getAllVisitSummaries();
         assertNotNull("All visit summaries map should not be null", allSummaries);
         assertTrue("Should contain at least 2 visit summaries", allSummaries.size() >= 2);
@@ -176,7 +175,7 @@ public class MedicalHistoryLogicTest {
         // Add a visit summary first
         PatientVisitSummary added = medicalHistoryLogic.addVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
-        
+
         // Update the visit summary
         added.setReasonForVisit("Updated reason");
         PatientVisitSummary updated = medicalHistoryLogic.updateVisitSummary(added);
@@ -195,12 +194,12 @@ public class MedicalHistoryLogicTest {
         // Add a visit summary first
         PatientVisitSummary added = medicalHistoryLogic.addVisitSummary(testVisitSummary);
         assertNotNull("Added visit summary should not be null", added);
-        
+
         // Delete the visit summary
         PatientVisitSummary deleted = medicalHistoryLogic.deleteVisitSummary(added.getSummaryId());
         assertNotNull("Deleted visit summary should not be null", deleted);
         assertEquals("Deleted visit summary ID should match", added.getSummaryId(), deleted.getSummaryId());
-        
+
         // Verify it's deleted
         PatientVisitSummary retrieved = medicalHistoryLogic.getVisitSummaryById(added.getSummaryId());
         assertNull("Retrieved visit summary should be null after deletion", retrieved);
@@ -211,4 +210,4 @@ public class MedicalHistoryLogicTest {
         PatientVisitSummary deleted = medicalHistoryLogic.deleteVisitSummary(-1);
         assertNull("Deleted visit summary should be null for invalid ID", deleted);
     }
-} 
+}

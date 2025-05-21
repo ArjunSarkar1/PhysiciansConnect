@@ -1,10 +1,10 @@
-package physicianconnect.logic.stub;
+package logic.stub;
 
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import objects.PatientVisitSummary;
-import physicianconnect.persistence.stub.PatientVisitSummaryStub;
+import stub.PatientVisitSummaryStub;
+import java.util.logging.Level;
 
 public class PatientVisitsSummaryLogic {
     private static final Logger LOGGER = Logger.getLogger(PatientVisitsSummaryLogic.class.getName());
@@ -76,34 +76,35 @@ public class PatientVisitsSummaryLogic {
     }
 
     private boolean isValidVisitSummary(PatientVisitSummary summary) {
-        if (summary == null) return false;
-        
+        if (summary == null)
+            return false;
+
         // Validate required fields
         if (summary.getVisitDateTime() == null) {
             LOGGER.warning("Visit date/time cannot be null");
             return false;
         }
-        
+
         if (summary.getPhysicianName() == null || summary.getPhysicianName().trim().isEmpty()) {
             LOGGER.warning("Physician name cannot be empty");
             return false;
         }
-        
+
         if (summary.getOfficeId() <= 0) {
             LOGGER.warning("Invalid office ID: " + summary.getOfficeId());
             return false;
         }
-        
+
         if (summary.getDurationMins() <= 0) {
             LOGGER.warning("Invalid duration: " + summary.getDurationMins());
             return false;
         }
-        
+
         if (summary.getReasonForVisit() == null || summary.getReasonForVisit().trim().isEmpty()) {
             LOGGER.warning("Reason for visit cannot be empty");
             return false;
         }
-        
+
         return true;
     }
 }
