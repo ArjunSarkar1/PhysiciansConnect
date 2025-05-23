@@ -1,0 +1,22 @@
+Branching Strategy
+
+We follow a feature-based and iteration-driven branching strategy to maintain code stability and team productivity throughout the development process.
+
+Main Branches
+- main: This is the production-ready branch. Only thoroughly tested and reviewed code is merged here.
+- iteration-1, iteration-2, etc.: Each development cycle has a dedicated branch that integrates features relevant to that iteration. These branches are merged into main at the end of the iteration when stable.
+
+Feature & Task Branches
+- Developers create feature branches off their assigned iteration branch (e.g., iteration-1_logic, iteration-1_UI, iteration-1_DB) to work on specific components.
+- These branches are short-lived and are regularly merged back into the iteration branch via merge requests to ensure code is continuously integrated.
+
+Merge Strategy
+- Merge requests are used for all integrations.
+- Merges into main are done only after successful testing and code review.
+- Conflicts are resolved during the merge process to maintain clean commit history.
+
+Benefits
+- Encourages modular development
+- Reduces merge conflicts
+- Supports parallel work across team members
+- Keeps the main branch clean and stable for evaluation and deployment
