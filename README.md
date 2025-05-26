@@ -66,7 +66,20 @@ On Windows (PowerShell or CMD), if you encounter permission issues with ./gradle
 ./gradlew.bat run
 ```
 
-## Location of .jar
+## Running with the .jar File
+
+# Navigate to the Application Directory
+From the root of the cloned project, navigate to the app folder:
+```bash
+cd a01-g08-todo-everything/physiciansconnect/app
+```
+Use forward slashes (/) for Unix-based systems (macOS, Linux) and backslashes (\) for Windows in Command Prompt or PowerShell.
+
+# Run the Application
+To run the application use:
+```bash
+java -jar physiciansconnect-1.0-all.jar
+```
 
 ## Database Management
 
