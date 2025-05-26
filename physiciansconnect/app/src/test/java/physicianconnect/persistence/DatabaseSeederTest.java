@@ -30,7 +30,9 @@ public class DatabaseSeederTest {
         DatabaseSeeder.seed(conn, List.of(
                 "seed_physicians.sql",
                 "seed_appointments.sql",
-                "seed_medications.sql"));
+                "seed_medications.sql",
+                "seed_prescriptions.sql"
+                ));
     }
 
     @AfterEach
@@ -71,6 +73,17 @@ public class DatabaseSeederTest {
                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM medications")) {
             assertTrue(rs.next());
             assertTrue(rs.getInt(1) >= 1, "Should have seeded at least one medication");
+        }
+    }
+
+    @Test
+    public void testPrescriptionSeeded() throws Exception {
+        assertNotNull(DatabaseSeeder.class.getClassLoader().getResourceAsStream("seed_prescriptions.sql"));
+
+        try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM prescriptions")) {
+            assertTrue(rs.next());
+            assertTrue(rs.getInt(1) >= 1, "Should have seeded at least one prescription");
         }
     }
 }

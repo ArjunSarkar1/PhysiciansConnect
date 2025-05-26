@@ -47,4 +47,7 @@ public class AppointmentDBTest {
         List<Appointment> result = db.getAppointmentsForPhysician("unknown");
         assertTrue(result.isEmpty());
     }
+
+
+
 }
