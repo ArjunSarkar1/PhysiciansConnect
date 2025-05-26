@@ -1,0 +1,12 @@
+# Ignore Gradle build directory
+**/build/
+
+# Ignore Gradle caches and logs
+.gradle/
+**/.gradle/
+
+# Ignore Gradle Wrapper logs
+gradle/wrapper/gradle-wrapper.properties
+gradle/wrapper/gradle-wrapper.jar
+
+/physiciansconnect/app/*.db
