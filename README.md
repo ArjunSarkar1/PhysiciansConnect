@@ -1,5 +1,5 @@
-VISION STATEMENT
----
+# VISION STATEMENT
+
 For doctors who need a clear and simple way to manage their day
 PhysicianConnect is a tool that helps them stay on top of appointments, prepare for visits, and keep track of what happens with each patient.
 Unlike messy paper notes or complicated software,
@@ -12,6 +12,7 @@ The project will be a success if:
 More than 85% of doctors say it helps them stay organized
 Appointment planning takes 30% less time
 Doctors spend 25% less time writing things down or getting ready
+
 
 ---
 # README
