@@ -1,6 +1,7 @@
 package physicianconnect.persistence;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import physicianconnect.persistence.sqlite.AppointmentDB;
@@ -44,6 +45,7 @@ public class PersistenceFactory {
                      * In production this line wouldn't exist but because we want to make
                      * it convienient for you, we add a test user that you can use to login
                      * instead of having to make an account, WHICH OUR APP CAN DO!!!
+                     * And the test user comes with pre loaded appointments
                      */
                     injectTestUserForGrader();
 
@@ -90,10 +92,22 @@ public class PersistenceFactory {
         String testName = "Dr. Stephen Vincent Strange";
         String testPassword = "test123";
 
-        if (physicianPersistence.getAllPhysicians().stream()
-                .noneMatch(p -> p.getEmail().equalsIgnoreCase(testEmail))) {
+        boolean testUserExists = physicianPersistence.getAllPhysicians().stream()
+                .anyMatch(p -> p.getEmail().equalsIgnoreCase(testEmail));
+
+        if (!testUserExists) {
             physicianPersistence.addPhysician(
                     new physicianconnect.objects.Physician(testId, testName, testEmail, testPassword));
+
+            // Add fake appointments after adding the physician
+            if (appointmentPersistence != null) {
+                appointmentPersistence.addAppointment(new physicianconnect.objects.Appointment(
+                        testId, "Peter Parker", LocalDateTime.of(2025, 6, 1, 9, 0)));
+                appointmentPersistence.addAppointment(new physicianconnect.objects.Appointment(
+                        testId, "Tony Stark", LocalDateTime.of(2025, 6, 2, 13, 30)));
+                appointmentPersistence.addAppointment(new physicianconnect.objects.Appointment(
+                        testId, "Wanda Maximoff", LocalDateTime.of(2025, 6, 3, 11, 0)));
+            }
         }
     }
 

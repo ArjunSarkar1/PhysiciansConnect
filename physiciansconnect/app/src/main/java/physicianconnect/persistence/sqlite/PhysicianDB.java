@@ -6,6 +6,7 @@ import physicianconnect.persistence.PhysicianPersistence;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PhysicianDB implements PhysicianPersistence {
 
@@ -17,9 +18,13 @@ public class PhysicianDB implements PhysicianPersistence {
 
     @Override
     public void addPhysician(Physician physician) {
+        String id = (physician.getId() == null || physician.getId().isBlank())
+                ? UUID.randomUUID().toString()
+                : physician.getId();
+
         String sql = "INSERT OR IGNORE INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, physician.getId());
+            stmt.setString(1, id);
             stmt.setString(2, physician.getName());
             stmt.setString(3, physician.getEmail());
             stmt.setString(4, physician.getPassword());

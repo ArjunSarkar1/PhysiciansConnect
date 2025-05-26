@@ -39,13 +39,12 @@ public class LoginScreen extends JFrame {
         });
 
         createBtn.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("ID:");
             String name = JOptionPane.showInputDialog("Name:");
             String email = JOptionPane.showInputDialog("Email:");
             String password = JOptionPane.showInputDialog("Password:");
 
-            if (id != null && name != null && email != null && password != null) {
-                physicianManager.addPhysician(new Physician(id, name, email, password));
+            if (name != null && email != null && password != null) {
+                physicianManager.addPhysician(new Physician(null, name, email, password));
                 JOptionPane.showMessageDialog(this, "Account created!");
             }
         });

@@ -12,25 +12,22 @@ import java.util.List;
 
 public class PhysicianApp {
     private JFrame frame;
-    private JList<Physician> physicianListDisplay;
-    private DefaultListModel<Physician> physicianListModel;
-
-    private JList<Appointment> appointmentListDisplay;
     private DefaultListModel<Appointment> appointmentListModel;
-
+    private final Physician loggedIn;
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
 
-    public PhysicianApp(PhysicianManager physicianManager, AppointmentManager appointmentManager) {
+    public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, AppointmentManager appointmentManager) {
+        this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
         initializeUI();
     }
 
     private void initializeUI() {
-        frame = new JFrame("PhysicianConnect");
+        frame = new JFrame("Dashboard - " + loggedIn.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 600);
+        frame.setSize(800, 500);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout(10, 10));
 
@@ -38,89 +35,64 @@ public class PhysicianApp {
         contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         frame.setContentPane(contentPanel);
 
-        // Custom font
         Font baseFont = new Font("SansSerif", Font.PLAIN, 14);
 
-        // Physicians list
-        physicianListModel = new DefaultListModel<>();
-        physicianListDisplay = new JList<>(physicianListModel);
-        physicianListDisplay.setFont(baseFont);
-        physicianListDisplay.setCellRenderer(new ListCardRenderer<>());
-        physicianListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane physicianScroll = new JScrollPane(physicianListDisplay);
-        physicianScroll.setBorder(BorderFactory.createTitledBorder("Physicians"));
+        // Welcome message
+        JLabel welcome = new JLabel("Welcome, " + loggedIn.getName() + " (" + loggedIn.getEmail() + ")");
+        welcome.setFont(new Font("SansSerif", Font.BOLD, 16));
+        contentPanel.add(welcome, BorderLayout.NORTH);
 
         // Appointments list
         appointmentListModel = new DefaultListModel<>();
-        appointmentListDisplay = new JList<>(appointmentListModel);
+        JList<Appointment> appointmentListDisplay = new JList<>(appointmentListModel);
         appointmentListDisplay.setFont(baseFont);
         appointmentListDisplay.setCellRenderer(new ListCardRenderer<>());
         appointmentListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane appointmentScroll = new JScrollPane(appointmentListDisplay);
-        appointmentScroll.setBorder(BorderFactory.createTitledBorder("Appointments"));
-
-        // Sync appointments
-        physicianListDisplay.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                Physician selected = physicianListDisplay.getSelectedValue();
-                if (selected != null) {
-                    refreshAppointmentsFor(selected);
-                }
-            }
-        });
+        appointmentScroll.setBorder(BorderFactory.createTitledBorder("Your Appointments"));
+        contentPanel.add(appointmentScroll, BorderLayout.CENTER);
 
         // Buttons
-        JButton addPhysicianButton = createButton("➕ Add Physician");
         JButton addAppointmentButton = createButton("📅 Add Appointment");
         JButton viewAppointmentButton = createButton("🔍 View Appointment");
-
-        addPhysicianButton.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Physician ID:");
-            String name = JOptionPane.showInputDialog("Physician Name:");
-            String email = JOptionPane.showInputDialog("Physician Email:");
-            String password = JOptionPane.showInputDialog("Physician Password:");
-            if (id != null && name != null && email != null && password != null) {
-                physicianManager.addPhysician(new Physician(id, name, email, password));
-                refreshPhysicians();
-            }
-        });
+        JButton signOutButton = createButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
-            Physician selected = physicianListDisplay.getSelectedValue();
-            if (selected == null) {
-                JOptionPane.showMessageDialog(frame, "Select a physician first.");
-                return;
-            }
-            new AddAppointmentDialog(frame, appointmentManager, selected.getId()).setVisible(true);
-            refreshAppointmentsFor(selected);
+            new AddAppointmentDialog(frame, appointmentManager, loggedIn.getId()).setVisible(true);
+            refreshAppointments();
         });
 
         viewAppointmentButton.addActionListener(e -> {
-            Appointment selectedAppointment = appointmentListDisplay.getSelectedValue();
-            Physician selectedPhysician = physicianListDisplay.getSelectedValue();
-            if (selectedAppointment == null || selectedPhysician == null) {
+            Appointment selected = appointmentListDisplay.getSelectedValue();
+            if (selected == null) {
                 JOptionPane.showMessageDialog(frame, "Select an appointment to view.");
                 return;
             }
-            new ViewAppointmentDialog(frame, appointmentManager, selectedAppointment).setVisible(true);
-            refreshAppointmentsFor(selectedPhysician);
+            new ViewAppointmentDialog(frame, appointmentManager, selected).setVisible(true);
+            refreshAppointments();
         });
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.add(addPhysicianButton);
+        signOutButton.addActionListener(e -> {
+            frame.dispose();
+            new LoginScreen(physicianManager, appointmentManager);
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
-
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, physicianScroll, appointmentScroll);
-        splitPane.setResizeWeight(0.5);
-        splitPane.setOneTouchExpandable(true);
-
-        contentPanel.add(splitPane, BorderLayout.CENTER);
+        buttonPanel.add(signOutButton);
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        refreshPhysicians();
+        refreshAppointments();
         frame.setVisible(true);
+    }
+
+    private void refreshAppointments() {
+        appointmentListModel.clear();
+        List<Appointment> appointments = appointmentManager.getAppointmentsForPhysician(loggedIn.getId());
+        for (Appointment a : appointments) {
+            appointmentListModel.addElement(a);
+        }
     }
 
     private JButton createButton(String text) {
@@ -131,30 +103,11 @@ public class PhysicianApp {
         return button;
     }
 
-    private void refreshPhysicians() {
-        physicianListModel.clear();
-        List<Physician> all = physicianManager.getAllPhysicians();
-        for (Physician p : all) {
-            physicianListModel.addElement(p);
-        }
-        if (!physicianListModel.isEmpty()) {
-            physicianListDisplay.setSelectedIndex(0);
-        }
+    public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
+            AppointmentManager appointmentManager) {
+        new PhysicianApp(loggedIn, physicianManager, appointmentManager);
     }
 
-    private void refreshAppointmentsFor(Physician physician) {
-        appointmentListModel.clear();
-        List<Appointment> appointments = appointmentManager.getAppointmentsForPhysician(physician.getId());
-        for (Appointment a : appointments) {
-            appointmentListModel.addElement(a);
-        }
-    }
-
-    public static void launch(PhysicianManager physicianManager, AppointmentManager appointmentManager) {
-        new PhysicianApp(physicianManager, appointmentManager);
-    }
-
-    // Simple card-style renderer
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -169,15 +122,4 @@ public class PhysicianApp {
             return label;
         }
     }
-
-    public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager) {
-        PhysicianApp app = new PhysicianApp(physicianManager, appointmentManager);
-
-        // Preload physician list and select the logged-in user
-        app.refreshPhysicians();
-        app.physicianListDisplay.setSelectedValue(loggedIn, true);
-        app.physicianListDisplay.setEnabled(false); // prevent switching users
-    }
-
 }
