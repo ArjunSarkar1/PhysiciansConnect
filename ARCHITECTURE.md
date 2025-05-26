@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     %% Presentation Layer
     UI[Presentation Layer<br>physicianconnect.presentation<br>LoginScreen, PhysicianApp]
