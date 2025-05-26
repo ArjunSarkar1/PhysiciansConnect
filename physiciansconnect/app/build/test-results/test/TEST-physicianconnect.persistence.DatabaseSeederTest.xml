@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="physicianconnect.persistence.DatabaseSeederTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:47:33.262Z" hostname="NABZ-ROG" time="0.017">
+  <properties/>
+  <testcase name="testMedicationSeeded()" classname="physicianconnect.persistence.DatabaseSeederTest" time="0.007"/>
+  <testcase name="testPhysicianSeeded()" classname="physicianconnect.persistence.DatabaseSeederTest" time="0.005"/>
+  <testcase name="testAppointmentSeeded()" classname="physicianconnect.persistence.DatabaseSeederTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

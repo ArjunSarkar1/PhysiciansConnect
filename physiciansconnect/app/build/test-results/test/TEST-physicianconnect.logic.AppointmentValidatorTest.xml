@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="physicianconnect.logic.AppointmentValidatorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:47:33.167Z" hostname="NABZ-ROG" time="0.014">
+  <properties/>
+  <testcase name="testNullAppointmentThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.002"/>
+  <testcase name="testBlankPhysicianIdThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.005"/>
+  <testcase name="testNullDateTimeThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.001"/>
+  <testcase name="testBlankPatientNameThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.0"/>
+  <testcase name="testValidAppointmentPasses()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

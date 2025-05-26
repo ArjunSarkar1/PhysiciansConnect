@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="physicianconnect.persistence.PhysicianDBTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:47:33.290Z" hostname="NABZ-ROG" time="0.006">
+  <properties/>
+  <testcase name="testAddAndFetchPhysician()" classname="physicianconnect.persistence.PhysicianDBTest" time="0.002"/>
+  <testcase name="testDeletePhysician()" classname="physicianconnect.persistence.PhysicianDBTest" time="0.001"/>
+  <testcase name="testDuplicatePhysicianIsIgnored()" classname="physicianconnect.persistence.PhysicianDBTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

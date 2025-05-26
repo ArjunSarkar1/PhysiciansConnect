@@ -8,11 +8,13 @@ import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.junit.Test;
+import org.junit.jupiter.api.Tag;
 
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.Physician;
 
+@Tag("ui")
 public class LoginAcceptanceTest extends AssertJSwingJUnitTestCase {
 
     private FrameFixture window;

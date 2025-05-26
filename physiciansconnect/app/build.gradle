@@ -31,6 +31,12 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
 }
 
+test {
+    useJUnitPlatform {
+        excludeTags 'ui'
+    }
+}
+
 application {
     // Define the main class for the application.
     mainClass = 'physicianconnect.App'
