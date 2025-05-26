@@ -1,22 +1,23 @@
 VISION STATEMENT
 ---
-PhysicianConnect is an easy-to-use tool that helps doctors stay organized, manage their appointments, and give better care to their patients.
+For doctors who need a clear and simple way to manage their day
+PhysicianConnect is a tool that helps them stay on top of appointments, prepare for visits, and keep track of what happens with each patient.
+Unlike messy paper notes or complicated software,
+PhysicianConnect keeps everything organized in one place so doctors can spend less time planning and more time caring.
 
-Doctors use PhysicianConnect to plan their workdays. They can set when they’re available, review their upcoming visits, and write down notes before and after each appointment. It also helps them remember what was discussed, what medications were given, and what the next steps are.
+Doctors use PhysicianConnect to set when they’re available, see who they’re meeting with, and write notes before and after each visit. They can also track what was discussed and what comes next, including medications or follow-ups.
 
-Patients book appointments through a separate website. Once an appointment is booked, it shows up in the doctor’s schedule on PhysicianConnect, along with any helpful notes the patient has shared.
+Patients book their appointments through a separate website. As soon as a booking is made, it shows up for the doctor—along with any notes the patient added.
 
-With everything in one place, doctors save time, avoid double bookings, and stay better prepared for each visit. They can focus more on their patients and less on sorting through papers or juggling calendars.
+Everything is private and secure. Doctors see only what they need to do their job, and patients only use the booking site.
 
-Everyone sees only what they need. Doctors have full access to their own schedule and visit details, while patients only use the booking website. This keeps things simple and private.
+The project will be a success if:
 
-This project will be successful if:
+More than 85% of doctors say it helps them stay organized
 
-Over 85% of doctors say the app helps them stay organized.
+Appointment planning takes 30% less time
 
-Managing appointments takes at least 30% less time than before.
-
-Doctors spend at least 25% less time on paperwork and planning.
+Doctors spend 25% less time writing things down or getting ready
 
 ---
 README
