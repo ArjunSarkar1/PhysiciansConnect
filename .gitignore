@@ -1,12 +1,17 @@
-# Ignore Gradle build directory
-**/build/
+# Ignore database files
+*.db
 
-# Ignore Gradle caches and logs
+# Ignore Gradle build output
+**/build/
 .gradle/
 **/.gradle/
+**/*.lock
+**/*.bin
+
+# Ignore compiled Java class files
+**/*.class
 
 # Ignore Gradle Wrapper logs
 gradle/wrapper/gradle-wrapper.properties
 gradle/wrapper/gradle-wrapper.jar
 
-/physiciansconnect/app/*.db
