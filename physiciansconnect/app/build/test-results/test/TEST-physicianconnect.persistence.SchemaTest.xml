@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.persistence.SchemaTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:51:43.123Z" hostname="NABZ-ROG" time="0.004">
+<testsuite name="physicianconnect.persistence.SchemaTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:55:39.259Z" hostname="NABZ-ROG" time="0.004">
   <properties/>
   <testcase name="testSchemaInitializer_createsMedicationsTable()" classname="physicianconnect.persistence.SchemaTest" time="0.001"/>
   <testcase name="testSchemaInitializer_createsPhysiciansTable()" classname="physicianconnect.persistence.SchemaTest" time="0.002"/>

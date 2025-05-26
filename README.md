@@ -66,6 +66,8 @@ On Windows (PowerShell or CMD), if you encounter permission issues with ./gradle
 ./gradlew.bat run
 ```
 
+## Location of .jar
+
 ## Database Management
 
 The SQLite database is stored as a single file (for example, `prod.db` for production). The application automatically creates the necessary tables and seeds initial data if needed.
