@@ -15,9 +15,6 @@ Doctors spend 25% less time writing things down or getting ready
 
 ---
 # README
-
----
-
 # PhysicianConnect (Physician View)
 
 PhysicianConnect is a healthcare coordination platform designed to improve how physicians manage appointments, review patient history, and prescribe medications. This version focuses specifically on physician-facing features, supporting a streamlined and efficient experience for care providers. The system is structured with a 3-tier architecture, separating the presentation (UI), business logic (services), and persistence (database access) layers to ensure modularity, scalability, and testability.
