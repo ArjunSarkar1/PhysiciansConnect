@@ -6,6 +6,7 @@ import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
@@ -29,22 +30,36 @@ public class PhysicianApp {
     private void initializeUI() {
         frame = new JFrame("PhysicianConnect");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
-        frame.setLayout(new BorderLayout());
+        frame.setSize(900, 600);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(new BorderLayout(10, 10));
+
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        frame.setContentPane(contentPanel);
+
+        // Custom font
+        Font baseFont = new Font("SansSerif", Font.PLAIN, 14);
 
         // Physicians list
         physicianListModel = new DefaultListModel<>();
         physicianListDisplay = new JList<>(physicianListModel);
+        physicianListDisplay.setFont(baseFont);
+        physicianListDisplay.setCellRenderer(new ListCardRenderer<>());
+        physicianListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane physicianScroll = new JScrollPane(physicianListDisplay);
         physicianScroll.setBorder(BorderFactory.createTitledBorder("Physicians"));
 
         // Appointments list
         appointmentListModel = new DefaultListModel<>();
         appointmentListDisplay = new JList<>(appointmentListModel);
+        appointmentListDisplay.setFont(baseFont);
+        appointmentListDisplay.setCellRenderer(new ListCardRenderer<>());
+        appointmentListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane appointmentScroll = new JScrollPane(appointmentListDisplay);
         appointmentScroll.setBorder(BorderFactory.createTitledBorder("Appointments"));
 
-        // Sync appointments to selected physician
+        // Sync appointments
         physicianListDisplay.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 Physician selected = physicianListDisplay.getSelectedValue();
@@ -54,8 +69,11 @@ public class PhysicianApp {
             }
         });
 
-        // Add physician button
-        JButton addPhysicianButton = new JButton("Add Physician");
+        // Buttons
+        JButton addPhysicianButton = createButton("➕ Add Physician");
+        JButton addAppointmentButton = createButton("📅 Add Appointment");
+        JButton viewAppointmentButton = createButton("🔍 View Appointment");
+
         addPhysicianButton.addActionListener(e -> {
             String id = JOptionPane.showInputDialog("Physician ID:");
             String name = JOptionPane.showInputDialog("Physician Name:");
@@ -66,8 +84,6 @@ public class PhysicianApp {
             }
         });
 
-        // Add appointment via custom dialog
-        JButton addAppointmentButton = new JButton("Add Appointment");
         addAppointmentButton.addActionListener(e -> {
             Physician selected = physicianListDisplay.getSelectedValue();
             if (selected == null) {
@@ -78,8 +94,6 @@ public class PhysicianApp {
             refreshAppointmentsFor(selected);
         });
 
-        // View selected appointment in dialog
-        JButton viewAppointmentButton = new JButton("View Appointment");
         viewAppointmentButton.addActionListener(e -> {
             Appointment selectedAppointment = appointmentListDisplay.getSelectedValue();
             Physician selectedPhysician = physicianListDisplay.getSelectedValue();
@@ -91,19 +105,29 @@ public class PhysicianApp {
             refreshAppointmentsFor(selectedPhysician);
         });
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.add(addPhysicianButton);
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, physicianScroll, appointmentScroll);
         splitPane.setResizeWeight(0.5);
+        splitPane.setOneTouchExpandable(true);
 
-        frame.add(splitPane, BorderLayout.CENTER);
-        frame.add(buttonPanel, BorderLayout.SOUTH);
+        contentPanel.add(splitPane, BorderLayout.CENTER);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         refreshPhysicians();
         frame.setVisible(true);
+    }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setFont(new Font("SansSerif", Font.BOLD, 13));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return button;
     }
 
     private void refreshPhysicians() {
@@ -125,8 +149,23 @@ public class PhysicianApp {
         }
     }
 
-    // This static launcher is called from App.java
     public static void launch(PhysicianManager physicianManager, AppointmentManager appointmentManager) {
         new PhysicianApp(physicianManager, appointmentManager);
+    }
+
+    // Simple card-style renderer
+    private static class ListCardRenderer<T> extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(isSelected ? Color.BLUE : Color.LIGHT_GRAY, 1),
+                    new EmptyBorder(10, 10, 10, 10)));
+            label.setBackground(isSelected ? new Color(220, 240, 255) : Color.WHITE);
+            label.setOpaque(true);
+            label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            return label;
+        }
     }
 }
