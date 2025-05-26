@@ -1,0 +1,15 @@
+package physicianconnect.persistence;
+
+import physicianconnect.objects.Appointment;
+
+import java.util.List;
+
+public interface AppointmentPersistence {
+    void addAppointment(Appointment appointment);
+
+    void deleteAppointment(Appointment appointment);
+
+    void deleteAllAppointments();
+
+    List<Appointment> getAppointmentsForPhysician(String physicianId);
+}

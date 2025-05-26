@@ -1,0 +1,45 @@
+package physicianconnect.persistence.stub;
+
+import physicianconnect.objects.Medication;
+import physicianconnect.persistence.MedicationPersistence;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MedicationPersistenceStub implements MedicationPersistence {
+    private final List<Medication> medications;
+
+    public MedicationPersistenceStub(boolean seed) {
+        medications = new ArrayList<>();
+        if (seed) {
+            medications.add(new Medication("Ibuprofen", "200mg"));
+            medications.add(new Medication("Amoxicillin", "500mg"));
+        }
+    }
+
+    @Override
+    public void addMedication(Medication medication) {
+        if (medication != null) {
+            medications.add(medication);
+        }
+    }
+
+    @Override
+    public void deleteMedication(Medication medication) {
+        medications.remove(medication);
+    }
+
+    @Override
+    public void deleteAllMedications() {
+        medications.clear();
+    }
+
+    @Override
+    public List<Medication> getAllMedications() {
+        return new ArrayList<>(medications);
+    }
+
+    public void close() {
+        medications.clear();
+    }
+}
