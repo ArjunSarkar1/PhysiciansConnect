@@ -1,4 +1,26 @@
+VISION STATEMENT
+---
+PhysicianConnect is an easy-to-use tool that helps doctors stay organized, manage their appointments, and give better care to their patients.
 
+Doctors use PhysicianConnect to plan their workdays. They can set when they’re available, review their upcoming visits, and write down notes before and after each appointment. It also helps them remember what was discussed, what medications were given, and what the next steps are.
+
+Patients book appointments through a separate website. Once an appointment is booked, it shows up in the doctor’s schedule on PhysicianConnect, along with any helpful notes the patient has shared.
+
+With everything in one place, doctors save time, avoid double bookings, and stay better prepared for each visit. They can focus more on their patients and less on sorting through papers or juggling calendars.
+
+Everyone sees only what they need. Doctors have full access to their own schedule and visit details, while patients only use the booking website. This keeps things simple and private.
+
+This project will be successful if:
+
+Over 85% of doctors say the app helps them stay organized.
+
+Managing appointments takes at least 30% less time than before.
+
+Doctors spend at least 25% less time on paperwork and planning.
+
+---
+README
+---
 
 # PhysicianConnect (Physician View)
 
