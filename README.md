@@ -43,13 +43,28 @@ The application uses a composition root (typically in the `main()` method) to wi
 
 ### Running the Application
 
-To run the application using Gradle, use:
+# Clone the Repository
+If you haven't already cloned the repository, do so using:
+```bash
+git clone https://code.cs.umanitoba.ca/comp3350-summer2025/a01-g08-todo-everything.git
+```
 
+# Navigate to the Application Directory
+From the root of the cloned project, navigate to the app folder:
+```bash
+cd a01-g08-todo-everything/physiciansconnect/app
+```
+Use forward slashes (/) for Unix-based systems (macOS, Linux) and backslashes (\) for Windows in Command Prompt or PowerShell.
+
+# Run the Application
+Use Gradle to start the application:
 ```bash
 ./gradlew run
 ```
-
-*(Alternatively, run your main class via your IDE’s run configuration.)*
+On Windows (PowerShell or CMD), if you encounter permission issues with ./gradlew, try:
+```bash
+./gradlew.bat run
+```
 
 ## Database Management
 
