@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     %% Presentation Layer
     UI[Presentation Layer\nphysicianconnect.presentation\nLoginScreen, PhysicianApp]
@@ -35,3 +36,4 @@ flowchart TD
     PI --> STUB
     PI --> SQLITE
     SQLITE --> CM
+```
