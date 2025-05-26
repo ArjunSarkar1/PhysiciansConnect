@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T18:20:06.122Z" hostname="NABZ-ROG" time="0.139">
+<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T22:26:54.911Z" hostname="Mohammads-MacBook-Air.local" time="0.286">
   <properties/>
-  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.133"/>
-  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.004"/>
+  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.283"/>
+  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.persistence.AppointmentDBTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T18:20:06.346Z" hostname="NABZ-ROG" time="0.004">
+<testsuite name="physicianconnect.persistence.AppointmentDBTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T22:26:55.227Z" hostname="Mohammads-MacBook-Air.local" time="0.003">
   <properties/>
-  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.002"/>
+  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
   <testcase name="testAddAndFetchAppointment()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

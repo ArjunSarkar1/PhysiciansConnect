@@ -11,7 +11,7 @@ import physicianconnect.presentation.LoginScreen;
 public class App {
     public static void main(String[] args) {
         // Step 1: Initialize shared DB connection
-        PersistenceFactory.initialize(PersistenceType.PROD, false);
+        PersistenceFactory.initialize(PersistenceType.PROD, true);
 
         // Step 2: Create logic layer
         PhysicianManager physicianManager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());

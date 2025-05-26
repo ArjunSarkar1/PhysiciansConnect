@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.MedicationManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T18:20:06.280Z" hostname="NABZ-ROG" time="0.025">
+<testsuite name="physicianconnect.logic.MedicationManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T22:26:55.207Z" hostname="Mohammads-MacBook-Air.local" time="0.004">
   <properties/>
-  <testcase name="testDeleteMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.015"/>
-  <testcase name="testAddAndFetchMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.009"/>
+  <testcase name="testDeleteMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.002"/>
+  <testcase name="testAddAndFetchMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

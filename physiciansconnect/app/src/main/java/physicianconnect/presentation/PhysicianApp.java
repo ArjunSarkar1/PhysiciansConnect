@@ -4,6 +4,9 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
+import physicianconnect.persistence.MedicationPersistence;
+import physicianconnect.persistence.PrescriptionPersistence;
+import physicianconnect.persistence.PersistenceFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -52,9 +55,18 @@ public class PhysicianApp {
         appointmentScroll.setBorder(BorderFactory.createTitledBorder("Your Appointments"));
         contentPanel.add(appointmentScroll, BorderLayout.CENTER);
 
+        // Persistence instances
+        MedicationPersistence medicationPersistence = PersistenceFactory.getMedicationPersistence();
+        PrescriptionPersistence prescriptionPersistence = PersistenceFactory.getPrescriptionPersistence();
+
+        // Panels for dialogs
+        PatientHistoryPanel[] historyPanelHolder = new PatientHistoryPanel[1]; // for callback access
+
         // Buttons
         JButton addAppointmentButton = createButton("📅 Add Appointment");
         JButton viewAppointmentButton = createButton("🔍 View Appointment");
+        JButton historyButton = createButton("🗂 Patient History");
+        JButton prescribeButton = createButton("💊 Prescribe Medicine");
         JButton signOutButton = createButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
@@ -72,14 +84,51 @@ public class PhysicianApp {
             refreshAppointments();
         });
 
+        historyButton.addActionListener(e -> {
+            JDialog dialog = new JDialog(frame, "Patient Medical History", true);
+            PatientHistoryPanel historyPanel = new PatientHistoryPanel(
+                    appointmentManager,
+                    prescriptionPersistence,
+                    loggedIn.getId()
+            );
+            historyPanelHolder[0] = historyPanel;
+            dialog.setContentPane(historyPanel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(frame);
+            dialog.setVisible(true);
+        });
+
+        prescribeButton.addActionListener(e -> {
+            JDialog dialog = new JDialog(frame, "Prescribe Medicine", true);
+            // Use callback to update history if open
+            Runnable onPrescriptionAdded = () -> {
+                if (historyPanelHolder[0] != null) {
+                    historyPanelHolder[0].updateHistory();
+                }
+            };
+            dialog.setContentPane(new PrescribeMedicinePanel(
+                    appointmentManager,
+                    medicationPersistence,
+                    prescriptionPersistence,
+                    loggedIn.getId(),
+                    onPrescriptionAdded
+            ));
+            dialog.pack();
+            dialog.setLocationRelativeTo(frame);
+            dialog.setVisible(true);
+        });
+
         signOutButton.addActionListener(e -> {
             frame.dispose();
             new LoginScreen(physicianManager, appointmentManager);
         });
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        //JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
+        buttonPanel.add(historyButton);
+        buttonPanel.add(prescribeButton);
         buttonPanel.add(signOutButton);
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -104,14 +153,14 @@ public class PhysicianApp {
     }
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager) {
+                                        AppointmentManager appointmentManager) {
         new PhysicianApp(loggedIn, physicianManager, appointmentManager);
     }
 
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                boolean isSelected, boolean cellHasFocus) {
+                                                      boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             label.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(isSelected ? Color.BLUE : Color.LIGHT_GRAY, 1),

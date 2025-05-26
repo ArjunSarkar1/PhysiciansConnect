@@ -28,10 +28,25 @@ public class SchemaInitializer {
                 + "dosage TEXT NOT NULL"
                 + ");";
 
+        String createPrescriptionsTable = "CREATE TABLE IF NOT EXISTS prescriptions ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "physician_id TEXT NOT NULL, "
+                + "patient_name TEXT NOT NULL, "
+                + "medication_name TEXT NOT NULL, "
+                + "default_dosage TEXT NOT NULL, "
+                + "dosage TEXT, "
+                + "frequency TEXT, "
+                + "notes TEXT, "
+                + "date_prescribed TEXT NOT NULL, "
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id)"
+                + ");";
+
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createPhysiciansTable);
             stmt.execute(createAppointmentsTable);
             stmt.execute(createMedicationsTable);
+            stmt.execute(createPrescriptionsTable);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize PhysicianConnect schema", e);
         }
