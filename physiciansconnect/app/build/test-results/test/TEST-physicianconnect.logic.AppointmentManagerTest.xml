@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:47:33.031Z" hostname="NABZ-ROG" time="0.134">
+<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:51:42.858Z" hostname="NABZ-ROG" time="0.137">
   <properties/>
-  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.129"/>
+  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.132"/>
   <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".

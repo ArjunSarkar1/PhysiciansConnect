@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.PhysicianAppointmentIntegrationTest" tests="2" skipped="0" failures="1" errors="0" timestamp="2025-05-26T17:47:33.216Z" hostname="NABZ-ROG" time="0.014">
+<testsuite name="physicianconnect.logic.PhysicianAppointmentIntegrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:51:43.042Z" hostname="NABZ-ROG" time="0.013">
   <properties/>
-  <testcase name="testAppointmentForUnknownPhysicianReturnsEmpty()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.004"/>
-  <testcase name="testPhysicianAppointmentsArePersistedAndRetrieved()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.01">
-    <failure message="org.opentest4j.AssertionFailedError: expected: &lt;1&gt; but was: &lt;3&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;1&gt; but was: &lt;3&gt;
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at app//org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
-	at app//org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
-	at app//org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
-	at app//org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:527)
-	at app//physicianconnect.logic.PhysicianAppointmentIntegrationTest.testPhysicianAppointmentsArePersistedAndRetrieved(PhysicianAppointmentIntegrationTest.java:44)
-	at java.base@21.0.2/java.lang.reflect.Method.invoke(Method.java:580)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-</failure>
-  </testcase>
+  <testcase name="testAppointmentForUnknownPhysicianReturnsEmpty()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.003"/>
+  <testcase name="testPhysicianAppointmentsArePersistedAndRetrieved()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.01"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

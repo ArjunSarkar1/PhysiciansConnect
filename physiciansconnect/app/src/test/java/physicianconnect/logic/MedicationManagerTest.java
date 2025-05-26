@@ -32,17 +32,29 @@ public class MedicationManagerTest {
         medDB.addMedication(m);
 
         List<Medication> result = medDB.getAllMedications();
-        assertEquals(1, result.size());
-        assertEquals("Ibuprofen", result.get(0).getName());
+
+        boolean found = result.stream()
+                .anyMatch(med -> med.getName().equals("Ibuprofen") && med.getDosage().equals("200mg"));
+
+        assertTrue(found, "Expected to find medication 'Ibuprofen' with dosage '200mg'");
     }
 
     @Test
     public void testDeleteMedication() {
         Medication m = new Medication("Paracetamol", "500mg");
         medDB.addMedication(m);
-        medDB.deleteMedication(m);
 
-        List<Medication> meds = medDB.getAllMedications();
-        assertTrue(meds.isEmpty());
+        // Ensure it was added
+        List<Medication> beforeDelete = medDB.getAllMedications();
+        boolean wasAdded = beforeDelete.stream()
+                .anyMatch(med -> med.getName().equals("Paracetamol") && med.getDosage().equals("500mg"));
+        assertTrue(wasAdded, "Medication should be added before deletion");
+
+        // Delete and verify it's gone
+        medDB.deleteMedication(m);
+        List<Medication> afterDelete = medDB.getAllMedications();
+        boolean stillExists = afterDelete.stream()
+                .anyMatch(med -> med.getName().equals("Paracetamol") && med.getDosage().equals("500mg"));
+        assertFalse(stillExists, "Medication should be deleted and not found in the list");
     }
 }

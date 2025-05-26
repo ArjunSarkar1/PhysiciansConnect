@@ -1,34 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.MedicationManagerTest" tests="2" skipped="0" failures="2" errors="0" timestamp="2025-05-26T17:47:33.183Z" hostname="NABZ-ROG" time="0.029">
+<testsuite name="physicianconnect.logic.MedicationManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T17:51:43.014Z" hostname="NABZ-ROG" time="0.024">
   <properties/>
-  <testcase name="testDeleteMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.019">
-    <failure message="org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at app//org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
-	at app//org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
-	at app//org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:31)
-	at app//org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:179)
-	at app//physicianconnect.logic.MedicationManagerTest.testDeleteMedication(MedicationManagerTest.java:46)
-	at java.base@21.0.2/java.lang.reflect.Method.invoke(Method.java:580)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-</failure>
-  </testcase>
-  <testcase name="testAddAndFetchMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.009">
-    <failure message="org.opentest4j.AssertionFailedError: expected: &lt;1&gt; but was: &lt;3&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;1&gt; but was: &lt;3&gt;
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at app//org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
-	at app//org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
-	at app//org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
-	at app//org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:527)
-	at app//physicianconnect.logic.MedicationManagerTest.testAddAndFetchMedication(MedicationManagerTest.java:35)
-	at java.base@21.0.2/java.lang.reflect.Method.invoke(Method.java:580)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at java.base@21.0.2/java.util.ArrayList.forEach(ArrayList.java:1596)
-</failure>
-  </testcase>
+  <testcase name="testDeleteMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.014"/>
+  <testcase name="testAddAndFetchMedication()" classname="physicianconnect.logic.MedicationManagerTest" time="0.01"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

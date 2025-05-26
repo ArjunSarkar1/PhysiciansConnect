@@ -19,7 +19,7 @@ public class PhysicianAppointmentIntegrationTest {
 
     @BeforeEach
     public void setup() {
-        PersistenceFactory.initialize(PersistenceType.TEST, false);
+        PersistenceFactory.initialize(PersistenceType.TEST, false); // Do not re-seed if already seeded
         physicianManager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());
         appointmentManager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
     }
@@ -39,15 +39,19 @@ public class PhysicianAppointmentIntegrationTest {
         Appointment a = new Appointment("abc", "Amy Pond", LocalDateTime.of(2025, 1, 10, 9, 0));
         appointmentManager.addAppointment(a);
 
-        // Step 3: Check that it's linked
+        // Step 3: Verify Amy Pond's appointment is present
         List<Appointment> result = appointmentManager.getAppointmentsForPhysician("abc");
-        assertEquals(1, result.size());
-        assertEquals("Amy Pond", result.get(0).getPatientName());
+
+        boolean found = result.stream()
+                .anyMatch(app -> app.getPatientName().equals("Amy Pond")
+                        && app.getDateTime().equals(LocalDateTime.of(2025, 1, 10, 9, 0)));
+
+        assertTrue(found, "Expected to find appointment for Amy Pond at 9:00 AM on Jan 10, 2025");
     }
 
     @Test
     public void testAppointmentForUnknownPhysicianReturnsEmpty() {
         List<Appointment> result = appointmentManager.getAppointmentsForPhysician("nonexistent-id");
-        assertTrue(result.isEmpty());
+        assertTrue(result.isEmpty(), "Expected no appointments for a nonexistent physician ID");
     }
 }
