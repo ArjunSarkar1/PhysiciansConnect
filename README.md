@@ -9,6 +9,7 @@ Patients book their appointments through a separate website. As soon as a bookin
 Everything is private and secure. Doctors see only what they need to do their job, and patients only use the booking site.
 
 The project will be a success if:
+
 More than 85% of doctors say it helps them stay organized
 Appointment planning takes 30% less time
 Doctors spend 25% less time writing things down or getting ready
