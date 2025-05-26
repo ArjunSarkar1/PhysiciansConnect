@@ -4,19 +4,13 @@ For doctors who need a clear and simple way to manage their day
 PhysicianConnect is a tool that helps them stay on top of appointments, prepare for visits, and keep track of what happens with each patient.
 Unlike messy paper notes or complicated software,
 PhysicianConnect keeps everything organized in one place so doctors can spend less time planning and more time caring.
-
 Doctors use PhysicianConnect to set when they’re available, see who they’re meeting with, and write notes before and after each visit. They can also track what was discussed and what comes next, including medications or follow-ups.
-
 Patients book their appointments through a separate website. As soon as a booking is made, it shows up for the doctor—along with any notes the patient added.
-
 Everything is private and secure. Doctors see only what they need to do their job, and patients only use the booking site.
 
 The project will be a success if:
-
 More than 85% of doctors say it helps them stay organized
-
 Appointment planning takes 30% less time
-
 Doctors spend 25% less time writing things down or getting ready
 
 ---
