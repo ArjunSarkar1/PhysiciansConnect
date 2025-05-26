@@ -14,7 +14,7 @@ Appointment planning takes 30% less time
 Doctors spend 25% less time writing things down or getting ready
 
 ---
-README
+# README
 
 ---
 
