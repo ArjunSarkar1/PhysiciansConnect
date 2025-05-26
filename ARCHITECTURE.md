@@ -1,27 +1,27 @@
 ```mermaid
 flowchart TD
     %% Presentation Layer
-    UI[Presentation Layer<br/>physicianconnect.presentation<br/>LoginScreen, PhysicianApp]
+    UI[Presentation Layer\nphysicianconnect.presentation\nLoginScreen, PhysicianApp]
 
     %% Logic Layer
-    LM[Logic Layer<br/>physicianconnect.logic<br/>PhysicianManager, AppointmentManager, AppointmentValidator]
+    LM[Logic Layer\nphysicianconnect.logic\nPhysicianManager, AppointmentManager, AppointmentValidator]
 
     %% Domain Objects
-    OBJ[Domain Objects<br/>physicianconnect.objects<br/>Physician, Appointment, Medication]
+    OBJ[Domain Objects\nphysicianconnect.objects\nPhysician, Appointment, Medication]
 
     %% Exceptions
-    EXC[Exceptions<br/>physicianconnect.exceptions<br/>InvalidAppointmentException]
+    EXC[Exceptions\nphysicianconnect.exceptions\nInvalidAppointmentException]
 
     %% Persistence Interfaces and Implementations
-    PI[Persistence Interfaces<br/>physicianconnect.persistence<br/>PhysicianPersistence, AppointmentPersistence, MedicationPersistence]
-    STUB[Stub DB (Test)<br/>physicianconnect.persistence.stub]
-    SQLITE[SQLite DB (Prod)<br/>physicianconnect.persistence.sqlite<br/>AppointmentDB, MedicationDB, PhysicianDB, SchemaInitializer, DatabaseSeeder]
+    PI[Persistence Interfaces\nphysicianconnect.persistence\nPhysicianPersistence, AppointmentPersistence, MedicationPersistence]
+    STUB[Stub DB (Test)\nphysicianconnect.persistence.stub]
+    SQLITE[SQLite DB (Prod)\nphysicianconnect.persistence.sqlite\nAppointmentDB, MedicationDB, PhysicianDB, SchemaInitializer, DatabaseSeeder]
 
     %% Infrastructure
-    CM[Infrastructure<br/>ConnectionManager]
+    CM[Infrastructure\nConnectionManager]
 
     %% Main Entry Point
-    MAIN[App Entry Point<br/>App.java]
+    MAIN[App Entry Point\nApp.java]
 
     %% Flow Connections
     MAIN --> UI
@@ -36,4 +36,5 @@ flowchart TD
     PI --> STUB
     PI --> SQLITE
     SQLITE --> CM
+
 ```
