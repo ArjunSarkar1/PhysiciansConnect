@@ -1,16 +1,45 @@
+# =========================
+# Java / Gradle Projects
+# =========================
+
+# Ignore compiled class files
+*.class
+
+# Ignore log files
+*.log
+
 # Ignore database files
 *.db
 
+# Ignore IntelliJ / VS Code / Eclipse project files (optional, if team uses IDEs)
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
 # Ignore Gradle build output
-*./build/
-*./gradle/
-*.lock
-*.bin
+/build/
+/out/
+/.gradle/
+/bin/
 
-# Ignore compiled Java class files
-*.class
+# Ignore test reports
+/test-results/
+/reports/
+/coverage/
 
-# Ignore Gradle Wrapper logs
-gradle/wrapper/gradle-wrapper.properties
-gradle/wrapper/gradle-wrapper.jar
+# Ignore generated files
+generated/
 
+# Ignore JARs and other outputs (optional if built artifacts shouldn't be tracked)
+*.jar
+
+# =========================
+# Other Temporary Files
+# =========================
+
+# OS generated files
+.DS_Store
+Thumbs.db
