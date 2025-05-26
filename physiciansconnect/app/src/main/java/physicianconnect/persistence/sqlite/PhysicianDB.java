@@ -17,11 +17,12 @@ public class PhysicianDB implements PhysicianPersistence {
 
     @Override
     public void addPhysician(Physician physician) {
-        String sql = "INSERT OR IGNORE INTO physicians (id, name, email) VALUES (?, ?, ?)";
+        String sql = "INSERT OR IGNORE INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, physician.getId());
             stmt.setString(2, physician.getName());
             stmt.setString(3, physician.getEmail());
+            stmt.setString(4, physician.getPassword());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to add physician", e);
@@ -31,7 +32,7 @@ public class PhysicianDB implements PhysicianPersistence {
     @Override
     public List<Physician> getAllPhysicians() {
         List<Physician> list = new ArrayList<>();
-        String sql = "SELECT id, name, email FROM physicians";
+        String sql = "SELECT id, name, email, password FROM physicians";
 
         try (Statement stmt = connection.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
@@ -39,7 +40,8 @@ public class PhysicianDB implements PhysicianPersistence {
                 list.add(new Physician(
                         rs.getString("id"),
                         rs.getString("name"),
-                        rs.getString("email")));
+                        rs.getString("email"),
+                        rs.getString("password")));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch physicians", e);
@@ -50,12 +52,16 @@ public class PhysicianDB implements PhysicianPersistence {
 
     @Override
     public Physician getPhysicianById(String id) {
-        String sql = "SELECT id, name, email FROM physicians WHERE id = ?";
+        String sql = "SELECT id, name, email, password FROM physicians WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new Physician(rs.getString("id"), rs.getString("name"), rs.getString("email"));
+                return new Physician(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("password"));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find physician", e);

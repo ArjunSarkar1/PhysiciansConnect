@@ -37,4 +37,20 @@ public class PhysicianManager {
     public void deleteAll() {
         physicianDB.deleteAllPhysicians();
     }
+
+    public Physician getPhysicianByEmail(String email) {
+        return physicianDB.getAllPhysicians().stream()
+                .filter(p -> p.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Physician login(String email, String password) {
+        Physician physician = getPhysicianByEmail(email);
+        if (physician != null && physician.getPassword().equals(password)) {
+            return physician;
+        }
+        return null;
+    }
+
 }

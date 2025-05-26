@@ -6,7 +6,7 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;
-import physicianconnect.presentation.PhysicianApp;
+import physicianconnect.presentation.LoginScreen;
 
 public class App {
     public static void main(String[] args) {
@@ -18,6 +18,6 @@ public class App {
         AppointmentManager appointmentManager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
 
         // Step 3: Launch the UI (pass managers to the UI)
-        SwingUtilities.invokeLater(() -> PhysicianApp.launch(physicianManager, appointmentManager));
+        SwingUtilities.invokeLater(() -> new LoginScreen(physicianManager, appointmentManager));
     }
 }

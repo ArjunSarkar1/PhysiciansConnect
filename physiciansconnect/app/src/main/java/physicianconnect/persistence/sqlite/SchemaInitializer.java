@@ -11,6 +11,7 @@ public class SchemaInitializer {
                 + "id TEXT PRIMARY KEY, "
                 + "name TEXT NOT NULL, "
                 + "email TEXT NOT NULL"
+                + "password TEXT NOT NULL"
                 + ");";
 
         String createAppointmentsTable = "CREATE TABLE IF NOT EXISTS appointments ("

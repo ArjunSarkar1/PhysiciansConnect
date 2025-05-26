@@ -11,8 +11,8 @@ public class PhysicianPersistenceStub implements PhysicianPersistence {
     public PhysicianPersistenceStub(boolean seed) {
         physicians = new HashMap<>();
         if (seed) {
-            addPhysician(new Physician("1", "Dr. Smith", "smith@hospital.com"));
-            addPhysician(new Physician("2", "Dr. Lee", "lee@clinic.org"));
+            addPhysician(new Physician("1", "Dr. Smith", "smith@hospital.com", "test123"));
+            addPhysician(new Physician("2", "Dr. Lee", "lee@clinic.org", "test123"));
         }
     }
 

@@ -78,8 +78,9 @@ public class PhysicianApp {
             String id = JOptionPane.showInputDialog("Physician ID:");
             String name = JOptionPane.showInputDialog("Physician Name:");
             String email = JOptionPane.showInputDialog("Physician Email:");
-            if (id != null && name != null && email != null) {
-                physicianManager.addPhysician(new Physician(id, name, email));
+            String password = JOptionPane.showInputDialog("Physician Password:");
+            if (id != null && name != null && email != null && password != null) {
+                physicianManager.addPhysician(new Physician(id, name, email, password));
                 refreshPhysicians();
             }
         });
@@ -168,4 +169,15 @@ public class PhysicianApp {
             return label;
         }
     }
+
+    public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
+            AppointmentManager appointmentManager) {
+        PhysicianApp app = new PhysicianApp(physicianManager, appointmentManager);
+
+        // Preload physician list and select the logged-in user
+        app.refreshPhysicians();
+        app.physicianListDisplay.setSelectedValue(loggedIn, true);
+        app.physicianListDisplay.setEnabled(false); // prevent switching users
+    }
+
 }
