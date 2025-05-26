@@ -17,7 +17,8 @@ public class DatabaseSeeder {
     }
 
     private static void executeSqlFromResource(String resourcePath, Connection connection) {
-        InputStream input = DatabaseSeeder.class.getResourceAsStream(resourcePath);
+        InputStream input = DatabaseSeeder.class.getClassLoader().getResourceAsStream(resourcePath);
+
         if (input == null) {
             throw new RuntimeException("Seed file not found: " + resourcePath);
         }

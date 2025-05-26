@@ -70,7 +70,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\physiciansconnect-1.0.jar
+set CLASSPATH=%APP_HOME%\lib\physiciansconnect-1.0.jar;%APP_HOME%\lib\sqlite-jdbc-3.45.1.0.jar;%APP_HOME%\lib\slf4j-api-1.7.36.jar
 
 
 @rem Execute physiciansconnect

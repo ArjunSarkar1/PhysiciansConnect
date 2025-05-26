@@ -21,6 +21,7 @@ public class PersistenceFactory {
 
         switch (type) {
             case PROD, TEST -> {
+                // Store in root dir like your teacher's version
                 String dbPath = type == PersistenceType.PROD ? "prod.db" : "test.db";
                 try {
                     ConnectionManager.initialize(dbPath);
@@ -30,9 +31,9 @@ public class PersistenceFactory {
 
                     if (seed) {
                         DatabaseSeeder.seed(conn, List.of(
-                                "/seed_physicians.sql",
-                                "/seed_appointments.sql",
-                                "/seed_medications.sql"));
+                                "seed_physicians.sql",
+                                "seed_appointments.sql",
+                                "seed_medications.sql"));
                     }
 
                     physicianPersistence = new PhysicianDB(conn);
@@ -43,7 +44,6 @@ public class PersistenceFactory {
                     fallbackToStubs(e);
                 }
             }
-
             case STUB -> fallbackToStubs(null);
         }
     }
