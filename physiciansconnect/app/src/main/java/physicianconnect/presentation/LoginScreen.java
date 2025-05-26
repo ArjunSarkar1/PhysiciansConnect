@@ -16,12 +16,16 @@ public class LoginScreen extends JFrame {
 
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField(20);
+        emailField.setName("emailField");
 
         JLabel passLabel = new JLabel("Password:");
         JPasswordField passField = new JPasswordField(20);
+        passField.setName("passwordField");
 
         JButton loginBtn = new JButton("Login");
         JButton createBtn = new JButton("Create Account");
+        loginBtn.setName("loginBtn");
+        createBtn.setName("createBtn");
 
         JLabel testInfo = new JLabel("Test: test@email.com / password: test123");
 
@@ -34,7 +38,7 @@ public class LoginScreen extends JFrame {
                 dispose(); // close login screen
                 PhysicianApp.launchSingleUser(user, physicianManager, appointmentManager);
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.");
+                JOptionPane.showMessageDialog(this, "Invalid credentials.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 
