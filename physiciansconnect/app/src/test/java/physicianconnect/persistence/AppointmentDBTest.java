@@ -47,4 +47,28 @@ public class AppointmentDBTest {
         List<Appointment> result = db.getAppointmentsForPhysician("unknown");
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void testDeleteAppointment() {
+        Appointment a = new Appointment("doc1", "Delete Me", LocalDateTime.now());
+        db.addAppointment(a);
+        db.deleteAppointment(a);
+        List<Appointment> list = db.getAppointmentsForPhysician("doc1");
+        assertTrue(list.stream().noneMatch(appt -> appt.getPatientName().equals("Delete Me")));
+    }
+
+    @Test
+    public void testDeleteAllAppointments() {
+        db.addAppointment(new Appointment("doc1", "A", LocalDateTime.now()));
+        db.addAppointment(new Appointment("doc2", "B", LocalDateTime.now()));
+        db.deleteAllAppointments();
+        assertTrue(db.getAppointmentsForPhysician("doc1").isEmpty());
+        assertTrue(db.getAppointmentsForPhysician("doc2").isEmpty());
+    }
+
+    @Test
+    public void testAddAppointmentCatchesSQLException() {
+        Appointment a = new Appointment(null, null, null);
+        assertThrows(RuntimeException.class, () -> db.addAppointment(a));
+    }
 }

@@ -20,3 +20,4 @@ public class ConnectionManagerTest {
                 "Calling get() after close() should throw IllegalStateException");
     }
 }
+

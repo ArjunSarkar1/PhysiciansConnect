@@ -41,4 +41,14 @@ public class SchemaTest {
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='medications'");
         assertTrue(rs.next(), "Table 'medications' should exist");
     }
+
+    @Test
+    public void testSchemaInitializer_createsPrescriptionsTable() throws Exception {
+        Connection conn = DriverManager.getConnection("jdbc:sqlite::memory:");
+        SchemaInitializer.initializeSchema(conn);
+
+        ResultSet rs = conn.createStatement().executeQuery(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='prescriptions'");
+        assertTrue(rs.next(), "Table 'prescriptions' should exist");
+    }
 }

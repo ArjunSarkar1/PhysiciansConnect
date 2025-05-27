@@ -3,6 +3,7 @@ package physicianconnect.persistence.stub;
 import physicianconnect.persistence.AppointmentPersistence;
 import physicianconnect.persistence.MedicationPersistence;
 import physicianconnect.persistence.PhysicianPersistence;
+import physicianconnect.persistence.PrescriptionPersistence;
 
 public class StubFactory {
 
@@ -16,5 +17,9 @@ public class StubFactory {
 
     public static MedicationPersistence createMedicationPersistence() {
         return new MedicationPersistenceStub(true); // seeded
+    }
+    
+    public static PrescriptionPersistence createPrescriptionPersistence() {
+        return new PrescriptionPersistenceStub(true); // seeded
     }
 }

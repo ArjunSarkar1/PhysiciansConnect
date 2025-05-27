@@ -7,6 +7,7 @@ import java.util.List;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.persistence.sqlite.MedicationDB;
 import physicianconnect.persistence.sqlite.PhysicianDB;
+import physicianconnect.persistence.sqlite.PrescriptionDB;
 import physicianconnect.persistence.sqlite.SchemaInitializer;
 import physicianconnect.persistence.stub.StubFactory;
 
@@ -15,6 +16,8 @@ public class PersistenceFactory {
     private static PhysicianPersistence physicianPersistence;
     private static AppointmentPersistence appointmentPersistence;
     private static MedicationPersistence medicationPersistence;
+    private static PrescriptionPersistence prescriptionPersistence;
+    
 
     public static void initialize(PersistenceType type, boolean seed) {
         if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null)
@@ -32,14 +35,17 @@ public class PersistenceFactory {
 
                     if (seed) {
                         DatabaseSeeder.seed(conn, List.of(
-                                "seed_physicians.sql",
-                                "seed_appointments.sql",
-                                "seed_medications.sql"));
+                            "seed_physicians.sql",
+                            "seed_appointments.sql",
+                            "seed_medications.sql",
+                            "seed_prescriptions.sql"
+                        ));
                     }
 
                     physicianPersistence = new PhysicianDB(conn);
                     appointmentPersistence = new AppointmentDB(conn);
                     medicationPersistence = new MedicationDB(conn);
+                    prescriptionPersistence = new PrescriptionDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -61,6 +67,7 @@ public class PersistenceFactory {
         physicianPersistence = StubFactory.createPhysicianPersistence();
         appointmentPersistence = StubFactory.createAppointmentPersistence();
         medicationPersistence = StubFactory.createMedicationPersistence();
+        prescriptionPersistence = StubFactory.createPrescriptionPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -79,11 +86,16 @@ public class PersistenceFactory {
         return medicationPersistence;
     }
 
+    public static PrescriptionPersistence getPrescriptionPersistence() {
+        return prescriptionPersistence;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
         appointmentPersistence = null;
         medicationPersistence = null;
+        prescriptionPersistence = null;
     }
 
     private static void injectTestUserForGrader() {

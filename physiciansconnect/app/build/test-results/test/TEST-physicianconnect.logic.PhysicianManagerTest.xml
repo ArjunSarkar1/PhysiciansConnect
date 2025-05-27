@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.PhysicianManagerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-26T18:20:06.324Z" hostname="NABZ-ROG" time="0.02">
+<testsuite name="physicianconnect.logic.PhysicianManagerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:13:04.912Z" hostname="Mohammads-MacBook-Air.local" time="0.023">
   <properties/>
   <testcase name="testLoginFailureUnknownEmail()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.004"/>
-  <testcase name="testLoginSuccess()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.005"/>
+  <testcase name="testLoginSuccess()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.003"/>
   <testcase name="testAddAndRetrievePhysician()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.002"/>
-  <testcase name="testDuplicatePhysicianIsIgnored()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.003"/>
-  <testcase name="testLoginFailureWrongPassword()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.003"/>
+  <testcase name="testDuplicatePhysicianIsIgnored()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.005"/>
+  <testcase name="testLoginFailureWrongPassword()" classname="physicianconnect.logic.PhysicianManagerTest" time="0.005"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
