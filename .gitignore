@@ -11,31 +11,6 @@
 # Ignore database files
 *.db
 
-# Ignore IntelliJ / VS Code / Eclipse project files (optional, if team uses IDEs)
-.idea/
-*.iml
-.vscode/
-.classpath
-.project
-.settings/
-
-# Ignore Gradle build output
-/build/
-/out/
-/.gradle/
-/bin/
-
-# Ignore test reports
-/test-results/
-/reports/
-/coverage/
-
-# Ignore generated files
-generated/
-
-# Ignore JARs and other outputs (optional if built artifacts shouldn't be tracked)
-*.jar
-
 # =========================
 # Other Temporary Files
 # =========================
