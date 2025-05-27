@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.*;
 
 import physicianconnect.objects.Appointment;
+import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;
 
@@ -18,6 +19,10 @@ public class AppointmentManagerTest {
     @BeforeEach
     public void setup() {
         PersistenceFactory.initialize(PersistenceType.TEST, false);
+        // Add the physician for foreign key constraint
+        PersistenceFactory.getPhysicianPersistence().addPhysician(
+            new Physician("docX", "Dr. X", "x@x.com", "pw")
+        );
         manager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
     }
 
@@ -30,12 +35,11 @@ public class AppointmentManagerTest {
     public void testAddAndRetrieveAppointments() {
         int originalSize = manager.getAppointmentsForPhysician("docX").size();
 
-        Appointment a = new Appointment("docX", "Peter Parker", LocalDateTime.of(2025, 5, 26, 10, 0));
+        Appointment a = new Appointment("docX", "Peter Parker", LocalDateTime.now().plusMinutes(5));
         manager.addAppointment(a);
 
         List<Appointment> results = manager.getAppointmentsForPhysician("docX");
         assertEquals(originalSize + 1, results.size());
-
     }
 
     @Test

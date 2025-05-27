@@ -17,10 +17,12 @@ public class MedicationDB implements MedicationPersistence {
 
     @Override
     public void addMedication(Medication medication) {
-        String sql = "INSERT INTO medications (name, dosage) VALUES (?, ?)";
+        String sql = "INSERT INTO medications (name, dosage, default_frequency, default_notes) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, medication.getName());
             stmt.setString(2, medication.getDosage());
+            stmt.setString(3, medication.getDefaultFrequency());
+            stmt.setString(4, medication.getDefaultNotes());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to add medication", e);
@@ -30,11 +32,15 @@ public class MedicationDB implements MedicationPersistence {
     @Override
     public List<Medication> getAllMedications() {
         List<Medication> meds = new ArrayList<>();
-        String sql = "SELECT name, dosage FROM medications";
+        String sql = "SELECT name, dosage, default_frequency, default_notes FROM medications";
         try (Statement stmt = connection.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                meds.add(new Medication(rs.getString("name"), rs.getString("dosage")));
+                meds.add(new Medication(
+                        rs.getString("name"),
+                        rs.getString("dosage"),
+                        rs.getString("default_frequency"),
+                        rs.getString("default_notes")));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load medications", e);

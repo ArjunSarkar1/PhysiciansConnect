@@ -6,7 +6,6 @@ import physicianconnect.config.AppConfig;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.persistence.PersistenceFactory;
-import physicianconnect.persistence.PersistenceType;
 import physicianconnect.presentation.LoginScreen;
 
 public class App {

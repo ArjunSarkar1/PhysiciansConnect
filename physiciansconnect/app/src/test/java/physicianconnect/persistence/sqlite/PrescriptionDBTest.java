@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
 import physicianconnect.objects.Prescription;
+import physicianconnect.objects.Physician;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,12 +15,18 @@ public class PrescriptionDBTest {
 
     private Connection conn;
     private PrescriptionDB db;
+    private PhysicianDB dbPhysician;
 
     @BeforeEach
     public void setup() throws Exception {
         conn = DriverManager.getConnection("jdbc:sqlite::memory:");
         SchemaInitializer.initializeSchema(conn);
         db = new PrescriptionDB(conn);
+        dbPhysician = new PhysicianDB(conn);
+
+        // Add physicians needed for foreign key constraints
+        dbPhysician.addPhysician(new Physician("doc1", "Dr. Banner", "banner@avengers.com", "hulk"));
+        dbPhysician.addPhysician(new Physician("doc2", "Dr. Stark", "stark@avengers.com", "ironman"));
     }
 
     @AfterEach

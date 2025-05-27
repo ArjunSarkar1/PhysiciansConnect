@@ -14,13 +14,15 @@ public class PhysicianManager {
         this.physicianDB = physicianDB;
     }
 
-    public void addPhysician(Physician physician) {
-        if (physician == null)
-            throw new IllegalArgumentException("Physician cannot be null.");
-        if (physicianDB.getPhysicianById(physician.getId()) == null) {
-            physicianDB.addPhysician(physician);
-        }
+public void addPhysician(Physician physician) {
+    if (physician == null)
+        throw new IllegalArgumentException("Physician cannot be null.");
+    if (physician.getId() == null || physician.getId().isBlank())
+        throw new IllegalArgumentException("Physician ID cannot be null or blank.");
+    if (physicianDB.getPhysicianById(physician.getId()) == null) {
+        physicianDB.addPhysician(physician);
     }
+}
 
     public void removePhysician(String id) {
         physicianDB.deletePhysicianById(id);

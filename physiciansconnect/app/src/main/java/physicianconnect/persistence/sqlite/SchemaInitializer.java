@@ -10,7 +10,7 @@ public class SchemaInitializer {
         String createPhysiciansTable = "CREATE TABLE IF NOT EXISTS physicians ("
                 + "id TEXT PRIMARY KEY, "
                 + "name TEXT NOT NULL, "
-                + "email TEXT NOT NULL,"
+                + "email TEXT NOT NULL, "
                 + "password TEXT NOT NULL"
                 + ");";
 
@@ -19,13 +19,15 @@ public class SchemaInitializer {
                 + "physician_id TEXT NOT NULL, "
                 + "patient_name TEXT NOT NULL, "
                 + "datetime TEXT NOT NULL, "
-                + "FOREIGN KEY (physician_id) REFERENCES physicians(id)"
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
                 + ");";
 
         String createMedicationsTable = "CREATE TABLE IF NOT EXISTS medications ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "name TEXT NOT NULL, "
-                + "dosage TEXT NOT NULL"
+                + "dosage TEXT NOT NULL, "
+                + "default_frequency TEXT, "
+                + "default_notes TEXT"
                 + ");";
 
         String createPrescriptionsTable = "CREATE TABLE IF NOT EXISTS prescriptions ("
@@ -38,11 +40,11 @@ public class SchemaInitializer {
                 + "frequency TEXT, "
                 + "notes TEXT, "
                 + "date_prescribed TEXT NOT NULL, "
-                + "FOREIGN KEY (physician_id) REFERENCES physicians(id)"
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
                 + ");";
 
-
         try (Statement stmt = connection.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON;");
             stmt.execute(createPhysiciansTable);
             stmt.execute(createAppointmentsTable);
             stmt.execute(createMedicationsTable);

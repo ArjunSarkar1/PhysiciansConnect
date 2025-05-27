@@ -18,8 +18,9 @@ public class PhysicianPersistenceStub implements PhysicianPersistence {
 
     @Override
     public void addPhysician(Physician physician) {
-        if (physician == null)
-            throw new IllegalArgumentException("Physician cannot be null.");
+        if (physician == null || physician.getId() == null || physician.getId().isBlank()) {
+            throw new IllegalArgumentException("Physician ID cannot be null or blank.");
+        }
 
         String id = (physician.getId() == null || physician.getId().isBlank())
                 ? UUID.randomUUID().toString()

@@ -23,10 +23,11 @@ public class PrescribeMedicinePanel extends JPanel {
     private JTextArea notesArea;
     private JButton prescribeButton;
 
-    public PrescribeMedicinePanel(AppointmentManager appointmentManager, MedicationPersistence medicationPersistence, PrescriptionPersistence prescriptionPersistence, String physicianId, Runnable onPrescriptionAdded) {
+    public PrescribeMedicinePanel(AppointmentManager appointmentManager, MedicationPersistence medicationPersistence,
+            PrescriptionPersistence prescriptionPersistence, String physicianId, Runnable onPrescriptionAdded) {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Patient ComboBox
@@ -43,32 +44,63 @@ public class PrescribeMedicinePanel extends JPanel {
         notesArea = new JTextArea(3, 20);
         prescribeButton = new JButton("Prescribe");
 
-        // Auto-fill dosage when medicine changes
+        // Auto-fill dosage, frequency, and notes when medicine changes
         medicineCombo.addActionListener(e -> {
             Medication med = (Medication) medicineCombo.getSelectedItem();
-            if (med != null) dosageField.setText(med.getDosage());
+            if (med != null) {
+                dosageField.setText(med.getDosage());
+                frequencyField.setText(med.getDefaultFrequency());
+                notesArea.setText(med.getDefaultNotes());
+            }
         });
         if (medicineCombo.getItemCount() > 0) {
             medicineCombo.setSelectedIndex(0);
-            dosageField.setText(((Medication)medicineCombo.getSelectedItem()).getDosage());
+            Medication med = (Medication) medicineCombo.getSelectedItem();
+            if (med != null) {
+                dosageField.setText(med.getDosage());
+                frequencyField.setText(med.getDefaultFrequency());
+                notesArea.setText(med.getDefaultNotes());
+            }
         }
 
-        gbc.gridx = 0; gbc.gridy = 0; add(new JLabel("Patient:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 0; add(patientCombo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(new JLabel("Patient:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        add(patientCombo, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; add(new JLabel("Medicine:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; add(medicineCombo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(new JLabel("Medicine:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        add(medicineCombo, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Dosage:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; add(dosageField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        add(new JLabel("Dosage:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        add(dosageField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 3; add(new JLabel("Frequency:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 3; add(frequencyField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        add(new JLabel("Frequency:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        add(frequencyField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 4; add(new JLabel("Notes:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 4; add(new JScrollPane(notesArea), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        add(new JLabel("Notes:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        add(new JScrollPane(notesArea), gbc);
 
-        gbc.gridx = 1; gbc.gridy = 5; add(prescribeButton, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        add(prescribeButton, gbc);
 
         prescribeButton.addActionListener(e -> {
             String patient = (String) patientCombo.getSelectedItem();
@@ -79,16 +111,17 @@ public class PrescribeMedicinePanel extends JPanel {
             String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
             if (patient == null || med == null || dosage.isEmpty() || frequency.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "All fields except notes are required.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "All fields except notes are required.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             Prescription prescription = new Prescription(
-                0, physicianId, patient, med.getName(), med.getDosage(), dosage, frequency, notes, now
-            );
+                    0, physicianId, patient, med.getName(), med.getDosage(), dosage, frequency, notes, now);
             prescriptionPersistence.addPrescription(prescription);
             JOptionPane.showMessageDialog(this, "Prescription added for " + patient + ": " + med.getName());
-            if (onPrescriptionAdded != null) onPrescriptionAdded.run();
+            if (onPrescriptionAdded != null)
+                onPrescriptionAdded.run();
         });
     }
 }

@@ -39,7 +39,7 @@ public class FullWorkflowIntegrationTest {
         physicianManager.addPhysician(doc);
 
         // Add medication
-        Medication med = new Medication("Vicodin", "10mg");
+        Medication med = new Medication("Vicodin", "10mg", "Pain relief", "Take with water");
         medicationPersistence.addMedication(med);
 
         // Schedule appointment

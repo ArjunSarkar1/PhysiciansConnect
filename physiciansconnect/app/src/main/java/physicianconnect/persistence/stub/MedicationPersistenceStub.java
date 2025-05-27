@@ -12,8 +12,8 @@ public class MedicationPersistenceStub implements MedicationPersistence {
     public MedicationPersistenceStub(boolean seed) {
         medications = new ArrayList<>();
         if (seed) {
-            medications.add(new Medication("Ibuprofen", "200mg"));
-            medications.add(new Medication("Amoxicillin", "500mg"));
+            medications.add(new Medication("Ibuprofen", "200mg", "Once a day", "Take with water"));
+            medications.add(new Medication("Amoxicillin", "500mg", "Three times a day", "Take with food"));
         }
     }
 

@@ -35,7 +35,7 @@ public class DeleteCascadeIntegrationTest {
     public void testDeletePhysicianRemovesAppointmentsAndPrescriptions() {
         Physician doc = new Physician("p2", "Dr. Strange", "strange@hospital.com", "magic");
         physicianManager.addPhysician(doc);
-        medicationPersistence.addMedication(new Medication("Morphine", "5mg"));
+        medicationPersistence.addMedication(new Medication("Morphine", "5mg", "Once", "Take with water"));
         appointmentManager.addAppointment(new Appointment("p2", "Wong", LocalDateTime.of(2025, 8, 1, 10, 0)));
         prescriptionPersistence.addPrescription(new Prescription(0, "p2", "Wong", "Morphine", "5mg", "5mg", "Once", "", "2025-08-01T10:00"));
 

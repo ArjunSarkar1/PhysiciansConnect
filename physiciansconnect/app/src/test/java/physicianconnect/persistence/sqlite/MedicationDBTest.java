@@ -27,19 +27,21 @@ public class MedicationDBTest {
 
     @Test
     public void testAddAndGetMedication() {
-        Medication med = new Medication("Ibuprofen", "200mg");
+        Medication med = new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food");
         db.addMedication(med);
 
         List<Medication> all = db.getAllMedications();
         assertEquals(1, all.size());
         assertEquals("Ibuprofen", all.get(0).getName());
         assertEquals("200mg", all.get(0).getDosage());
+        assertEquals("Twice a day", all.get(0).getDefaultFrequency());
+        assertEquals("Take with food", all.get(0).getDefaultNotes());
     }
 
     @Test
     public void testDeleteSpecificMedication() {
-        Medication med1 = new Medication("Ibuprofen", "200mg");
-        Medication med2 = new Medication("Amoxicillin", "500mg");
+        Medication med1 = new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food");
+        Medication med2 = new Medication("Amoxicillin", "500mg", "Three times a day", "Finish all medication");
         db.addMedication(med1);
         db.addMedication(med2);
 
@@ -48,12 +50,14 @@ public class MedicationDBTest {
 
         assertEquals(1, remaining.size());
         assertEquals("Amoxicillin", remaining.get(0).getName());
+        assertEquals("Three times a day", remaining.get(0).getDefaultFrequency());
+        assertEquals("Finish all medication", remaining.get(0).getDefaultNotes());
     }
 
     @Test
     public void testDeleteAllMedications() {
-        db.addMedication(new Medication("Tylenol", "500mg"));
-        db.addMedication(new Medication("Advil", "400mg"));
+        db.addMedication(new Medication("Tylenol", "500mg", "Once a day", "No alcohol"));
+        db.addMedication(new Medication("Advil", "400mg", "Once a day", "Take with water"));
 
         db.deleteAllMedications();
         List<Medication> after = db.getAllMedications();

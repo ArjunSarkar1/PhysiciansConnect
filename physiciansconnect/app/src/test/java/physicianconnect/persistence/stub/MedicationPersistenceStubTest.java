@@ -16,14 +16,14 @@ public class MedicationPersistenceStubTest {
 
     @Test
     public void testAddAndGetMedication() {
-        Medication m = new Medication("TestMed", "123mg");
+        Medication m = new Medication("TestMed", "123mg", "Once a day", "Take with water");
         stub.addMedication(m);
         assertTrue(stub.getAllMedications().stream().anyMatch(med -> med.getName().equals("TestMed")));
     }
 
     @Test
     public void testDeleteMedication() {
-        Medication m = new Medication("TestMed", "123mg");
+        Medication m = new Medication("TestMed", "123mg", "Once a day", "Take with water");
         stub.addMedication(m);
         stub.deleteMedication(m);
         assertFalse(stub.getAllMedications().stream().anyMatch(med -> med.getName().equals("TestMed")));
