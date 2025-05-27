@@ -2,6 +2,7 @@ package physicianconnect.logic;
 
 import physicianconnect.exceptions.InvalidAppointmentException;
 import physicianconnect.objects.Appointment;
+import java.time.LocalDateTime;
 
 public class AppointmentValidator {
 
@@ -20,6 +21,10 @@ public class AppointmentValidator {
 
         if (appointment.getDateTime() == null) {
             throw new InvalidAppointmentException("Appointment date and time is required.");
+        }
+
+        if (appointment.getDateTime().isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentException("Appointment date and time cannot be in the past.");
         }
     }
 }
