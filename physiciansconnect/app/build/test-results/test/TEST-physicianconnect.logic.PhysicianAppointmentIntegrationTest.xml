@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.PhysicianAppointmentIntegrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:13:04.900Z" hostname="Mohammads-MacBook-Air.local" time="0.009">
+<testsuite name="physicianconnect.logic.PhysicianAppointmentIntegrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-27T16:37:18.682Z" hostname="Arjuns-MacBook-Air.local" time="0.005">
   <properties/>
-  <testcase name="testAppointmentForUnknownPhysicianReturnsEmpty()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.004"/>
-  <testcase name="testPhysicianAppointmentsArePersistedAndRetrieved()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.005"/>
+  <testcase name="testAppointmentForUnknownPhysicianReturnsEmpty()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.002"/>
+  <testcase name="testPhysicianAppointmentsArePersistedAndRetrieved()" classname="physicianconnect.logic.PhysicianAppointmentIntegrationTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

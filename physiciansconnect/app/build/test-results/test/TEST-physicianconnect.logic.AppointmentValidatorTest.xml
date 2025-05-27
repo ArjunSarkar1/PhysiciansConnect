@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.AppointmentValidatorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:13:04.859Z" hostname="Mohammads-MacBook-Air.local" time="0.017">
+<testsuite name="physicianconnect.logic.AppointmentValidatorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-27T16:37:18.657Z" hostname="Arjuns-MacBook-Air.local" time="0.01">
   <properties/>
   <testcase name="testNullAppointmentThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.001"/>
-  <testcase name="testBlankPhysicianIdThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.006"/>
-  <testcase name="testNullDateTimeThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.002"/>
-  <testcase name="testBlankPatientNameThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.003"/>
-  <testcase name="testValidAppointmentPasses()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.002"/>
+  <testcase name="testBlankPhysicianIdThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.005"/>
+  <testcase name="testNullDateTimeThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.001"/>
+  <testcase name="testBlankPatientNameThrows()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.001"/>
+  <testcase name="testValidAppointmentPasses()" classname="physicianconnect.logic.AppointmentValidatorTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

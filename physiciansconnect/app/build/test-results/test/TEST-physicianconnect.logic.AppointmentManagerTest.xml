@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:13:04.472Z" hostname="Mohammads-MacBook-Air.local" time="0.385">
+<testsuite name="physicianconnect.logic.AppointmentManagerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-27T16:37:18.357Z" hostname="Arjuns-MacBook-Air.local" time="0.299">
   <properties/>
-  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.382"/>
+  <testcase name="testAddAndRetrieveAppointments()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.296"/>
   <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.logic.AppointmentManagerTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
