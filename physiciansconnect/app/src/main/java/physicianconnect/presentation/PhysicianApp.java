@@ -11,6 +11,8 @@ import physicianconnect.persistence.PersistenceFactory;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PhysicianApp {
@@ -30,7 +32,7 @@ public class PhysicianApp {
     private void initializeUI() {
         frame = new JFrame("Dashboard - " + loggedIn.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 500);
+        frame.setSize(1200, 600);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout(10, 10));
 
@@ -40,10 +42,26 @@ public class PhysicianApp {
 
         Font baseFont = new Font("SansSerif", Font.PLAIN, 14);
 
-        // Welcome message
-        JLabel welcome = new JLabel("Welcome, " + loggedIn.getName() + " (" + loggedIn.getEmail() + ")");
-        welcome.setFont(new Font("SansSerif", Font.BOLD, 16));
-        contentPanel.add(welcome, BorderLayout.NORTH);
+            // Top panel for welcome and clock
+    JPanel topPanel = new JPanel(new BorderLayout());
+    JLabel welcome = new JLabel("Welcome, " + loggedIn.getName() + " (" + loggedIn.getEmail() + ")");
+    welcome.setFont(new Font("SansSerif", Font.BOLD, 16));
+    topPanel.add(welcome, BorderLayout.WEST);
+
+    // Date/time label (top right)
+    JLabel dateTimeLabel = new JLabel();
+    dateTimeLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+    dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+    topPanel.add(dateTimeLabel, BorderLayout.EAST);
+
+    // Timer to update the clock every second
+    Timer timer = new Timer(1000, e -> {
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        dateTimeLabel.setText(now);
+    });
+    timer.start();
+
+    contentPanel.add(topPanel, BorderLayout.NORTH);
 
         // Appointments list
         appointmentListModel = new DefaultListModel<>();
