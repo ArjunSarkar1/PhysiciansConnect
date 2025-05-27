@@ -20,13 +20,13 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">58</div>
+<div class="counter">65</div>
 <p>tests</p>
 </div>
 </td>
 <td>
 <div class="infoBox" id="failures">
-<div class="counter">0</div>
+<div class="counter">2</div>
 <p>failures</p>
 </div>
 </td>
@@ -38,7 +38,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">2.065s</div>
+<div class="counter">2.273s</div>
 <p>duration</p>
 </div>
 </td>
@@ -47,8 +47,8 @@
 </div>
 </td>
 <td>
-<div class="infoBox success" id="successRate">
-<div class="percent">100%</div>
+<div class="infoBox failures" id="successRate">
+<div class="percent">96%</div>
 <p>successful</p>
 </div>
 </td>
@@ -58,12 +58,28 @@
 <div class="tab-container">
 <ul class="tabLinks">
 <li>
+<a href="#">Failed tests</a>
+</li>
+<li>
 <a href="#">Packages</a>
 </li>
 <li>
 <a href="#">Classes</a>
 </li>
 </ul>
+<div class="tab">
+<h2>Failed tests</h2>
+<ul class="linkList">
+<li>
+<a href="classes/physicianconnect.logic.DeleteCascadeIntegrationTest.html">DeleteCascadeIntegrationTest</a>.
+<a href="classes/physicianconnect.logic.DeleteCascadeIntegrationTest.html#testDeletePhysicianRemovesAppointmentsAndPrescriptions()">testDeletePhysicianRemovesAppointmentsAndPrescriptions()</a>
+</li>
+<li>
+<a href="classes/physicianconnect.logic.ErrorHandlingIntegrationTest.html">ErrorHandlingIntegrationTest</a>.
+<a href="classes/physicianconnect.logic.ErrorHandlingIntegrationTest.html#testAddPhysicianWithNullIdThrows()">testAddPhysicianWithNullIdThrows()</a>
+</li>
+</ul>
+</div>
 <div class="tab">
 <h2>Packages</h2>
 <table>
@@ -79,23 +95,33 @@
 </thead>
 <tbody>
 <tr>
-<td class="success">
+<td class="failures">
 <a href="packages/physicianconnect.logic.html">physicianconnect.logic</a>
 </td>
-<td>16</td>
+<td>22</td>
+<td>2</td>
 <td>0</td>
-<td>0</td>
-<td>0.443s</td>
-<td class="success">100%</td>
+<td>0.509s</td>
+<td class="failures">90%</td>
 </tr>
 <tr>
 <td class="success">
 <a href="packages/physicianconnect.persistence.html">physicianconnect.persistence</a>
 </td>
-<td>38</td>
+<td>29</td>
 <td>0</td>
 <td>0</td>
-<td>0.125s</td>
+<td>0.037s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="packages/physicianconnect.persistence.stub.html">physicianconnect.persistence.stub</a>
+</td>
+<td>10</td>
+<td>0</td>
+<td>0</td>
+<td>0.005s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -105,7 +131,7 @@
 <td>4</td>
 <td>0</td>
 <td>0</td>
-<td>1.497s</td>
+<td>1.722s</td>
 <td class="success">100%</td>
 </tr>
 </tbody>
@@ -132,7 +158,7 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.384s</td>
+<td>0.402s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -142,7 +168,47 @@
 <td>5</td>
 <td>0</td>
 <td>0</td>
-<td>0.014s</td>
+<td>0.009s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="failures">
+<a href="classes/physicianconnect.logic.DeleteCascadeIntegrationTest.html">physicianconnect.logic.DeleteCascadeIntegrationTest</a>
+</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0.019s</td>
+<td class="failures">0%</td>
+</tr>
+<tr>
+<td class="failures">
+<a href="classes/physicianconnect.logic.ErrorHandlingIntegrationTest.html">physicianconnect.logic.ErrorHandlingIntegrationTest</a>
+</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0.011s</td>
+<td class="failures">0%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.logic.FullWorkflowIntegrationTest.html">physicianconnect.logic.FullWorkflowIntegrationTest</a>
+</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.012s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.logic.IsolationIntegrationTest.html">physicianconnect.logic.IsolationIntegrationTest</a>
+</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.018s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -152,7 +218,7 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.017s</td>
+<td>0.007s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -162,7 +228,7 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.009s</td>
+<td>0.005s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -172,7 +238,17 @@
 <td>5</td>
 <td>0</td>
 <td>0</td>
-<td>0.019s</td>
+<td>0.011s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.logic.SeedDataIntegrationTest.html">physicianconnect.logic.SeedDataIntegrationTest</a>
+</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0.015s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -182,17 +258,7 @@
 <td>5</td>
 <td>0</td>
 <td>0</td>
-<td>0.008s</td>
-<td class="success">100%</td>
-</tr>
-<tr>
-<td class="success">
-<a href="classes/physicianconnect.persistence.AppointmentPersistenceStubTest.html">physicianconnect.persistence.AppointmentPersistenceStubTest</a>
-</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0.001s</td>
+<td>0.006s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -202,7 +268,7 @@
 <td>1</td>
 <td>0</td>
 <td>0</td>
-<td>0s</td>
+<td>0.001s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -212,7 +278,7 @@
 <td>4</td>
 <td>0</td>
 <td>0</td>
-<td>0.033s</td>
+<td>0.007s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -222,17 +288,7 @@
 <td>4</td>
 <td>0</td>
 <td>0</td>
-<td>0.010s</td>
-<td class="success">100%</td>
-</tr>
-<tr>
-<td class="success">
-<a href="classes/physicianconnect.persistence.MedicationPersistenceStubTest.html">physicianconnect.persistence.MedicationPersistenceStubTest</a>
-</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0.011s</td>
+<td>0.004s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -242,7 +298,7 @@
 <td>3</td>
 <td>0</td>
 <td>0</td>
-<td>0.012s</td>
+<td>0.001s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -252,7 +308,7 @@
 <td>3</td>
 <td>0</td>
 <td>0</td>
-<td>0.014s</td>
+<td>0.003s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -262,17 +318,7 @@
 <td>5</td>
 <td>0</td>
 <td>0</td>
-<td>0.028s</td>
-<td class="success">100%</td>
-</tr>
-<tr>
-<td class="success">
-<a href="classes/physicianconnect.persistence.PrescriptionPersistenceStubTest.html">physicianconnect.persistence.PrescriptionPersistenceStubTest</a>
-</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0.004s</td>
+<td>0.009s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -282,7 +328,47 @@
 <td>4</td>
 <td>0</td>
 <td>0</td>
-<td>0.004s</td>
+<td>0.006s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.persistence.stub.AppointmentPersistenceStubTest.html">physicianconnect.persistence.stub.AppointmentPersistenceStubTest</a>
+</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.persistence.stub.MedicationPersistenceStubTest.html">physicianconnect.persistence.stub.MedicationPersistenceStubTest</a>
+</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0.002s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.persistence.stub.PhysicianPersistenceStubTest.html">physicianconnect.persistence.stub.PhysicianPersistenceStubTest</a>
+</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.001s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="classes/physicianconnect.persistence.stub.PrescriptionPersistenceStubTest.html">physicianconnect.persistence.stub.PrescriptionPersistenceStubTest</a>
+</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0.002s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -292,7 +378,7 @@
 <td>1</td>
 <td>0</td>
 <td>0</td>
-<td>0.680s</td>
+<td>1.090s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -302,7 +388,7 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.811s</td>
+<td>0.626s</td>
 <td class="success">100%</td>
 </tr>
 <tr>
@@ -326,7 +412,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14</a> at May 26, 2025, 7:13:06 p.m.</p>
+<a href="https://www.gradle.org">Gradle 8.14</a> at May 26, 2025, 9:05:08 p.m.</p>
 </div>
 </div>
 </body>

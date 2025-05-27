@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package physicianconnect.logic.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
+import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;

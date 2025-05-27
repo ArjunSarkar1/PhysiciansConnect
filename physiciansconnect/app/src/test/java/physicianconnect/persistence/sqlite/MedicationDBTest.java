@@ -1,11 +1,9 @@
-package physicianconnect.persistence;
+package physicianconnect.persistence.sqlite;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 import physicianconnect.objects.Medication;
-import physicianconnect.persistence.sqlite.MedicationDB;
-import physicianconnect.persistence.sqlite.SchemaInitializer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

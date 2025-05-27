@@ -1,4 +1,4 @@
-package physicianconnect.persistence;
+package physicianconnect.persistence.sqlite;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,8 +8,6 @@ import java.sql.DriverManager;
 import org.junit.jupiter.api.*;
 
 import physicianconnect.objects.Physician;
-import physicianconnect.persistence.sqlite.PhysicianDB;
-import physicianconnect.persistence.sqlite.SchemaInitializer;
 
 public class PhysicianDBTest {
 

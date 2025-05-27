@@ -1,6 +1,5 @@
-package physicianconnect.persistence;
+package physicianconnect.persistence.stub;
 
-import physicianconnect.persistence.stub.PrescriptionPersistenceStub;
 import org.junit.jupiter.api.*;
 import physicianconnect.objects.Prescription;
 

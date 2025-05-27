@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.persistence.ConnectionManagerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:13:04.949Z" hostname="Mohammads-MacBook-Air.local" time="0.0">
+<testsuite name="physicianconnect.persistence.ConnectionManagerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-27T02:05:06.494Z" hostname="Mohammads-MacBook-Air.local" time="0.001">
   <properties/>
-  <testcase name="testConnectionManager_canInitializeAndClose()" classname="physicianconnect.persistence.ConnectionManagerTest" time="0.0"/>
+  <testcase name="testConnectionManager_canInitializeAndClose()" classname="physicianconnect.persistence.ConnectionManagerTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
