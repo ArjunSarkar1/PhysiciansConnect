@@ -69,4 +69,20 @@ public class PrescriptionDBTest {
         List<Prescription> all = db.getAllPrescriptions();
         assertTrue(all.isEmpty());
     }
+
+    @Test
+    public void testGetAllPrescriptionsResultSetMapping() {
+        db.addPrescription(new Prescription(0, "doc1", "A", "Ibuprofen", "200mg", "200mg", "Once", "Note1", "2025-06-01T10:00"));
+        db.addPrescription(new Prescription(0, "doc2", "B", "Amoxicillin", "500mg", "500mg", "Twice", "Note2", "2025-06-02T09:00"));
+        List<Prescription> all = db.getAllPrescriptions();
+        assertEquals(2, all.size());
+        assertEquals("Ibuprofen", all.get(0).getMedicationName());
+        assertEquals("Amoxicillin", all.get(1).getMedicationName());
+    }
+
+    @Test
+    public void testAddPrescriptionCatchesSQLException() {
+        Prescription p = new Prescription(0, null, null, null, null, null, null, null, null);
+        assertThrows(RuntimeException.class, () -> db.addPrescription(p));
+    }
 }

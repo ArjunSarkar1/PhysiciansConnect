@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="physicianconnect.persistence.AppointmentDBTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-05-26T22:56:27.921Z" hostname="Mohammads-MacBook-Air.local" time="0.004">
+<testsuite name="physicianconnect.persistence.AppointmentDBTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-05-27T00:06:11.173Z" hostname="Mohammads-MacBook-Air.local" time="0.006">
   <properties/>
-  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.002"/>
+  <testcase name="testAddAppointmentCatchesSQLException()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.002"/>
+  <testcase name="testNoAppointmentsForUnknownPhysician()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
+  <testcase name="testDeleteAppointment()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
+  <testcase name="testDeleteAllAppointments()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
   <testcase name="testAddAndFetchAppointment()" classname="physicianconnect.persistence.AppointmentDBTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
