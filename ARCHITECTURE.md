@@ -8,9 +8,12 @@ flowchart TD
     classDef exceptions fill:#ffebee,stroke:#e57373,stroke-width:2px;
     classDef persistence fill:#e0f7fa,stroke:#4dd0e1,stroke-width:2px;
     classDef infra fill:#f3e5f5,stroke:#ce93d8,stroke-width:2px;
+    classDef config fill:#fce4ec,stroke:#f48fb1,stroke-width:2px;
 
     %% Nodes
     MAIN["App Entry Point<br><b>App.java</b>"]:::entryPoint
+
+    CONFIG["Configuration<br><code>physicianconnect.config</code><br>AppConfig"]:::config
 
     UI["Presentation Layer<br><code>physicianconnect.presentation</code><br>LoginScreen, PhysicianApp"]:::presentation
 
@@ -29,9 +32,12 @@ flowchart TD
     CM["Infrastructure<br>ConnectionManager"]:::infra
 
     %% Flow Connections
+    MAIN --> CONFIG
     MAIN --> UI
     MAIN --> LM
     MAIN --> PI
+
+    CONFIG --> PI
 
     UI --> LM
     LM --> OBJ
@@ -41,5 +47,43 @@ flowchart TD
     PI --> STUB
     PI --> SQLITE
     SQLITE --> CM
-
 ```
+
+## Dependency Injection Configuration
+
+The application uses a simple but effective dependency injection pattern to switch between different persistence implementations. This is achieved through the following components:
+
+### 1. AppConfig
+Located in `physicianconnect.config.AppConfig`, this class provides a centralized configuration point for the application. It manages:
+- The persistence type (PROD, TEST, or STUB)
+- Whether to seed initial data
+- Other application-wide settings
+
+### 2. PersistenceType Enum
+Defines the available persistence implementations:
+- `PROD`: Uses SQLite database for production
+- `TEST`: Uses SQLite database with test configuration
+- `STUB`: Uses in-memory stub implementations for testing
+
+### 3. PersistenceFactory
+The factory class that creates and manages persistence implementations based on the configuration. It provides:
+- Centralized initialization of all persistence components
+- Automatic fallback to stub implementations if database initialization fails
+- Clean separation between persistence interfaces and their implementations
+
+### Usage Example
+
+To switch between persistence implementations, simply update the configuration:
+
+```java
+// Use SQLite in production
+AppConfig.setPersistenceType(PersistenceType.PROD);
+
+// Use in-memory stubs for testing
+AppConfig.setPersistenceType(PersistenceType.STUB);
+
+// Use SQLite with test configuration
+AppConfig.setPersistenceType(PersistenceType.TEST);
+```
+
+The application will automatically use the appropriate implementation based on this configuration.
