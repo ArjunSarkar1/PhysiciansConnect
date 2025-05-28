@@ -1,0 +1,26 @@
+# =========================
+# Java / Gradle Projects
+# =========================
+
+# Ignore compiled class files
+*.class
+
+# Ignore log files
+*.log
+
+# Ignore database files
+*.db
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# =========================
+# Other Temporary Files
+# =========================
+
+# OS generated files
+.DS_Store
+Thumbs.db
