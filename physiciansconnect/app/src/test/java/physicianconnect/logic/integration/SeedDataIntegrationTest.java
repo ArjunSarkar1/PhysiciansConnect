@@ -31,4 +31,10 @@ public class SeedDataIntegrationTest {
         List<Medication> meds = PersistenceFactory.getMedicationPersistence().getAllMedications();
         assertFalse(meds.isEmpty(), "Seeded medications should exist");
     }
+
+    @Test
+public void testSeededReferralsExist() {
+    List<Referral> referrals = PersistenceFactory.getReferralPersistence().getReferralsForPhysician("1");
+    assertFalse(referrals.isEmpty(), "Seeded referrals should exist");
+}
 }

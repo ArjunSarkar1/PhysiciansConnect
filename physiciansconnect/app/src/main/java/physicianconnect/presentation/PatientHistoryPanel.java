@@ -8,7 +8,6 @@ import physicianconnect.objects.Prescription;
 import physicianconnect.objects.Referral;
 
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
-import physicianconnect.persistence.PersistenceFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,20 +24,23 @@ public class PatientHistoryPanel extends JPanel {
     private JComboBox<String> patientCombo;
     private JTextArea historyArea;
 
-    public PatientHistoryPanel(AppointmentManager appointmentManager, PrescriptionPersistence prescriptionPersistence, String physicianId) {
+    // New constructor for dependency injection (for testing)
+    public PatientHistoryPanel(AppointmentManager appointmentManager, PrescriptionPersistence prescriptionPersistence, ReferralManager referralManager, String physicianId) {
         this.appointmentManager = appointmentManager;
         this.prescriptionPersistence = prescriptionPersistence;
+        this.referralManager = referralManager;
         this.physicianId = physicianId;
-        this.referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
         setLayout(new BorderLayout(10, 10));
 
         Set<String> patientNames = appointmentManager.getAppointmentsForPhysician(physicianId)
                 .stream().map(Appointment::getPatientName).collect(Collectors.toCollection(TreeSet::new));
         patientCombo = new JComboBox<>(patientNames.toArray(new String[0]));
+        patientCombo.setName("patientCombo");
         patientCombo.addActionListener(e -> updateHistory());
 
         historyArea = new JTextArea(15, 40);
         historyArea.setEditable(false);
+        historyArea.setName("historyArea");
 
         add(patientCombo, BorderLayout.NORTH);
         add(new JScrollPane(historyArea), BorderLayout.CENTER);
@@ -47,6 +49,11 @@ public class PatientHistoryPanel extends JPanel {
             patientCombo.setSelectedIndex(0);
             updateHistory();
         }
+    }
+
+    // Original constructor for production use
+    public PatientHistoryPanel(AppointmentManager appointmentManager, PrescriptionPersistence prescriptionPersistence, String physicianId) {
+        this(appointmentManager, prescriptionPersistence, new ReferralManager(physicianconnect.persistence.PersistenceFactory.getReferralPersistence()), physicianId);
     }
 
     public void updateHistory() {

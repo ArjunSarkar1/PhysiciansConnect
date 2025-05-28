@@ -29,9 +29,16 @@ public class ReferralPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         patientCombo = new JComboBox<>(patientNames.toArray(new String[0]));
+        patientCombo.setName("patientCombo");
+
         typeField = new JTextField(15);
+        typeField.setName("typeField");
+
         detailsArea = new JTextArea(3, 20);
+        detailsArea.setName("detailsArea");
+
         createButton = new JButton("Create Referral");
+        createButton.setName("createButton");
 
         gbc.gridx = 0; gbc.gridy = 0; createPanel.add(new JLabel("Patient:"), gbc);
         gbc.gridx = 1; createPanel.add(patientCombo, gbc);
@@ -47,6 +54,7 @@ public class ReferralPanel extends JPanel {
         // Center: List of Referrals
         referralListArea = new JTextArea(10, 40);
         referralListArea.setEditable(false);
+        referralListArea.setName("referralListArea");
 
         add(createPanel, BorderLayout.NORTH);
         add(new JScrollPane(referralListArea), BorderLayout.CENTER);

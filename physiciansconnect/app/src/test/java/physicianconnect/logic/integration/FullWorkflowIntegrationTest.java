@@ -4,10 +4,12 @@ import org.junit.jupiter.api.*;
 
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.ReferralManager;
 import physicianconnect.objects.*;
 import physicianconnect.persistence.*;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
+import physicianconnect.persistence.interfaces.ReferralPersistence;
 
 import java.time.LocalDateTime;
 
@@ -17,8 +19,11 @@ public class FullWorkflowIntegrationTest {
 
     private PhysicianManager physicianManager;
     private AppointmentManager appointmentManager;
+    private ReferralManager referralManager;
+
     private MedicationPersistence medicationPersistence;
     private PrescriptionPersistence prescriptionPersistence;
+    private ReferralPersistence referralPersistence;
 
     @BeforeEach
     public void setup() {
@@ -27,6 +32,8 @@ public class FullWorkflowIntegrationTest {
         appointmentManager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
         medicationPersistence = PersistenceFactory.getMedicationPersistence();
         prescriptionPersistence = PersistenceFactory.getPrescriptionPersistence();
+        referralPersistence = PersistenceFactory.getReferralPersistence();
+        referralManager = new ReferralManager(referralPersistence);
     }
 
     @AfterEach
@@ -35,7 +42,7 @@ public class FullWorkflowIntegrationTest {
     }
 
     @Test
-    public void testPhysicianCanScheduleAndPrescribe() {
+    public void testPhysicianCanSchedulePrescribeAndRefer() {
         // Add physician
         Physician doc = new Physician("p1", "Dr. House", "house@hospital.com", "vicodin");
         physicianManager.addPhysician(doc);
@@ -49,13 +56,19 @@ public class FullWorkflowIntegrationTest {
         appointmentManager.addAppointment(appt);
 
         // Prescribe medication
-        Prescription pres = new Prescription(0, "p1", "Gregory", "Vicodin", "10mg", "10mg", "Once", "Take with water", "2025-07-01T14:00");
+        Prescription pres = new Prescription(0, "p1", "Gregory", "Vicodin", "10mg", "10mg", "Once", "Take with water",
+                "2025-07-01T14:00");
         prescriptionPersistence.addPrescription(pres);
+
+        // Add referral
+        referralPersistence
+                .addReferral(new Referral(0, "p1", "Gregory", "Specialist", "See cardiologist", "2025-07-01"));
 
         // Assert all data is present
         assertNotNull(physicianManager.getPhysicianById("p1"));
         assertFalse(appointmentManager.getAppointmentsForPhysician("p1").isEmpty());
         assertFalse(medicationPersistence.getAllMedications().isEmpty());
         assertFalse(prescriptionPersistence.getPrescriptionsForPatient("Gregory").isEmpty());
+        assertFalse(referralPersistence.getReferralsForPatient("Gregory").isEmpty());
     }
 }
