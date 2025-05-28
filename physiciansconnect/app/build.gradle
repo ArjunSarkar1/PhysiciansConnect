@@ -2,7 +2,6 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'physicianconnect'
@@ -48,5 +47,12 @@ jar {
         attributes(
             'Main-Class': application.mainClass
         )
+    }
+
+    // Include all dependencies in the JAR (fat jar)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
