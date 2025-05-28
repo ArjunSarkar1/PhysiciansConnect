@@ -44,7 +44,6 @@ public class SchemaInitializer {
                 + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
                 + ");";
 
-        // Add to SchemaInitializer.java
         String createReferralsTable = "CREATE TABLE IF NOT EXISTS referrals ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "physician_id TEXT NOT NULL, "

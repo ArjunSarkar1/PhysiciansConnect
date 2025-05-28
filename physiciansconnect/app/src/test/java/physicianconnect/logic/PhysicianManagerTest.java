@@ -7,13 +7,18 @@ import org.junit.jupiter.api.*;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;
-
+import java.nio.file.*;
 public class PhysicianManagerTest {
 
     private PhysicianManager manager;
 
     @BeforeEach
     public void setup() {
+        try {
+            Files.deleteIfExists(Paths.get("test.db"));
+        } catch (Exception e) {
+            // Ignore
+        }
         PersistenceFactory.initialize(PersistenceType.TEST, false);
         manager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());
     }
