@@ -6,6 +6,8 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.*;
 import physicianconnect.persistence.*;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
 import java.time.LocalDateTime;
 

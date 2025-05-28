@@ -1,7 +1,7 @@
 package physicianconnect.logic;
 
 import physicianconnect.objects.Appointment;
-import physicianconnect.persistence.AppointmentPersistence;
+import physicianconnect.persistence.interfaces.AppointmentPersistence;
 
 import java.util.Collections;
 import java.util.List;

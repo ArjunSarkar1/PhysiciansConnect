@@ -1,7 +1,7 @@
 package physicianconnect.persistence.sqlite;
 
 import physicianconnect.objects.Appointment;
-import physicianconnect.persistence.AppointmentPersistence;
+import physicianconnect.persistence.interfaces.AppointmentPersistence;
 
 import java.sql.*;
 import java.time.LocalDateTime;

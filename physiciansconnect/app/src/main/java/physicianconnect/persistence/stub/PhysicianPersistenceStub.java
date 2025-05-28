@@ -1,7 +1,7 @@
 package physicianconnect.persistence.stub;
 
 import physicianconnect.objects.Physician;
-import physicianconnect.persistence.PhysicianPersistence;
+import physicianconnect.persistence.interfaces.PhysicianPersistence;
 
 import java.util.*;
 

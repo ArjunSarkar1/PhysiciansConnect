@@ -3,7 +3,7 @@ package physicianconnect.presentation;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Prescription;
-import physicianconnect.persistence.PrescriptionPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
 import javax.swing.*;
 import java.awt.*;

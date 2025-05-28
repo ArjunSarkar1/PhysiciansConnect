@@ -1,9 +1,9 @@
 package physicianconnect.persistence.stub;
 
-import physicianconnect.persistence.AppointmentPersistence;
-import physicianconnect.persistence.MedicationPersistence;
-import physicianconnect.persistence.PhysicianPersistence;
-import physicianconnect.persistence.PrescriptionPersistence;
+import physicianconnect.persistence.interfaces.AppointmentPersistence;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
+import physicianconnect.persistence.interfaces.PhysicianPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
 public class StubFactory {
 

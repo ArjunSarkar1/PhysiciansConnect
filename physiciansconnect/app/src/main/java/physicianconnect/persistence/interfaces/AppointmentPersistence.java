@@ -1,4 +1,4 @@
-package physicianconnect.persistence;
+package physicianconnect.persistence.interfaces;
 
 import physicianconnect.objects.Appointment;
 

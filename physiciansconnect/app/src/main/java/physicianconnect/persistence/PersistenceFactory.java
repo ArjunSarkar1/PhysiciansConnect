@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import physicianconnect.persistence.interfaces.AppointmentPersistence;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
+import physicianconnect.persistence.interfaces.PhysicianPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.persistence.sqlite.MedicationDB;
 import physicianconnect.persistence.sqlite.PhysicianDB;

@@ -1,7 +1,7 @@
 package physicianconnect.persistence.stub;
 
 import physicianconnect.objects.Prescription;
-import physicianconnect.persistence.PrescriptionPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

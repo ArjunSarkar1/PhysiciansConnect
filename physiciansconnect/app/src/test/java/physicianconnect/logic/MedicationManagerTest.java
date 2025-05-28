@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
 import physicianconnect.objects.Medication;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;
-import physicianconnect.persistence.MedicationPersistence;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
 
 public class MedicationManagerTest {
 

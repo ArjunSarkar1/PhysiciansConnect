@@ -1,7 +1,7 @@
 package physicianconnect.logic;
 
 import physicianconnect.objects.Physician;
-import physicianconnect.persistence.PhysicianPersistence;
+import physicianconnect.persistence.interfaces.PhysicianPersistence;
 
 import java.util.Collections;
 import java.util.List;

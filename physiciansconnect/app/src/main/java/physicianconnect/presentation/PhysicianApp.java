@@ -4,9 +4,9 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
-import physicianconnect.persistence.MedicationPersistence;
-import physicianconnect.persistence.PrescriptionPersistence;
 import physicianconnect.persistence.PersistenceFactory;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
+import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

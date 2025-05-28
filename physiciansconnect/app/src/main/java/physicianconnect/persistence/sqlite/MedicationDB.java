@@ -1,7 +1,7 @@
 package physicianconnect.persistence.sqlite;
 
 import physicianconnect.objects.Medication;
-import physicianconnect.persistence.MedicationPersistence;
+import physicianconnect.persistence.interfaces.MedicationPersistence;
 
 import java.sql.*;
 import java.util.ArrayList;
