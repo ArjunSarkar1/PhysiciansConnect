@@ -8,6 +8,8 @@ Each day, doctors can open a clear view of their schedule and see all upcoming a
 
 To stay on top of things, doctors can add short reminders to each visit - like “check lab results next week” or “ask about side effects.” There’s also a simple notes section where doctors can write down things they don’t want to forget. These might be reminders for themselves or things they want their team to handle. The tool also includes easy-to-share health tips, like advice on eating well, exercising, or recovering after surgery. Doctors can send these to patients through the patient website.  
 
+Many systems doctors use today are confusing, slow, or full of things they don’t need. Some are made for big hospitals and don’t work well in smaller clinics. PhysicianConnect is different. It’s simple, fast, and made to fit how doctors actually work. It leaves out the extra steps and features that get in the way, so doctors can get things done without the usual hassle.  
+
 All personal information in PhysicianConnect is kept private and secure. Doctors can see what they need to take care of their patients, and patients only see what’s meant for them. This keeps things safe and clear.  
 
 PhysicianConnect is made to make daily tasks easier. It helps doctors prepare faster, keep track of each visit, and spend less time on paperwork. With fewer distractions and better tools, doctors can spend more time with their patients and make every visit count.  
