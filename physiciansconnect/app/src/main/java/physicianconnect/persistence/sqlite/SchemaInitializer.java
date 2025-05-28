@@ -19,6 +19,7 @@ public class SchemaInitializer {
                 + "physician_id TEXT NOT NULL, "
                 + "patient_name TEXT NOT NULL, "
                 + "datetime TEXT NOT NULL, "
+                + "notes TEXT, "
                 + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
                 + ");";
 

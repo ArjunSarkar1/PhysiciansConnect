@@ -19,6 +19,11 @@ public class AppointmentManager {
         appointmentDB.addAppointment(appointment);
     }
 
+    public void updateAppointment(Appointment appointment) {
+        AppointmentValidator.validate(appointment);
+        appointmentDB.updateAppointment(appointment);
+    }
+
     public void deleteAppointment(Appointment appointment) {
         appointmentDB.deleteAppointment(appointment);
     }

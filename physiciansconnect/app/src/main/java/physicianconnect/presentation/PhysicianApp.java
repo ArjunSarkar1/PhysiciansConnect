@@ -23,6 +23,16 @@ public class PhysicianApp {
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
 
+    private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
+    private static final Color POSITIVE_COLOR = new Color(76, 175, 80);
+    private static final Color DESTRUCTIVE_COLOR = new Color(244, 67, 54);
+    private static final Color SELECTION_COLOR = new Color(30, 41, 59);
+    private static final Color BACKGROUND_COLOR = new Color(245, 247, 250);
+    private static final Color TEXT_COLOR = new Color(34, 40, 49);
+    private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 18);
+    private static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 14);
+    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
+
     public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, AppointmentManager appointmentManager) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
@@ -33,61 +43,70 @@ public class PhysicianApp {
     private void initializeUI() {
         frame = new JFrame("Dashboard - " + loggedIn.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1200, 600);
+        frame.setSize(1200, 800);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout(10, 10));
+        frame.getContentPane().setBackground(BACKGROUND_COLOR);
 
-        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
-        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-        frame.setContentPane(contentPanel);
+        // Top Panel
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBackground(BACKGROUND_COLOR);
+        topPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        Font baseFont = new Font("SansSerif", Font.PLAIN, 14);
+        JLabel welcome = new JLabel("Welcome, " + loggedIn.getName());
+        welcome.setFont(TITLE_FONT);
+        welcome.setForeground(TEXT_COLOR);
+        topPanel.add(welcome, BorderLayout.WEST);
 
-            // Top panel for welcome and clock
-    JPanel topPanel = new JPanel(new BorderLayout());
-    JLabel welcome = new JLabel("Welcome, " + loggedIn.getName() + " (" + loggedIn.getEmail() + ")");
-    welcome.setFont(new Font("SansSerif", Font.BOLD, 16));
-    topPanel.add(welcome, BorderLayout.WEST);
+        JLabel dateTimeLabel = new JLabel();
+        dateTimeLabel.setFont(LABEL_FONT);
+        dateTimeLabel.setForeground(TEXT_COLOR);
+        dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        topPanel.add(dateTimeLabel, BorderLayout.EAST);
 
-    // Date/time label (top right)
-    JLabel dateTimeLabel = new JLabel();
-    dateTimeLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-    dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-    topPanel.add(dateTimeLabel, BorderLayout.EAST);
+        Timer timer = new Timer(1000, e -> {
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            dateTimeLabel.setText(now);
+        });
+        timer.start();
 
-    // Timer to update the clock every second
-    Timer timer = new Timer(1000, e -> {
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        dateTimeLabel.setText(now);
-    });
-    timer.start();
+        frame.add(topPanel, BorderLayout.NORTH);
 
-    contentPanel.add(topPanel, BorderLayout.NORTH);
+        // Appointments Panel
+        JPanel appointmentsPanel = new JPanel(new BorderLayout(10, 10));
+        appointmentsPanel.setBackground(BACKGROUND_COLOR);
+        appointmentsPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
-        // Appointments list
+        JLabel appointmentsTitle = new JLabel("Your Appointments");
+        appointmentsTitle.setFont(TITLE_FONT);
+        appointmentsTitle.setForeground(TEXT_COLOR);
+        appointmentsPanel.add(appointmentsTitle, BorderLayout.NORTH);
+
         appointmentListModel = new DefaultListModel<>();
         JList<Appointment> appointmentListDisplay = new JList<>(appointmentListModel);
-        appointmentListDisplay.setFont(baseFont);
-        appointmentListDisplay.setCellRenderer(new ListCardRenderer<>());
+        appointmentListDisplay.setFont(LABEL_FONT);
+        appointmentListDisplay.setBackground(Color.WHITE);
+        appointmentListDisplay.setForeground(TEXT_COLOR);
         appointmentListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        appointmentListDisplay.setCellRenderer(new ListCardRenderer<>());
+        
         JScrollPane appointmentScroll = new JScrollPane(appointmentListDisplay);
-        appointmentScroll.setBorder(BorderFactory.createTitledBorder("Your Appointments"));
-        contentPanel.add(appointmentScroll, BorderLayout.CENTER);
+        appointmentScroll.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 1));
+        appointmentsPanel.add(appointmentScroll, BorderLayout.CENTER);
 
-        // Persistence instances
-        MedicationPersistence medicationPersistence = PersistenceFactory.getMedicationPersistence();
-        PrescriptionPersistence prescriptionPersistence = PersistenceFactory.getPrescriptionPersistence();
+        frame.add(appointmentsPanel, BorderLayout.CENTER);
 
-        // Panels for dialogs
-        PatientHistoryPanel[] historyPanelHolder = new PatientHistoryPanel[1]; // for callback access
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
+        buttonPanel.setBackground(BACKGROUND_COLOR);
+        buttonPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        // Buttons
-        JButton addAppointmentButton = createButton("📅 Add Appointment");
-        JButton viewAppointmentButton = createButton("🔍 View Appointment");
-        JButton historyButton = createButton("🗂 Patient History");
-        JButton prescribeButton = createButton("💊 Prescribe Medicine");
-        JButton referralButton = createButton("📄 Manage Referrals");
-        JButton signOutButton = createButton("🚪 Sign Out");
+        JButton addAppointmentButton = createStyledButton("📅 Add Appointment");
+        JButton viewAppointmentButton = createStyledButton("🔍 View Appointment");
+        JButton historyButton = createStyledButton("🗂 Patient History");
+        JButton prescribeButton = createStyledButton("💊 Prescribe Medicine");
+        JButton referralButton = createStyledButton("📄 Manage Referrals");
+        JButton signOutButton = createStyledButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
             new AddAppointmentDialog(frame, appointmentManager, loggedIn.getId()).setVisible(true);
@@ -97,7 +116,8 @@ public class PhysicianApp {
         viewAppointmentButton.addActionListener(e -> {
             Appointment selected = appointmentListDisplay.getSelectedValue();
             if (selected == null) {
-                JOptionPane.showMessageDialog(frame, "Select an appointment to view.");
+                JOptionPane.showMessageDialog(frame, "Please select an appointment to view.",
+                        "No Selection", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             new ViewAppointmentDialog(frame, appointmentManager, selected).setVisible(true);
@@ -108,10 +128,9 @@ public class PhysicianApp {
             JDialog dialog = new JDialog(frame, "Patient Medical History", true);
             PatientHistoryPanel historyPanel = new PatientHistoryPanel(
                     appointmentManager,
-                    prescriptionPersistence,
+                    PersistenceFactory.getPrescriptionPersistence(),
                     loggedIn.getId()
             );
-            historyPanelHolder[0] = historyPanel;
             dialog.setContentPane(historyPanel);
             dialog.pack();
             dialog.setLocationRelativeTo(frame);
@@ -120,18 +139,12 @@ public class PhysicianApp {
 
         prescribeButton.addActionListener(e -> {
             JDialog dialog = new JDialog(frame, "Prescribe Medicine", true);
-            // Use callback to update history if open
-            Runnable onPrescriptionAdded = () -> {
-                if (historyPanelHolder[0] != null) {
-                    historyPanelHolder[0].updateHistory();
-                }
-            };
             dialog.setContentPane(new PrescribeMedicinePanel(
                     appointmentManager,
-                    medicationPersistence,
-                    prescriptionPersistence,
+                    PersistenceFactory.getMedicationPersistence(),
+                    PersistenceFactory.getPrescriptionPersistence(),
                     loggedIn.getId(),
-                    onPrescriptionAdded
+                    null
             ));
             dialog.pack();
             dialog.setLocationRelativeTo(frame);
@@ -139,34 +152,58 @@ public class PhysicianApp {
         });
 
         referralButton.addActionListener(e -> {
-    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-    // Get patient names for this physician
-    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-            .stream().map(a -> a.getPatientName()).distinct().toList();
-    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-    dialog.pack();
-    dialog.setLocationRelativeTo(frame);
-    dialog.setVisible(true);
-});
+            JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+            List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+                    .stream().map(a -> a.getPatientName()).distinct().toList();
+            ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+            dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+            dialog.pack();
+            dialog.setLocationRelativeTo(frame);
+            dialog.setVisible(true);
+        });
 
         signOutButton.addActionListener(e -> {
             frame.dispose();
             new LoginScreen(physicianManager, appointmentManager);
         });
 
-        //JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
         buttonPanel.add(historyButton);
         buttonPanel.add(prescribeButton);
         buttonPanel.add(referralButton);
         buttonPanel.add(signOutButton);
-        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(buttonPanel, BorderLayout.SOUTH);
 
         refreshAppointments();
         frame.setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(BUTTON_FONT);
+        button.setForeground(Color.WHITE);
+        button.setBackground(PRIMARY_COLOR);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Color currentColor = button.getBackground();
+                button.setBackground(currentColor.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Color currentColor = button.getBackground();
+                button.setBackground(currentColor.brighter());
+            }
+        });
+
+        return button;
     }
 
     private void refreshAppointments() {
@@ -177,16 +214,8 @@ public class PhysicianApp {
         }
     }
 
-    private JButton createButton(String text) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setFont(new Font("SansSerif", Font.BOLD, 13));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return button;
-    }
-
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-                                        AppointmentManager appointmentManager) {
+                                      AppointmentManager appointmentManager) {
         new PhysicianApp(loggedIn, physicianManager, appointmentManager);
     }
 
@@ -196,11 +225,12 @@ public class PhysicianApp {
                                                       boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             label.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(isSelected ? Color.BLUE : Color.LIGHT_GRAY, 1),
+                    BorderFactory.createLineBorder(isSelected ? PRIMARY_COLOR : Color.LIGHT_GRAY, 2),
                     new EmptyBorder(10, 10, 10, 10)));
-            label.setBackground(isSelected ? new Color(220, 240, 255) : Color.WHITE);
+            label.setBackground(isSelected ? SELECTION_COLOR : Color.WHITE);
+            label.setForeground(isSelected ? Color.WHITE : TEXT_COLOR);
             label.setOpaque(true);
-            label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            label.setFont(LABEL_FONT);
             return label;
         }
     }

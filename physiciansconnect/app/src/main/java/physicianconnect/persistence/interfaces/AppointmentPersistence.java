@@ -7,6 +7,8 @@ import java.util.List;
 public interface AppointmentPersistence {
     void addAppointment(Appointment appointment);
 
+    void updateAppointment(Appointment appointment);
+
     void deleteAppointment(Appointment appointment);
 
     void deleteAllAppointments();

@@ -27,7 +27,25 @@ public class LoginScreen extends JFrame {
         loginBtn.setName("loginBtn");
         createBtn.setName("createBtn");
 
-        JLabel testInfo = new JLabel("Test: test@email.com / password: test123");
+        JLabel testInfo = new JLabel("Test login: test@email.com / test123");
+        testInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        testInfo.setForeground(new Color(0, 0, 0));
+
+        loginBtn.setBackground(new Color(33, 150, 243));
+        loginBtn.setForeground(Color.WHITE);
+        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        loginBtn.setOpaque(true);
+        loginBtn.setBorderPainted(false);
+        loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        addHoverEffect(loginBtn);
+
+        createBtn.setBackground(new Color(76, 175, 80));
+        createBtn.setForeground(Color.WHITE);
+        createBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        createBtn.setOpaque(true);
+        createBtn.setBorderPainted(false);
+        createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        addHoverEffect(createBtn);
 
         loginBtn.addActionListener(e -> {
             String email = emailField.getText().trim();
@@ -48,7 +66,8 @@ public class LoginScreen extends JFrame {
             String password = JOptionPane.showInputDialog("Password:");
 
             if (name != null && email != null && password != null) {
-                physicianManager.addPhysician(new Physician(null, name, email, password));
+                String id = java.util.UUID.randomUUID().toString();
+                physicianManager.addPhysician(new Physician(id, name, email, password));
                 JOptionPane.showMessageDialog(this, "Account created!");
             }
         });
@@ -68,5 +87,19 @@ public class LoginScreen extends JFrame {
         add(panel, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
         setVisible(true);
+    }
+
+    private void addHoverEffect(JButton button) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Color currentColor = button.getBackground();
+                button.setBackground(currentColor.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Color currentColor = button.getBackground();
+                button.setBackground(currentColor.brighter());
+            }
+        });
     }
 }

@@ -19,7 +19,7 @@ public class AppointmentDB implements AppointmentPersistence {
     @Override
     public List<Appointment> getAppointmentsForPhysician(String physicianId) {
         List<Appointment> list = new ArrayList<>();
-        String sql = "SELECT patient_name, datetime FROM appointments WHERE physician_id = ?";
+        String sql = "SELECT patient_name, datetime, notes FROM appointments WHERE physician_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, physicianId);
@@ -27,7 +27,8 @@ public class AppointmentDB implements AppointmentPersistence {
             while (rs.next()) {
                 String patient = rs.getString("patient_name");
                 String dateTime = rs.getString("datetime");
-                list.add(new Appointment(physicianId, patient, LocalDateTime.parse(dateTime)));
+                String notes = rs.getString("notes");
+                list.add(new Appointment(physicianId, patient, LocalDateTime.parse(dateTime), notes));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load appointments", e);
@@ -38,14 +39,29 @@ public class AppointmentDB implements AppointmentPersistence {
 
     @Override
     public void addAppointment(Appointment appointment) {
-        String sql = "INSERT INTO appointments (physician_id, patient_name, datetime) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO appointments (physician_id, patient_name, datetime, notes) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, appointment.getPhysicianId());
             stmt.setString(2, appointment.getPatientName());
             stmt.setString(3, appointment.getDateTime().toString()); // ISO format
+            stmt.setString(4, appointment.getNotes());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to add appointment", e);
+        }
+    }
+
+    @Override
+    public void updateAppointment(Appointment appointment) {
+        String sql = "UPDATE appointments SET notes = ? WHERE physician_id = ? AND patient_name = ? AND datetime = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, appointment.getNotes());
+            stmt.setString(2, appointment.getPhysicianId());
+            stmt.setString(3, appointment.getPatientName());
+            stmt.setString(4, appointment.getDateTime().toString());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update appointment", e);
         }
     }
 

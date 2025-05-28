@@ -70,7 +70,10 @@ public class PatientHistoryPanel extends JPanel {
         StringBuilder sb = new StringBuilder();
         sb.append("Appointments:\n");
         for (Appointment a : appointments) {
-            sb.append("  ").append(a.getDateTime()).append("\n");
+            sb.append("  ").append(a.getDateTime().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' hh:mm a"))).append("\n");
+            if (a.getNotes() != null && !a.getNotes().trim().isEmpty()) {
+                sb.append("    Notes: ").append(a.getNotes()).append("\n");
+            }
         }
         sb.append("\nPrescriptions:\n");
         for (Prescription p : prescriptions) {

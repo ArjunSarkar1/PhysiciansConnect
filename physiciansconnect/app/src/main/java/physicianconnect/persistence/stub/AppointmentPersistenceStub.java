@@ -27,16 +27,34 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
         return result;
     }
 
+    @Override
     public void addAppointment(Appointment appointment) {
-        if (appointment != null) {
-            appointments.add(appointment);
+        appointments.add(appointment);
+    }
+
+    @Override
+    public void updateAppointment(Appointment appointment) {
+        for (int i = 0; i < appointments.size(); i++) {
+            Appointment existing = appointments.get(i);
+            if (existing.getPhysicianId().equals(appointment.getPhysicianId()) &&
+                existing.getPatientName().equals(appointment.getPatientName()) &&
+                existing.getDateTime().equals(appointment.getDateTime())) {
+                appointments.set(i, appointment);
+                break;
+            }
         }
     }
 
+    @Override
     public void deleteAppointment(Appointment appointment) {
-        appointments.remove(appointment);
+        appointments.removeIf(a -> 
+            a.getPhysicianId().equals(appointment.getPhysicianId()) &&
+            a.getPatientName().equals(appointment.getPatientName()) &&
+            a.getDateTime().equals(appointment.getDateTime())
+        );
     }
 
+    @Override
     public void deleteAllAppointments() {
         appointments.clear();
     }
