@@ -1,9 +1,6 @@
 package physicianconnect.persistence.stub;
 
-import physicianconnect.persistence.interfaces.AppointmentPersistence;
-import physicianconnect.persistence.interfaces.MedicationPersistence;
-import physicianconnect.persistence.interfaces.PhysicianPersistence;
-import physicianconnect.persistence.interfaces.PrescriptionPersistence;
+import physicianconnect.persistence.interfaces.*;
 
 public class StubFactory {
 
@@ -21,5 +18,9 @@ public class StubFactory {
     
     public static PrescriptionPersistence createPrescriptionPersistence() {
         return new PrescriptionPersistenceStub(true); // seeded
+    }
+
+    public static ReferralPersistence createReferralPersistence() {
+        return new ReferralPersistenceStub(true); // seeded
     }
 }

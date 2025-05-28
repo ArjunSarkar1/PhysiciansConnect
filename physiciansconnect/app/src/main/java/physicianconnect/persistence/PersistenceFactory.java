@@ -4,14 +4,9 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import physicianconnect.persistence.interfaces.AppointmentPersistence;
-import physicianconnect.persistence.interfaces.MedicationPersistence;
-import physicianconnect.persistence.interfaces.PhysicianPersistence;
-import physicianconnect.persistence.interfaces.PrescriptionPersistence;
-import physicianconnect.persistence.sqlite.AppointmentDB;
-import physicianconnect.persistence.sqlite.MedicationDB;
-import physicianconnect.persistence.sqlite.PhysicianDB;
-import physicianconnect.persistence.sqlite.PrescriptionDB;
+import physicianconnect.persistence.interfaces.*;
+import physicianconnect.persistence.sqlite.*;
+
 import physicianconnect.persistence.sqlite.SchemaInitializer;
 import physicianconnect.persistence.stub.StubFactory;
 
@@ -21,10 +16,10 @@ public class PersistenceFactory {
     private static AppointmentPersistence appointmentPersistence;
     private static MedicationPersistence medicationPersistence;
     private static PrescriptionPersistence prescriptionPersistence;
-    
+    private static ReferralPersistence referralPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null)
             return;
 
         switch (type) {
@@ -42,7 +37,8 @@ public class PersistenceFactory {
                             "seed_physicians.sql",
                             "seed_appointments.sql",
                             "seed_medications.sql",
-                            "seed_prescriptions.sql"
+                            "seed_prescriptions.sql",
+                            "seed_referrals.sql"
                         ));
                     }
 
@@ -50,6 +46,7 @@ public class PersistenceFactory {
                     appointmentPersistence = new AppointmentDB(conn);
                     medicationPersistence = new MedicationDB(conn);
                     prescriptionPersistence = new PrescriptionDB(conn);
+                    referralPersistence = new ReferralDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -72,6 +69,7 @@ public class PersistenceFactory {
         appointmentPersistence = StubFactory.createAppointmentPersistence();
         medicationPersistence = StubFactory.createMedicationPersistence();
         prescriptionPersistence = StubFactory.createPrescriptionPersistence();
+        referralPersistence = StubFactory.createReferralPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -94,12 +92,17 @@ public class PersistenceFactory {
         return prescriptionPersistence;
     }
 
+    public static ReferralPersistence getReferralPersistence() {
+        return referralPersistence;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
         appointmentPersistence = null;
         medicationPersistence = null;
         prescriptionPersistence = null;
+        referralPersistence = null;
     }
 
     private static void injectTestUserForGrader() {

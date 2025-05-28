@@ -1,9 +1,14 @@
 package physicianconnect.presentation;
 
 import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.ReferralManager;
+
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Prescription;
+import physicianconnect.objects.Referral;
+
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
+import physicianconnect.persistence.PersistenceFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +20,7 @@ import java.util.stream.Collectors;
 public class PatientHistoryPanel extends JPanel {
     private final AppointmentManager appointmentManager;
     private final PrescriptionPersistence prescriptionPersistence;
+    private final ReferralManager referralManager;
     private final String physicianId;
     private JComboBox<String> patientCombo;
     private JTextArea historyArea;
@@ -23,6 +29,7 @@ public class PatientHistoryPanel extends JPanel {
         this.appointmentManager = appointmentManager;
         this.prescriptionPersistence = prescriptionPersistence;
         this.physicianId = physicianId;
+        this.referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
         setLayout(new BorderLayout(10, 10));
 
         Set<String> patientNames = appointmentManager.getAppointmentsForPhysician(physicianId)
@@ -51,6 +58,7 @@ public class PatientHistoryPanel extends JPanel {
         List<Appointment> appointments = appointmentManager.getAppointmentsForPhysician(physicianId)
                 .stream().filter(a -> a.getPatientName().equals(patient)).collect(Collectors.toList());
         List<Prescription> prescriptions = prescriptionPersistence.getPrescriptionsForPatient(patient);
+        List<Referral> referrals = referralManager.getReferralsForPatient(patient);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Appointments:\n");
@@ -60,6 +68,12 @@ public class PatientHistoryPanel extends JPanel {
         sb.append("\nPrescriptions:\n");
         for (Prescription p : prescriptions) {
             sb.append("  ").append(p.toString()).append("\n");
+        }
+        sb.append("\nReferrals:\n");
+        for (Referral r : referrals) {
+            sb.append("  [").append(r.getDateCreated()).append("] ")
+              .append(r.getReferralType()).append(" - ")
+              .append(r.getDetails()).append(")\n");
         }
         historyArea.setText(sb.toString());
     }

@@ -43,12 +43,25 @@ public class SchemaInitializer {
                 + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
                 + ");";
 
+        // Add to SchemaInitializer.java
+        String createReferralsTable = "CREATE TABLE IF NOT EXISTS referrals ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "physician_id TEXT NOT NULL, "
+                + "patient_name TEXT NOT NULL, "
+                + "referral_type TEXT NOT NULL, "
+                + "details TEXT, "
+                + "date_created TEXT NOT NULL, "
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                + ");";
+        
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("PRAGMA foreign_keys = ON;");
             stmt.execute(createPhysiciansTable);
             stmt.execute(createAppointmentsTable);
             stmt.execute(createMedicationsTable);
             stmt.execute(createPrescriptionsTable);
+            stmt.execute(createReferralsTable);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize PhysicianConnect schema", e);
         }

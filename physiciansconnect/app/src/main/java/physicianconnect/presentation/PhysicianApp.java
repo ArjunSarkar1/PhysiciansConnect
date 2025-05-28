@@ -2,6 +2,7 @@ package physicianconnect.presentation;
 
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.ReferralManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
@@ -85,6 +86,7 @@ public class PhysicianApp {
         JButton viewAppointmentButton = createButton("🔍 View Appointment");
         JButton historyButton = createButton("🗂 Patient History");
         JButton prescribeButton = createButton("💊 Prescribe Medicine");
+        JButton referralButton = createButton("📄 Manage Referrals");
         JButton signOutButton = createButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
@@ -136,6 +138,18 @@ public class PhysicianApp {
             dialog.setVisible(true);
         });
 
+        referralButton.addActionListener(e -> {
+    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+    // Get patient names for this physician
+    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+            .stream().map(a -> a.getPatientName()).distinct().toList();
+    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+    dialog.pack();
+    dialog.setLocationRelativeTo(frame);
+    dialog.setVisible(true);
+});
+
         signOutButton.addActionListener(e -> {
             frame.dispose();
             new LoginScreen(physicianManager, appointmentManager);
@@ -147,6 +161,7 @@ public class PhysicianApp {
         buttonPanel.add(viewAppointmentButton);
         buttonPanel.add(historyButton);
         buttonPanel.add(prescribeButton);
+        buttonPanel.add(referralButton);
         buttonPanel.add(signOutButton);
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
