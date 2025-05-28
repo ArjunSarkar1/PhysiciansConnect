@@ -1,5 +1,3 @@
-
----
 # README
 # PhysicianConnect (Physician View)
 
