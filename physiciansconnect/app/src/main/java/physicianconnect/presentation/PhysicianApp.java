@@ -56,19 +56,19 @@ public class PhysicianApp {
         JLabel welcome = new JLabel("Welcome, " + loggedIn.getName());
         welcome.setFont(TITLE_FONT);
         welcome.setForeground(TEXT_COLOR);
-        topPanel.add(welcome, BorderLayout.WEST);
+    topPanel.add(welcome, BorderLayout.WEST);
 
-        JLabel dateTimeLabel = new JLabel();
+    JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(LABEL_FONT);
         dateTimeLabel.setForeground(TEXT_COLOR);
-        dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        topPanel.add(dateTimeLabel, BorderLayout.EAST);
+    dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+    topPanel.add(dateTimeLabel, BorderLayout.EAST);
 
-        Timer timer = new Timer(1000, e -> {
-            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            dateTimeLabel.setText(now);
-        });
-        timer.start();
+    Timer timer = new Timer(1000, e -> {
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        dateTimeLabel.setText(now);
+    });
+    timer.start();
 
         frame.add(topPanel, BorderLayout.NORTH);
 
@@ -152,15 +152,15 @@ public class PhysicianApp {
         });
 
         referralButton.addActionListener(e -> {
-            JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-            List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                    .stream().map(a -> a.getPatientName()).distinct().toList();
-            ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-            dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-            dialog.pack();
-            dialog.setLocationRelativeTo(frame);
-            dialog.setVisible(true);
-        });
+    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+            .stream().map(a -> a.getPatientName()).distinct().toList();
+    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+    dialog.pack();
+    dialog.setLocationRelativeTo(frame);
+    dialog.setVisible(true);
+});
 
         signOutButton.addActionListener(e -> {
             frame.dispose();
@@ -215,7 +215,7 @@ public class PhysicianApp {
     }
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-                                      AppointmentManager appointmentManager) {
+                                        AppointmentManager appointmentManager) {
         new PhysicianApp(loggedIn, physicianManager, appointmentManager);
     }
 

@@ -29,8 +29,8 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
 
     @Override
     public void addAppointment(Appointment appointment) {
-        appointments.add(appointment);
-    }
+            appointments.add(appointment);
+        }
 
     @Override
     public void updateAppointment(Appointment appointment) {
