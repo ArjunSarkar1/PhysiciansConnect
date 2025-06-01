@@ -1,21 +1,3 @@
-# VISION STATEMENT
-
-For Physicians who need a clear and simple way to manage their day
-PhysicianConnect is a tool that helps them stay on top of appointments, prepare for visits, and keep track of what happens with each patient.
-Unlike messy paper notes or complicated software,
-PhysicianConnect keeps everything organized in one place so Physicians can spend less time planning and more time caring.
-Physicians use PhysicianConnect to set when they’re available, see who they’re meeting with, and write notes before and after each visit. They can also track what was discussed and what comes next, including medications or follow-ups.
-Patients book their appointments through a separate website. As soon as a booking is made, it shows up for the doctor—along with any notes the patient added.
-Everything is private and secure. Physicians see only what they need to do their job, and patients only use the booking site.
-
-The project will be a success if:
-
-More than 85% of Physicians say it helps them stay organized
-Appointment planning takes 30% less time
-Physicians spend 25% less time writing things down or getting ready
-
-
----
 # README
 # PhysicianConnect (Physician View)
 
@@ -123,12 +105,12 @@ After wiping the database, the application will recreate the necessary tables on
 
 ## 3-Tier Architecture
 
-SummerNotes is designed following a 3-tier architecture, which separates the application into three distinct layers:
+PhysicianConnect is designed following a 3-tier architecture, which separates the application into three distinct layers:
 
 ### 1. Presentation Layer (UI)
 
 - **Purpose:**  
-  This layer is responsible for all user interactions. In SummerNotes, the presentation layer is implemented using Swing (or can be swapped out for another UI framework if needed). It displays notes, handles user input (like clicking buttons or entering text), and shows the results.
+  This layer is responsible for all user interactions. In PhysicianConnect, the presentation layer is implemented using Swing (or can be swapped out for another UI framework if needed). It displays notes, handles user input (like clicking buttons or entering text), and shows the results.
 
 - **Key Characteristics:**  
   - Decoupled from the business logic and persistence layers.
@@ -138,11 +120,11 @@ SummerNotes is designed following a 3-tier architecture, which separates the app
 ### 2. Business Logic Layer
 
 - **Purpose:**  
-  The business logic layer handles the core operations of your application. It enforces business rules, performs validations, and mediates between the UI and the data layer. In SummerNotes, this is primarily handled by the `NoteManager` class.
+  The business logic layer handles the core operations of our application. It enforces business rules, performs validations, and mediates between the UI and the data layer. In PhysicianConnect, this is primarily handled by the manager classes.
 
 - **Key Characteristics:**  
   - Acts as an intermediary between the presentation layer and persistence layer.
-  - Contains the logic to add, edit, delete, search, and retrieve notes.
+  - Contains the CRUD logic for appointments, referrals and presciptions.
   - Delegates data storage and retrieval tasks to the persistence layer.
   - Remains independent of how data is actually stored.
 
