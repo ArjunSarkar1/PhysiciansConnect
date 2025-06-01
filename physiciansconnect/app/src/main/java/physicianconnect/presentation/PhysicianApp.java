@@ -3,18 +3,25 @@ package physicianconnect.presentation;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.AvailabilityService;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
+import physicianconnect.persistence.sqlite.AppointmentDB;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class PhysicianApp {
     private JFrame frame;
@@ -22,6 +29,10 @@ public class PhysicianApp {
     private final Physician loggedIn;
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
+    private DailyAvailabilityPanel dailyPanel;
+    private WeeklyAvailabilityPanel weeklyPanel;
+    private LocalDate selectedDate;     // for daily navigation (e.g. today, yesterday, tomorrow, …)
+    private LocalDate weekStart;        // Monday of the currently shown week
 
     private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
     private static final Color POSITIVE_COLOR = new Color(76, 175, 80);
@@ -174,6 +185,118 @@ public class PhysicianApp {
         buttonPanel.add(referralButton);
         buttonPanel.add(signOutButton);
 
+        Connection conn;
+        try {
+            conn = DriverManager.getConnection("jdbc:sqlite:prod.db");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "Could not open the database:\n" + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return; // abort UI init if we cannot connect
+        }
+
+        // 2) Construct your AppointmentDB (requires a Connection):
+        AppointmentDB apptDb = new AppointmentDB(conn);
+
+        // 3) Build AvailabilityService with that AppointmentDB:
+        AvailabilityService availabilityService = new AvailabilityService(apptDb);
+
+
+        // 3) Initialize the dates for navigation
+        selectedDate = LocalDate.now();
+        weekStart    = LocalDate.now().with(DayOfWeek.MONDAY);
+
+        // 4) Create the two panels, passing an int physicianId
+        int docId = Integer.parseInt(loggedIn.getId());
+        dailyPanel  = new DailyAvailabilityPanel(docId, availabilityService, selectedDate);
+        weeklyPanel = new WeeklyAvailabilityPanel(docId, availabilityService, weekStart);
+
+        // 5) “Prev/Next Day” buttons
+        JButton prevDayBtn = new JButton("← Prev Day");
+        JButton nextDayBtn = new JButton("Next Day →");
+
+
+        prevDayBtn.addActionListener(e -> {
+            selectedDate = selectedDate.minusDays(1);
+            dailyPanel.loadSlotsForDate(selectedDate);
+        });
+        nextDayBtn.addActionListener(e -> {
+            selectedDate = selectedDate.plusDays(1);
+            dailyPanel.loadSlotsForDate(selectedDate);
+        });
+
+        JPanel dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        dayNav.setBackground(BACKGROUND_COLOR);
+        JLabel dayLabel = new JLabel("Show Date: " + selectedDate);
+        dayLabel.setFont(LABEL_FONT);
+        dayLabel.setForeground(TEXT_COLOR);
+
+        prevDayBtn.addActionListener(e -> dayLabel.setText("Show Date: " + selectedDate));
+        nextDayBtn.addActionListener(e -> dayLabel.setText("Show Date: " + selectedDate));
+
+        dayNav.add(prevDayBtn);
+        dayNav.add(dayLabel);
+        dayNav.add(nextDayBtn);
+
+        JPanel dailyContainer = new JPanel(new BorderLayout());
+        dailyContainer.setBackground(BACKGROUND_COLOR);
+        dailyContainer.add(dayNav, BorderLayout.NORTH);
+        dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
+
+        // 6) “Prev/Next Week” buttons
+        JButton prevWeekBtn = new JButton("← Prev Week");
+        JButton nextWeekBtn = new JButton("Next Week →");
+
+
+        prevWeekBtn.addActionListener(e -> {
+            weekStart = weekStart.minusWeeks(1);
+            weeklyPanel.loadWeek(weekStart);
+        });
+        nextWeekBtn.addActionListener(e -> {
+            weekStart = weekStart.plusWeeks(1);
+            weeklyPanel.loadWeek(weekStart);
+        });
+
+        JPanel weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        weekNav.setBackground(BACKGROUND_COLOR);
+        JLabel weekLabel = new JLabel("Week of: " + weekStart);
+        weekLabel.setFont(LABEL_FONT);
+        weekLabel.setForeground(TEXT_COLOR);
+
+        prevWeekBtn.addActionListener(e -> weekLabel.setText("Week of: " + weekStart));
+        nextWeekBtn.addActionListener(e -> weekLabel.setText("Week of: " + weekStart));
+
+        weekNav.add(prevWeekBtn);
+        weekNav.add(weekLabel);
+        weekNav.add(nextWeekBtn);
+
+        JPanel weeklyContainer = new JPanel(new BorderLayout());
+        weeklyContainer.setBackground(BACKGROUND_COLOR);
+        weeklyContainer.add(weekNav, BorderLayout.NORTH);
+        weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
+
+        // 7) Combine into a JTabbedPane
+        JTabbedPane availabilityTabs = new JTabbedPane();
+        availabilityTabs.setFont(LABEL_FONT);
+        availabilityTabs.addTab("Daily View", dailyContainer);
+        availabilityTabs.addTab("Weekly View", weeklyContainer);
+        availabilityTabs.setPreferredSize(new Dimension(600, 500));
+
+        // 8) Use JSplitPane to show appointments on left, availability on right
+        JSplitPane centerSplit = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                appointmentsPanel,
+                availabilityTabs
+        );
+        centerSplit.setResizeWeight(0.3);
+        centerSplit.setBackground(BACKGROUND_COLOR);
+        centerSplit.setOneTouchExpandable(true);
+
+        frame.add(centerSplit, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         refreshAppointments();
