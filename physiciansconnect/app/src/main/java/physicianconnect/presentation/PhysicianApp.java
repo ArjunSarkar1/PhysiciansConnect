@@ -219,25 +219,26 @@ public class PhysicianApp {
         JButton prevDayBtn = new JButton("← Prev Day");
         JButton nextDayBtn = new JButton("Next Day →");
 
-
-        prevDayBtn.addActionListener(e -> {
-            selectedDate = selectedDate.minusDays(1);
-            dailyPanel.loadSlotsForDate(selectedDate);
-        });
-        nextDayBtn.addActionListener(e -> {
-            selectedDate = selectedDate.plusDays(1);
-            dailyPanel.loadSlotsForDate(selectedDate);
-        });
-
-        JPanel dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        dayNav.setBackground(BACKGROUND_COLOR);
+        // Create the label that shows the current date
         JLabel dayLabel = new JLabel("Show Date: " + selectedDate);
         dayLabel.setFont(LABEL_FONT);
         dayLabel.setForeground(TEXT_COLOR);
 
-        prevDayBtn.addActionListener(e -> dayLabel.setText("Show Date: " + selectedDate));
-        nextDayBtn.addActionListener(e -> dayLabel.setText("Show Date: " + selectedDate));
+        // Merge “change date + reload panel + update label” into one listener each
+        prevDayBtn.addActionListener(e -> {
+            selectedDate = selectedDate.minusDays(1);
+            dailyPanel.loadSlotsForDate(selectedDate);
+            dayLabel.setText("Show Date: " + selectedDate);
+        });
+        nextDayBtn.addActionListener(e -> {
+            selectedDate = selectedDate.plusDays(1);
+            dailyPanel.loadSlotsForDate(selectedDate);
+            dayLabel.setText("Show Date: " + selectedDate);
+        });
 
+        // Build the navigation bar
+        JPanel dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        dayNav.setBackground(BACKGROUND_COLOR);
         dayNav.add(prevDayBtn);
         dayNav.add(dayLabel);
         dayNav.add(nextDayBtn);
@@ -247,29 +248,30 @@ public class PhysicianApp {
         dailyContainer.add(dayNav, BorderLayout.NORTH);
         dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
 
+
         // 6) “Prev/Next Week” buttons
         JButton prevWeekBtn = new JButton("← Prev Week");
         JButton nextWeekBtn = new JButton("Next Week →");
 
-
-        prevWeekBtn.addActionListener(e -> {
-            weekStart = weekStart.minusWeeks(1);
-            weeklyPanel.loadWeek(weekStart);
-        });
-        nextWeekBtn.addActionListener(e -> {
-            weekStart = weekStart.plusWeeks(1);
-            weeklyPanel.loadWeek(weekStart);
-        });
-
-        JPanel weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        weekNav.setBackground(BACKGROUND_COLOR);
+        // Create label for week start
         JLabel weekLabel = new JLabel("Week of: " + weekStart);
         weekLabel.setFont(LABEL_FONT);
         weekLabel.setForeground(TEXT_COLOR);
 
-        prevWeekBtn.addActionListener(e -> weekLabel.setText("Week of: " + weekStart));
-        nextWeekBtn.addActionListener(e -> weekLabel.setText("Week of: " + weekStart));
+        // Merge into single listeners
+        prevWeekBtn.addActionListener(e -> {
+            weekStart = weekStart.minusWeeks(1);
+            weeklyPanel.loadWeek(weekStart);
+            weekLabel.setText("Week of: " + weekStart);
+        });
+        nextWeekBtn.addActionListener(e -> {
+            weekStart = weekStart.plusWeeks(1);
+            weeklyPanel.loadWeek(weekStart);
+            weekLabel.setText("Week of: " + weekStart);
+        });
 
+        JPanel weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        weekNav.setBackground(BACKGROUND_COLOR);
         weekNav.add(prevWeekBtn);
         weekNav.add(weekLabel);
         weekNav.add(nextWeekBtn);
@@ -292,10 +294,7 @@ public class PhysicianApp {
                 appointmentsPanel,
                 availabilityTabs
         );
-        centerSplit.setResizeWeight(0.3);
-        centerSplit.setBackground(BACKGROUND_COLOR);
-        centerSplit.setOneTouchExpandable(true);
-
+        centerSplit.setOneTouchExpandable(false);
         frame.add(centerSplit, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
