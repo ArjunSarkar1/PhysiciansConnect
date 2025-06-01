@@ -13,6 +13,11 @@ public class ConnectionManager {
 
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
+
+            try (var stmt = connection.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON;");
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize DB connection", e);
         }
