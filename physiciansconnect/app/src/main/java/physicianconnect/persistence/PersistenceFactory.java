@@ -107,7 +107,7 @@ public class PersistenceFactory {
 
     private static void injectTestUserForGrader() {
         String testEmail = "test@email.com";
-        String testId = "test-id";
+        String testId = "0";
         String testName = "Dr. Stephen Vincent Strange";
         String testPassword = "test123";
 

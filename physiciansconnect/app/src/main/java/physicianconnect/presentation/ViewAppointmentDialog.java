@@ -117,6 +117,53 @@ public class ViewAppointmentDialog extends JDialog {
         JButton deleteButton = createStyledButton("Delete Appointment", DESTRUCTIVE_COLOR);
         JButton closeButton  = createStyledButton("Close", CANCEL_COLOR);
 
+        // (A) Update Notes listener
+        updateButton.addActionListener(e -> {
+            appointment.setNotes(notesArea.getText());
+            try {
+                appointmentManager.updateAppointment(appointment);
+                JOptionPane.showMessageDialog(this, "Notes updated successfully.");
+                if (onSuccessCallback != null) {
+                    onSuccessCallback.run();
+                }
+                // keep the dialog open so user can confirm
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Error updating notes:\n" + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // (B) Delete Appointment listener
+        deleteButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to delete this appointment?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // Pass the Appointment object itself to deleteAppointment(...)
+                    appointmentManager.deleteAppointment(appointment);
+
+                    if (onSuccessCallback != null) {
+                        onSuccessCallback.run();
+                    }
+                    dispose();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Error deleting appointment:\n" + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         // Close: simply dispose
         closeButton.addActionListener(e -> dispose());

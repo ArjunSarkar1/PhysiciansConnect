@@ -67,19 +67,19 @@ public class PhysicianApp {
         JLabel welcome = new JLabel("Welcome, " + loggedIn.getName());
         welcome.setFont(TITLE_FONT);
         welcome.setForeground(TEXT_COLOR);
-    topPanel.add(welcome, BorderLayout.WEST);
+        topPanel.add(welcome, BorderLayout.WEST);
 
-    JLabel dateTimeLabel = new JLabel();
+        JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(LABEL_FONT);
         dateTimeLabel.setForeground(TEXT_COLOR);
-    dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-    topPanel.add(dateTimeLabel, BorderLayout.EAST);
+        dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        topPanel.add(dateTimeLabel, BorderLayout.EAST);
 
-    Timer timer = new Timer(1000, e -> {
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        dateTimeLabel.setText(now);
-    });
-    timer.start();
+        Timer timer = new Timer(1000, e -> {
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            dateTimeLabel.setText(now);
+        });
+        timer.start();
 
         frame.add(topPanel, BorderLayout.NORTH);
 
@@ -189,15 +189,15 @@ public class PhysicianApp {
         });
 
         referralButton.addActionListener(e -> {
-    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-            .stream().map(a -> a.getPatientName()).distinct().toList();
-    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-    dialog.pack();
-    dialog.setLocationRelativeTo(frame);
-    dialog.setVisible(true);
-});
+        JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+        List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+                .stream().map(a -> a.getPatientName()).distinct().toList();
+        ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+        dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+        });
 
         signOutButton.addActionListener(e -> {
             frame.dispose();
@@ -236,19 +236,34 @@ public class PhysicianApp {
         selectedDate = LocalDate.now();
         weekStart    = LocalDate.now().with(DayOfWeek.MONDAY);
 
+        Runnable reloadEverything = () -> {
+            // 1) Refresh daily view:
+            dailyPanel.loadSlotsForDate(selectedDate);
+
+            // 2) Refresh weekly view, then force a repaint:
+            weeklyPanel.loadWeek(weekStart);
+            weeklyPanel.revalidate();
+            weeklyPanel.repaint();
+
+            // 3) Update the “Your Appointments” list on the left
+            refreshAppointments();
+        };
+
         // 4) Create the two panels, passing an int physicianId
         int docId = Integer.parseInt(loggedIn.getId());
         dailyPanel  = new DailyAvailabilityPanel(
                 docId,
                 availabilityService,
                 appointmentManager,
-                selectedDate
+                selectedDate,
+                reloadEverything
         );
         weeklyPanel = new WeeklyAvailabilityPanel(
                 docId,
                 availabilityService,
                 appointmentManager,
-                weekStart
+                weekStart,
+                reloadEverything
         );
 
         // 5) “Prev/Next Day” buttons
