@@ -120,20 +120,46 @@ public class PhysicianApp {
         JButton signOutButton = createStyledButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
-            new AddAppointmentDialog(frame, appointmentManager, loggedIn.getId()).setVisible(true);
+            AddAppointmentDialog dlg = new AddAppointmentDialog(
+                    frame,
+                    appointmentManager,
+                    loggedIn.getId(),
+                    () -> {
+                        // refresh both calendars after the user saves
+                        dailyPanel.loadSlotsForDate(selectedDate);
+                        weeklyPanel.loadWeek(weekStart);
+                    }
+            );
+            dlg.setVisible(true);
+            // After the dialog closes, update the “Your Appointments” list on the left:
             refreshAppointments();
         });
 
+        // 2) View Appointment
         viewAppointmentButton.addActionListener(e -> {
-            Appointment selected = appointmentListDisplay.getSelectedValue();
-            if (selected == null) {
-                JOptionPane.showMessageDialog(frame, "Please select an appointment to view.",
-                        "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            Appointment selectedAppt = appointmentListDisplay.getSelectedValue();
+            if (selectedAppt == null) {
+                JOptionPane.showMessageDialog(
+                        frame,
+                        "Please select an appointment to view.",
+                        "No Selection",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
                 return;
             }
-            new ViewAppointmentDialog(frame, appointmentManager, selected).setVisible(true);
+            ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
+                    frame,
+                    appointmentManager,
+                    selectedAppt,
+                    () -> {
+                        dailyPanel.loadSlotsForDate(selectedDate);
+                        weeklyPanel.loadWeek(weekStart);
+                    }
+            );
+            viewDlg.setVisible(true);
             refreshAppointments();
         });
+
 
         historyButton.addActionListener(e -> {
             JDialog dialog = new JDialog(frame, "Patient Medical History", true);
@@ -212,8 +238,18 @@ public class PhysicianApp {
 
         // 4) Create the two panels, passing an int physicianId
         int docId = Integer.parseInt(loggedIn.getId());
-        dailyPanel  = new DailyAvailabilityPanel(docId, availabilityService, selectedDate);
-        weeklyPanel = new WeeklyAvailabilityPanel(docId, availabilityService, weekStart);
+        dailyPanel  = new DailyAvailabilityPanel(
+                docId,
+                availabilityService,
+                appointmentManager,
+                selectedDate
+        );
+        weeklyPanel = new WeeklyAvailabilityPanel(
+                docId,
+                availabilityService,
+                appointmentManager,
+                weekStart
+        );
 
         // 5) “Prev/Next Day” buttons
         JButton prevDayBtn = new JButton("← Prev Day");
