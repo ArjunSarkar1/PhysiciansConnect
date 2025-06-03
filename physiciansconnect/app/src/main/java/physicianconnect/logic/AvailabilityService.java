@@ -18,7 +18,7 @@ public class AvailabilityService {
         this.appointmentDb = appointmentDb;
     }
 
-    public List<TimeSlot> getDailyAvailability(int physicianId, LocalDate date)
+    public List<TimeSlot> getDailyAvailability(String physicianId, LocalDate date)
             throws SQLException
     {
         List<TimeSlot> slots = TimeSlot.generateDailySlots(date);
@@ -27,7 +27,7 @@ public class AvailabilityService {
         LocalDateTime end   = date.atTime(17, 0);
 
         List<Appointment> appts = appointmentDb.getAppointmentsForPhysicianInRange(
-                String.valueOf(physicianId),
+                physicianId,
                 start,
                 end
         );
@@ -47,7 +47,7 @@ public class AvailabilityService {
     }
 
     public Map<LocalDate, List<TimeSlot>> getWeeklyAvailability(
-            int physicianId,
+            String physicianId,
             LocalDate weekStart
     ) throws SQLException
     {

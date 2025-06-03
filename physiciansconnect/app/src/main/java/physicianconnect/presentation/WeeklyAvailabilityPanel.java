@@ -22,7 +22,7 @@ import java.util.Map;
  * plus seven day columns (Mon–Sun), each with 16 slots.
  */
 public class WeeklyAvailabilityPanel extends JPanel {
-    private final int physicianId;
+    private final String physicianId;
     private final AvailabilityService availabilityService;
     private final AppointmentManager appointmentManager;
     private LocalDate weekStart;
@@ -36,7 +36,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
     private static final int DAY_COLUMN_WIDTH = 100;    // width of each day‐of‐week column
     private static final int HEADER_HEIGHT = 30;        // height of the day‐header row
 
-    public WeeklyAvailabilityPanel(int physicianId,
+    public WeeklyAvailabilityPanel(String physicianId,
                                    AvailabilityService svc,
                                    AppointmentManager apptMgr,
                                    LocalDate monday) {

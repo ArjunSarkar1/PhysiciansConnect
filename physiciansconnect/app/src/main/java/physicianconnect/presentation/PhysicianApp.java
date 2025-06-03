@@ -252,7 +252,7 @@ public class PhysicianApp {
         weekStart    = LocalDate.now().with(DayOfWeek.MONDAY);
 
         // 4) Create the two panels, passing an int physicianId
-        int docId = Integer.parseInt(loggedIn.getId());
+        String docId = loggedIn.getId();
         dailyPanel  = new DailyAvailabilityPanel(
                 docId,
                 availabilityService,
@@ -408,7 +408,17 @@ public class PhysicianApp {
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
                                         AppointmentManager appointmentManager) {
-        new PhysicianApp(loggedIn, physicianManager, appointmentManager);
+        try {
+            SwingUtilities.invokeLater(() -> {
+                new PhysicianApp(loggedIn, physicianManager, appointmentManager);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                "Error launching application: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {

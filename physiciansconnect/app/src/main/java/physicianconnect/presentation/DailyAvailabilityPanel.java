@@ -17,11 +17,11 @@ import java.time.ZoneId;
 import java.util.List;
 
 /**
- * Shows a single day’s 16 half‐hour slots (08:00–16:30) in one column,
+ * Shows a single day's 16 half‐hour slots (08:00–16:30) in one column,
  * with a dedicated left‐hand column for the time labels.
  */
 public class DailyAvailabilityPanel extends JPanel {
-    private final int physicianId;
+    private final String physicianId;
     private final AvailabilityService availabilityService;
     private final AppointmentManager appointmentManager;
     private LocalDate currentDate;
@@ -33,7 +33,7 @@ public class DailyAvailabilityPanel extends JPanel {
     private static final int TIME_LABEL_WIDTH = 80;    // width of the left‐hand time column
     private static final int SLOT_COLUMN_WIDTH = 200;  // width of the slot column
 
-    public DailyAvailabilityPanel(int physicianId,
+    public DailyAvailabilityPanel(String physicianId,
                                   AvailabilityService svc,
                                   AppointmentManager apptMgr,
                                   LocalDate date) {
@@ -89,8 +89,8 @@ public class DailyAvailabilityPanel extends JPanel {
                         AddAppointmentDialog addDlg = new AddAppointmentDialog(
                                 (JFrame) SwingUtilities.getWindowAncestor(DailyAvailabilityPanel.this),
                                 appointmentManager,
-                                String.valueOf(physicianId),
-                                () -> loadSlotsForDate(currentDate)   // callback runs after “Save”
+                                physicianId,
+                                () -> loadSlotsForDate(currentDate)   // callback runs after "Save"
                         );
 
                         // Pre‐fill dateSpinner/timeSpinner so it defaults to our clicked slotTime
@@ -106,7 +106,7 @@ public class DailyAvailabilityPanel extends JPanel {
                 else {
                     // → BOOKED slot: find the matching Appointment by comparing date/time
                     Appointment existingAppt = null;
-                    for (Appointment a : appointmentManager.getAppointmentsForPhysician(String.valueOf(physicianId))) {
+                    for (Appointment a : appointmentManager.getAppointmentsForPhysician(physicianId)) {
                         if (a.getDateTime().equals(slotTime)) {
                             existingAppt = a;
                             break;
@@ -118,7 +118,7 @@ public class DailyAvailabilityPanel extends JPanel {
                                 (JFrame) SwingUtilities.getWindowAncestor(DailyAvailabilityPanel.this),
                                 appointmentManager,
                                 existingAppt,
-                                () -> loadSlotsForDate(currentDate)   // callback runs after “Update/Delete”
+                                () -> loadSlotsForDate(currentDate)   // callback runs after "Update/Delete"
                         );
                         viewDlg.setVisible(true);
                     } else {
@@ -136,7 +136,7 @@ public class DailyAvailabilityPanel extends JPanel {
 
     /**
      * Loads 16 half‐hour slots for the given date. On SQLException,
-     * falls back to “all free” using TimeSlot.generateDailySlots().
+     * falls back to "all free" using TimeSlot.generateDailySlots().
      */
     public void loadSlotsForDate(LocalDate date) {
         this.currentDate = date;
@@ -182,11 +182,11 @@ public class DailyAvailabilityPanel extends JPanel {
             g.setColor(Color.BLACK);
             g.drawRect(TIME_LABEL_WIDTH, y, SLOT_COLUMN_WIDTH, PIXEL_PER_SLOT);
 
-            // 2c) if booked, draw the patient’s name inside
+            // 2c) if booked, draw the patient's name inside
             if (ts.isBooked()) {
                 g.setColor(Color.BLACK);
                 String patient = ts.getPatientName();
-                // “…/2” so long names don’t overshoot; you can adjust or wrap as you wish
+                // "…/2" so long names don't overshoot; you can adjust or wrap as you wish
                 String display = patient.length() > 18 ? patient.substring(0, 15) + "…" : patient;
                 g.drawString(display, TIME_LABEL_WIDTH + 5, y + 18);
             }
