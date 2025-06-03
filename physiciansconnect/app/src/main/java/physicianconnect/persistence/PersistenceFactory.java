@@ -17,9 +17,10 @@ public class PersistenceFactory {
     private static MedicationPersistence medicationPersistence;
     private static PrescriptionPersistence prescriptionPersistence;
     private static ReferralPersistence referralPersistence;
+    private static MessageRepository messageRepository;
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null)
             return;
 
         switch (type) {
@@ -47,6 +48,7 @@ public class PersistenceFactory {
                     medicationPersistence = new MedicationDB(conn);
                     prescriptionPersistence = new PrescriptionDB(conn);
                     referralPersistence = new ReferralDB(conn);
+                    messageRepository = new MessageDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -70,6 +72,7 @@ public class PersistenceFactory {
         medicationPersistence = StubFactory.createMedicationPersistence();
         prescriptionPersistence = StubFactory.createPrescriptionPersistence();
         referralPersistence = StubFactory.createReferralPersistence();
+        messageRepository = new InMemoryMessageRepository();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -96,6 +99,10 @@ public class PersistenceFactory {
         return referralPersistence;
     }
 
+    public static MessageRepository getMessageRepository() {
+        return messageRepository;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
@@ -103,6 +110,7 @@ public class PersistenceFactory {
         medicationPersistence = null;
         prescriptionPersistence = null;
         referralPersistence = null;
+        messageRepository = null;
     }
 
     private static void injectTestUserForGrader() {

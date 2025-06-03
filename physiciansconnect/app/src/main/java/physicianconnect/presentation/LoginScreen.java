@@ -6,6 +6,7 @@ import physicianconnect.objects.Physician;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 
 public class LoginScreen extends JFrame {
     public LoginScreen(PhysicianManager physicianManager, AppointmentManager appointmentManager) {
@@ -61,15 +62,114 @@ public class LoginScreen extends JFrame {
         });
 
         createBtn.addActionListener(e -> {
-            String name = JOptionPane.showInputDialog("Name:");
-            String email = JOptionPane.showInputDialog("Email:");
-            String password = JOptionPane.showInputDialog("Password:");
+            JDialog dialog = new JDialog(this, "Create Account", true);
+            dialog.setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
 
-            if (name != null && email != null && password != null) {
+            JTextField nameField = new JTextField(20);
+            JTextField regEmailField = new JTextField(20);
+            JPasswordField passwordField = new JPasswordField(20);
+            JPasswordField confirmPasswordField = new JPasswordField(20);
+
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            dialog.add(new JLabel("Name:"), gbc);
+            gbc.gridx = 1;
+            dialog.add(nameField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            dialog.add(new JLabel("Email:"), gbc);
+            gbc.gridx = 1;
+            dialog.add(regEmailField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            dialog.add(new JLabel("Password:"), gbc);
+            gbc.gridx = 1;
+            dialog.add(passwordField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 3;
+            dialog.add(new JLabel("Confirm Password:"), gbc);
+            gbc.gridx = 1;
+            dialog.add(confirmPasswordField, gbc);
+
+            JButton registerBtn = new JButton("Register");
+            registerBtn.setBackground(new Color(76, 175, 80));
+            registerBtn.setForeground(Color.WHITE);
+            registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            registerBtn.setOpaque(true);
+            registerBtn.setBorderPainted(false);
+            registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            addHoverEffect(registerBtn);
+
+            gbc.gridx = 0;
+            gbc.gridy = 4;
+            gbc.gridwidth = 2;
+            gbc.anchor = GridBagConstraints.CENTER;
+            dialog.add(registerBtn, gbc);
+
+            registerBtn.addActionListener(ev -> {
+                String name = nameField.getText().trim();
+                String email = regEmailField.getText().trim();
+                String password = new String(passwordField.getPassword());
+                String confirmPassword = new String(confirmPasswordField.getPassword());
+
+                // Validation
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                    JOptionPane.showMessageDialog(dialog, "Please enter a valid email address.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (password.length() < 6) {
+                    JOptionPane.showMessageDialog(dialog, "Password must be at least 6 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (!password.equals(confirmPassword)) {
+                    JOptionPane.showMessageDialog(dialog, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Check if email already exists
+                if (physicianManager.getPhysicianByEmail(email) != null) {
+                    JOptionPane.showMessageDialog(dialog, "An account with this email already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 String id = java.util.UUID.randomUUID().toString();
-                physicianManager.addPhysician(new Physician(id, name, email, password));
-                JOptionPane.showMessageDialog(this, "Account created!");
-            }
+                Physician newPhysician = new Physician(id, name, email, password);
+                physicianManager.addPhysician(newPhysician);
+                
+                JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+                
+                // Log in the newly created user and launch the main application
+                dispose(); // close login screen
+                try {
+                    SwingUtilities.invokeLater(() -> {
+                        PhysicianApp.launchSingleUser(newPhysician, physicianManager, appointmentManager);
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null,
+                        "Error launching application: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
         });
 
         JPanel panel = new JPanel(new GridLayout(5, 1));

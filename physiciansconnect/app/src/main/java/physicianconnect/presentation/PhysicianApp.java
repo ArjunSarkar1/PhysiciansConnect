@@ -4,9 +4,11 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReferralManager;
 import physicianconnect.logic.AvailabilityService;
+import physicianconnect.logic.MessageService;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
+import physicianconnect.persistence.InMemoryMessageRepository;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 import physicianconnect.persistence.sqlite.AppointmentDB;
@@ -29,10 +31,13 @@ public class PhysicianApp {
     private final Physician loggedIn;
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
+    private final MessageService messageService;
     private DailyAvailabilityPanel dailyPanel;
     private WeeklyAvailabilityPanel weeklyPanel;
     private LocalDate selectedDate;     // for daily navigation (e.g. today, yesterday, tomorrow, …)
     private LocalDate weekStart;        // Monday of the currently shown week
+    private MessageButton messageButton;
+    private Timer messageRefreshTimer;
 
     private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
     private static final Color POSITIVE_COLOR = new Color(76, 175, 80);
@@ -48,6 +53,7 @@ public class PhysicianApp {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
+        this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         initializeUI();
     }
 
@@ -69,17 +75,26 @@ public class PhysicianApp {
         welcome.setForeground(TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
 
+        // Add message button to top panel
+        messageButton = new MessageButton();
+        messageButton.setOnAction(e -> showMessageDialog());
+        topPanel.add(messageButton, BorderLayout.EAST);
+
         JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(LABEL_FONT);
         dateTimeLabel.setForeground(TEXT_COLOR);
         dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        topPanel.add(dateTimeLabel, BorderLayout.EAST);
+        topPanel.add(dateTimeLabel, BorderLayout.CENTER);
 
         Timer timer = new Timer(1000, e -> {
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             dateTimeLabel.setText(now);
         });
         timer.start();
+
+        // Start message refresh timer
+        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
+        messageRefreshTimer.start();
 
         frame.add(topPanel, BorderLayout.NORTH);
 
@@ -131,7 +146,7 @@ public class PhysicianApp {
                     }
             );
             dlg.setVisible(true);
-            // After the dialog closes, update the “Your Appointments” list on the left:
+            // After the dialog closes, update the "Your Appointments" list on the left:
             refreshAppointments();
         });
 
@@ -189,15 +204,15 @@ public class PhysicianApp {
         });
 
         referralButton.addActionListener(e -> {
-        JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-        List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                .stream().map(a -> a.getPatientName()).distinct().toList();
-        ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-        dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-        dialog.pack();
-        dialog.setLocationRelativeTo(frame);
-        dialog.setVisible(true);
-        });
+    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+            .stream().map(a -> a.getPatientName()).distinct().toList();
+    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+    dialog.pack();
+    dialog.setLocationRelativeTo(frame);
+    dialog.setVisible(true);
+});
 
         signOutButton.addActionListener(e -> {
             frame.dispose();
@@ -236,37 +251,22 @@ public class PhysicianApp {
         selectedDate = LocalDate.now();
         weekStart    = LocalDate.now().with(DayOfWeek.MONDAY);
 
-        Runnable reloadEverything = () -> {
-            // 1) Refresh daily view:
-            dailyPanel.loadSlotsForDate(selectedDate);
-
-            // 2) Refresh weekly view, then force a repaint:
-            weeklyPanel.loadWeek(weekStart);
-            weeklyPanel.revalidate();
-            weeklyPanel.repaint();
-
-            // 3) Update the “Your Appointments” list on the left
-            refreshAppointments();
-        };
-
         // 4) Create the two panels, passing an int physicianId
-        int docId = Integer.parseInt(loggedIn.getId());
+        String docId = loggedIn.getId();
         dailyPanel  = new DailyAvailabilityPanel(
                 docId,
                 availabilityService,
                 appointmentManager,
-                selectedDate,
-                reloadEverything
+                selectedDate
         );
         weeklyPanel = new WeeklyAvailabilityPanel(
                 docId,
                 availabilityService,
                 appointmentManager,
-                weekStart,
-                reloadEverything
+                weekStart
         );
 
-        // 5) “Prev/Next Day” buttons
+        // 5) "Prev/Next Day" buttons
         JButton prevDayBtn = new JButton("← Prev Day");
         JButton nextDayBtn = new JButton("Next Day →");
 
@@ -275,7 +275,7 @@ public class PhysicianApp {
         dayLabel.setFont(LABEL_FONT);
         dayLabel.setForeground(TEXT_COLOR);
 
-        // Merge “change date + reload panel + update label” into one listener each
+        // Merge "change date + reload panel + update label" into one listener each
         prevDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
             dailyPanel.loadSlotsForDate(selectedDate);
@@ -300,7 +300,7 @@ public class PhysicianApp {
         dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
 
 
-        // 6) “Prev/Next Week” buttons
+        // 6) "Prev/Next Week" buttons
         JButton prevWeekBtn = new JButton("← Prev Week");
         JButton nextWeekBtn = new JButton("Next Week →");
 
@@ -387,9 +387,38 @@ public class PhysicianApp {
         }
     }
 
+    private void showMessageDialog() {
+        JDialog dialog = new JDialog(frame, "Messages", true);
+        MessagePanel messagePanel = new MessagePanel(
+            messageService,
+            loggedIn.getId(),
+            physicianManager.getAllPhysicians()
+        );
+        dialog.setContentPane(messagePanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+        refreshMessageCount();
+    }
+
+    private void refreshMessageCount() {
+        int unreadCount = messageService.getUnreadMessageCount(loggedIn.getId());
+        messageButton.updateNotificationCount(unreadCount);
+    }
+
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
                                         AppointmentManager appointmentManager) {
-        new PhysicianApp(loggedIn, physicianManager, appointmentManager);
+        try {
+            SwingUtilities.invokeLater(() -> {
+                new PhysicianApp(loggedIn, physicianManager, appointmentManager);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                "Error launching application: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
