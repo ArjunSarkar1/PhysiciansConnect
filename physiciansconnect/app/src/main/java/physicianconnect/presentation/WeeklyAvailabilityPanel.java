@@ -15,45 +15,60 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Shows a weekly grid: a left‐hand time column (08:00–16:30)
  * plus seven day columns (Mon–Sun), each with 16 slots.
+ *
+ * Now includes a Runnable onWeekChanged callback so that any
+ * add/update/delete inside the weekly view can notify another
+ * component (e.g., the daily view) to reload itself.
  */
 public class WeeklyAvailabilityPanel extends JPanel {
     private final int physicianId;
     private final AvailabilityService availabilityService;
     private final AppointmentManager appointmentManager;
+    private final Runnable onWeekChanged;       // new callback
     private LocalDate weekStart;
-    private Map<LocalDate, java.util.List<TimeSlot>> weekData;
+    private Map<LocalDate, List<TimeSlot>> weekData;
 
     // Constants
-    private static final int DAYS_IN_WEEK = 7;
-    private static final int SLOT_COUNT = 16;           // 08:00–16:30
-    private static final int PIXEL_PER_SLOT = 30;       // each row is 30px tall
-    private static final int TIME_LABEL_WIDTH = 80;     // width of left‐hand time column
-    private static final int DAY_COLUMN_WIDTH = 100;    // width of each day‐of‐week column
-    private static final int HEADER_HEIGHT = 30;        // height of the day‐header row
+    private static final int DAYS_IN_WEEK     = 7;
+    private static final int SLOT_COUNT       = 16;   // 08:00–16:30
+    private static final int PIXEL_PER_SLOT   = 30;   // each row is 30px tall
+    private static final int TIME_LABEL_WIDTH = 80;   // width of left‐hand time column
+    private static final int DAY_COLUMN_WIDTH = 100;  // width of each day‐of‐week column
+    private static final int HEADER_HEIGHT    = 30;   // height of the day‐header row
 
+    /**
+     * @param physicianId      the physician’s integer ID
+     * @param svc              the AvailabilityService
+     * @param apptMgr          the AppointmentManager
+     * @param monday           the LocalDate representing the Monday of the week to display
+     * @param onWeekChanged    callback to run after any appointment add/update/delete inside weekly view
+     */
     public WeeklyAvailabilityPanel(int physicianId,
                                    AvailabilityService svc,
                                    AppointmentManager apptMgr,
-                                   LocalDate monday) {
-        this.physicianId = physicianId;
+                                   LocalDate monday,
+                                   Runnable onWeekChanged) {
+        this.physicianId         = physicianId;
         this.availabilityService = svc;
-        this.appointmentManager = apptMgr;
-        this.weekStart = monday;
+        this.appointmentManager  = apptMgr;
+        this.onWeekChanged       = onWeekChanged;
+        this.weekStart           = monday;
 
-        // Total width = time‐column + 7 day‐columns
+        // Calculate preferred size
         int totalW = TIME_LABEL_WIDTH + (DAYS_IN_WEEK * DAY_COLUMN_WIDTH);
-        // Total height = header + 16 slots × 30px
         int totalH = HEADER_HEIGHT + (SLOT_COUNT * PIXEL_PER_SLOT);
         setPreferredSize(new Dimension(totalW + 1, totalH + 1));
 
+        // Load initial week data
         loadWeek(monday);
 
-        // Mouse listener for add/edit
+        // Mouse listener for clicks (free vs. booked slots)
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -65,7 +80,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
                     return;
                 }
 
-                // (2) Compute which day‐column (0..6) and which slot‐row (0..15)
+                // (2) Determine which day column (0..6) and which slot row (0..15)
                 int dayIndex = (x - TIME_LABEL_WIDTH) / DAY_COLUMN_WIDTH;
                 if (dayIndex < 0 || dayIndex >= DAYS_IN_WEEK) {
                     return;
@@ -88,25 +103,27 @@ public class WeeklyAvailabilityPanel extends JPanel {
                             "Add Appointment",
                             JOptionPane.YES_NO_OPTION
                     );
-
                     if (choice == JOptionPane.YES_OPTION) {
                         AddAppointmentDialog addDlg = new AddAppointmentDialog(
                                 (JFrame) SwingUtilities.getWindowAncestor(WeeklyAvailabilityPanel.this),
                                 appointmentManager,
                                 String.valueOf(physicianId),
-                                () -> loadWeek(weekStart)   // callback reloads weekly grid
+                                () -> {
+                                    // 1) reload this weekly grid
+                                    loadWeek(weekStart);
+                                    // 2) notify the onWeekChanged listener
+                                    onWeekChanged.run();
+                                }
                         );
                         java.util.Date prefill = java.util.Date.from(
                                 slotTime.atZone(ZoneId.systemDefault()).toInstant()
                         );
                         addDlg.dateSpinner.setValue(prefill);
                         addDlg.timeSpinner.setValue(prefill);
-
                         addDlg.setVisible(true);
                     }
-                }
-                else {
-                    // → BOOKED slot: find existing Appointment by matching date/time
+                } else {
+                    // → BOOKED slot: find the matching Appointment by date/time
                     Appointment existingAppt = null;
                     for (Appointment a : appointmentManager.getAppointmentsForPhysician(String.valueOf(physicianId))) {
                         if (a.getDateTime().equals(slotTime)) {
@@ -114,13 +131,17 @@ public class WeeklyAvailabilityPanel extends JPanel {
                             break;
                         }
                     }
-
                     if (existingAppt != null) {
                         ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
                                 (JFrame) SwingUtilities.getWindowAncestor(WeeklyAvailabilityPanel.this),
                                 appointmentManager,
                                 existingAppt,
-                                () -> loadWeek(weekStart)   // callback reloads weekly grid
+                                () -> {
+                                    // 1) reload this weekly grid
+                                    loadWeek(weekStart);
+                                    // 2) notify the onWeekChanged listener
+                                    onWeekChanged.run();
+                                }
                         );
                         viewDlg.setVisible(true);
                     } else {
@@ -137,18 +158,21 @@ public class WeeklyAvailabilityPanel extends JPanel {
     }
 
     /**
-     * Loads a map of 7 days → 16 slots each. On SQLException, fallback to all free.
+     * Loads a map of seven days → sixteen slots each. On SQLException, falls back to “all free.”
      */
     public void loadWeek(LocalDate monday) {
         this.weekStart = monday;
         try {
-            this.weekData = availabilityService.getWeeklyAvailability(physicianId, monday);
+            this.weekData = availabilityService.getWeeklyAvailability(
+                    String.valueOf(physicianId),
+                    monday
+            );
         } catch (SQLException ex) {
             ex.printStackTrace();
-            Map<LocalDate, java.util.List<TimeSlot>> fallback = new LinkedHashMap<>();
+            Map<LocalDate, List<TimeSlot>> fallback = new LinkedHashMap<>();
             for (int i = 0; i < DAYS_IN_WEEK; i++) {
                 LocalDate day = monday.plusDays(i);
-                java.util.List<TimeSlot> slots = TimeSlot.generateDailySlots(day);
+                List<TimeSlot> slots = TimeSlot.generateDailySlots(day);
                 fallback.put(day, slots);
             }
             this.weekData = fallback;
@@ -162,9 +186,10 @@ public class WeeklyAvailabilityPanel extends JPanel {
 
         // ─── (1) Draw left‐hand time column ───
         g.setColor(new Color(230, 230, 230));
-        g.fillRect(0, 0, TIME_LABEL_WIDTH, HEADER_HEIGHT + (SLOT_COUNT * PIXEL_PER_SLOT));
+        int totalHeight = HEADER_HEIGHT + (SLOT_COUNT * PIXEL_PER_SLOT);
+        g.fillRect(0, 0, TIME_LABEL_WIDTH, totalHeight);
         g.setColor(Color.BLACK);
-        g.drawRect(0, 0, TIME_LABEL_WIDTH, HEADER_HEIGHT + (SLOT_COUNT * PIXEL_PER_SLOT));
+        g.drawRect(0, 0, TIME_LABEL_WIDTH, totalHeight);
         g.drawRect(0, 0, TIME_LABEL_WIDTH, HEADER_HEIGHT);
 
         LocalTime t = LocalTime.of(8, 0);
@@ -175,7 +200,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
             t = t.plusMinutes(30);
         }
 
-        // ─── (2) Draw each day‐column header & slots, showing patient name if booked ───
+        // ─── (2) Draw each day‐column header & slots ───
         for (int day = 0; day < DAYS_IN_WEEK; day++) {
             int x = TIME_LABEL_WIDTH + (day * DAY_COLUMN_WIDTH);
             LocalDate date = weekStart.plusDays(day);
@@ -185,17 +210,17 @@ public class WeeklyAvailabilityPanel extends JPanel {
             g.fillRect(x, 0, DAY_COLUMN_WIDTH, HEADER_HEIGHT);
             g.setColor(Color.BLACK);
             g.drawRect(x, 0, DAY_COLUMN_WIDTH, HEADER_HEIGHT);
-            String header = date.getDayOfWeek().toString().substring(0,3)
+            String header = date.getDayOfWeek().toString().substring(0, 3)
                     + " " + date.getMonthValue() + "/" + date.getDayOfMonth();
             g.drawString(header, x + 5, 20);
 
-            // 2b) each of the 16 half‐hour slots
-            java.util.List<TimeSlot> slots = weekData.get(date);
+            // 2b) sixteen half‐hour slots
+            List<TimeSlot> slots = weekData.get(date);
             for (int i = 0; i < SLOT_COUNT; i++) {
                 int y = HEADER_HEIGHT + (i * PIXEL_PER_SLOT);
                 TimeSlot ts = slots.get(i);
 
-                // Draw background (gray if booked, else white)
+                // Fill background (gray if booked, else white)
                 Color fill = ts.isBooked() ? Color.LIGHT_GRAY : Color.WHITE;
                 g.setColor(fill);
                 g.fillRect(x, y, DAY_COLUMN_WIDTH, PIXEL_PER_SLOT);
@@ -208,7 +233,9 @@ public class WeeklyAvailabilityPanel extends JPanel {
                 if (ts.isBooked()) {
                     g.setColor(Color.BLACK);
                     String patient = ts.getPatientName();
-                    String display = patient.length() > 12 ? patient.substring(0, 9) + "…" : patient;
+                    String display = patient.length() > 12
+                            ? patient.substring(0, 9) + "…"
+                            : patient;
                     g.drawString(display, x + 5, y + 18);
                 }
             }

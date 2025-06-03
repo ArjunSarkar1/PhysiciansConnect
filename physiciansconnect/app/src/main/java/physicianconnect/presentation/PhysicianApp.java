@@ -226,6 +226,7 @@ public class PhysicianApp {
         buttonPanel.add(referralButton);
         buttonPanel.add(signOutButton);
 
+        // 1)
         Connection conn;
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:prod.db");
@@ -247,47 +248,75 @@ public class PhysicianApp {
         AvailabilityService availabilityService = new AvailabilityService(apptDb);
 
 
-        // 3) Initialize the dates for navigation
+        // 4) Initialize dates
         selectedDate = LocalDate.now();
-        weekStart    = LocalDate.now().with(DayOfWeek.MONDAY);
+        weekStart    = selectedDate.with(java.time.DayOfWeek.MONDAY);
 
-        // 4) Create the two panels, passing an int physicianId
+        // 5) Parse physicianId
         String docId = loggedIn.getId();
-        dailyPanel  = new DailyAvailabilityPanel(
-                docId,
+        int physicianId;
+        try {
+            physicianId = Integer.parseInt(docId);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "Invalid physician ID: must be a number.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // 6) Create the weeklyPanel field first, referring to this.dailyPanel in the lambda:
+        this.weeklyPanel = new WeeklyAvailabilityPanel(
+                physicianId,
                 availabilityService,
                 appointmentManager,
-                selectedDate
-        );
-        weeklyPanel = new WeeklyAvailabilityPanel(
-                docId,
-                availabilityService,
-                appointmentManager,
-                weekStart
+                weekStart,
+                () -> {
+                    // Now “this.dailyPanel” refers to the field (not a local var).
+                    LocalDate dayInView = this.dailyPanel.getCurrentDate();
+                    this.dailyPanel.loadSlotsForDate(dayInView);
+                }
         );
 
-        // 5) "Prev/Next Day" buttons
+        // 7) Then create the dailyPanel field, referring to this.weeklyPanel in its lambda:
+        this.dailyPanel = new DailyAvailabilityPanel(
+                physicianId,
+                availabilityService,
+                appointmentManager,
+                selectedDate,
+                () -> {
+                    LocalDate dayInView = this.dailyPanel.getCurrentDate();
+                    LocalDate mondayOfThatDay = dayInView.with(DayOfWeek.MONDAY);
+                    this.weeklyPanel.loadWeek(mondayOfThatDay);
+                }
+        );
+        // 8) “Prev/Next Day” buttons (also keep weekly in sync when changing days)
         JButton prevDayBtn = new JButton("← Prev Day");
         JButton nextDayBtn = new JButton("Next Day →");
-
-        // Create the label that shows the current date
-        JLabel dayLabel = new JLabel("Show Date: " + selectedDate);
+        JLabel dayLabel    = new JLabel("Show Date: " + selectedDate);
         dayLabel.setFont(LABEL_FONT);
         dayLabel.setForeground(TEXT_COLOR);
 
-        // Merge "change date + reload panel + update label" into one listener each
         prevDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
             dailyPanel.loadSlotsForDate(selectedDate);
             dayLabel.setText("Show Date: " + selectedDate);
+
+            // Keep weekly in sync (jump the weekly view to this day’s Monday)
+            LocalDate monday = selectedDate.with(java.time.DayOfWeek.MONDAY);
+            weeklyPanel.loadWeek(monday);
         });
         nextDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.plusDays(1);
             dailyPanel.loadSlotsForDate(selectedDate);
             dayLabel.setText("Show Date: " + selectedDate);
+
+            LocalDate monday = selectedDate.with(java.time.DayOfWeek.MONDAY);
+            weeklyPanel.loadWeek(monday);
         });
 
-        // Build the navigation bar
         JPanel dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         dayNav.setBackground(BACKGROUND_COLOR);
         dayNav.add(prevDayBtn);
@@ -299,26 +328,29 @@ public class PhysicianApp {
         dailyContainer.add(dayNav, BorderLayout.NORTH);
         dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
 
-
-        // 6) "Prev/Next Week" buttons
+        // 9) “Prev/Next Week” buttons (also keep daily in sync if you want):
         JButton prevWeekBtn = new JButton("← Prev Week");
         JButton nextWeekBtn = new JButton("Next Week →");
-
-        // Create label for week start
-        JLabel weekLabel = new JLabel("Week of: " + weekStart);
+        JLabel weekLabel    = new JLabel("Week of: " + weekStart);
         weekLabel.setFont(LABEL_FONT);
         weekLabel.setForeground(TEXT_COLOR);
 
-        // Merge into single listeners
         prevWeekBtn.addActionListener(e -> {
             weekStart = weekStart.minusWeeks(1);
             weeklyPanel.loadWeek(weekStart);
             weekLabel.setText("Week of: " + weekStart);
+
+            // Optionally update daily to default to that Monday:
+            selectedDate = weekStart;
+            dailyPanel.loadSlotsForDate(selectedDate);
         });
         nextWeekBtn.addActionListener(e -> {
             weekStart = weekStart.plusWeeks(1);
             weeklyPanel.loadWeek(weekStart);
             weekLabel.setText("Week of: " + weekStart);
+
+            selectedDate = weekStart;
+            dailyPanel.loadSlotsForDate(selectedDate);
         });
 
         JPanel weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -332,14 +364,13 @@ public class PhysicianApp {
         weeklyContainer.add(weekNav, BorderLayout.NORTH);
         weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
 
-        // 7) Combine into a JTabbedPane
+        // 10) Put them both into tabs or a split pane as before:
         JTabbedPane availabilityTabs = new JTabbedPane();
         availabilityTabs.setFont(LABEL_FONT);
         availabilityTabs.addTab("Daily View", dailyContainer);
         availabilityTabs.addTab("Weekly View", weeklyContainer);
         availabilityTabs.setPreferredSize(new Dimension(600, 500));
 
-        // 8) Use JSplitPane to show appointments on left, availability on right
         JSplitPane centerSplit = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 appointmentsPanel,
