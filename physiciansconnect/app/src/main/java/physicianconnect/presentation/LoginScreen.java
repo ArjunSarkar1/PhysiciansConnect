@@ -3,6 +3,8 @@ package physicianconnect.presentation;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Physician;
+import physicianconnect.logic.controller.PhysicianController;
+import physicianconnect.logic.exceptions.InvalidCredentialException;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 
@@ -53,7 +55,9 @@ public class LoginScreen extends JFrame {
         UITheme.applyHoverEffect(createBtn);
 
         // ─────────── Test Info Label ───────────
-        JLabel testInfo = new JLabel(UIConfig.LOADING_MESSAGE.replace("Loading...", "Test login: test@email.com / test123"));
+        JLabel testInfo = new JLabel(
+                UIConfig.LOADING_MESSAGE.replace("Loading...", "Test login: test@email.com / test123")
+        );
         testInfo.setFont(UITheme.LABEL_FONT);
         testInfo.setForeground(UITheme.TEXT_COLOR);
 
@@ -62,14 +66,15 @@ public class LoginScreen extends JFrame {
             String email = emailField.getText().trim();
             String pass = new String(passField.getPassword());
 
-            Physician user = physicianManager.login(email, pass);
-            if (user != null) {
+            PhysicianController controller = new PhysicianController(physicianManager);
+            try {
+                Physician user = controller.login(email, pass);
                 dispose(); // close login screen
                 PhysicianApp.launchSingleUser(user, physicianManager, appointmentManager);
-            } else {
+            } catch (InvalidCredentialException ex) {
                 JOptionPane.showMessageDialog(
                         this,
-                        UIConfig.ERROR_LOGIN_FAILED,
+                        ex.getMessage(),
                         UIConfig.ERROR_DIALOG_TITLE,
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -83,7 +88,9 @@ public class LoginScreen extends JFrame {
             gbc.insets = new Insets(5, 5, 5, 5);
             gbc.fill = GridBagConstraints.HORIZONTAL;
 
-            JLabel nameLabel = new JLabel(UIConfig.PATIENT_NAME_LABEL.replace("Patient Name:", "Name:"));
+            JLabel nameLabel = new JLabel(
+                    UIConfig.PATIENT_NAME_LABEL.replace("Patient Name:", "Name:")
+            );
             nameLabel.setFont(UITheme.LABEL_FONT);
             nameLabel.setForeground(UITheme.TEXT_COLOR);
 
@@ -95,13 +102,17 @@ public class LoginScreen extends JFrame {
 
             JTextField regEmailField = new JTextField(20);
 
-            JLabel passwordLabel = new JLabel(UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Password:"));
+            JLabel passwordLabel = new JLabel(
+                    UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Password:")
+            );
             passwordLabel.setFont(UITheme.LABEL_FONT);
             passwordLabel.setForeground(UITheme.TEXT_COLOR);
 
             JPasswordField passwordField = new JPasswordField(20);
 
-            JLabel confirmPasswordLabel = new JLabel(UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Confirm Password:"));
+            JLabel confirmPasswordLabel = new JLabel(
+                    UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Confirm Password:")
+            );
             confirmPasswordLabel.setFont(UITheme.LABEL_FONT);
             confirmPasswordLabel.setForeground(UITheme.TEXT_COLOR);
 
@@ -136,7 +147,7 @@ public class LoginScreen extends JFrame {
             dialog.add(confirmPasswordField, gbc);
 
             // Register Button
-            JButton registerBtn = new JButton("Register");
+            JButton registerBtn = new JButton(UIConfig.REGISTER_BUTTON_TEXT);
             registerBtn.setFont(UITheme.BUTTON_FONT);
             registerBtn.setBackground(UITheme.SUCCESS_COLOR);
             registerBtn.setForeground(UITheme.BACKGROUND_COLOR);
@@ -157,75 +168,28 @@ public class LoginScreen extends JFrame {
                 String password = new String(passwordField.getPassword());
                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
-                // Validation
-                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                PhysicianController controller = new PhysicianController(physicianManager);
+                try {
+                    Physician newPhysician = controller.register(name, email, password, confirmPassword);
                     JOptionPane.showMessageDialog(
                             dialog,
-                            UIConfig.ERROR_REQUIRED_FIELD,
+                            UIConfig.SUCCESS_ACCOUNT_CREATED,
+                            UIConfig.SUCCESS_DIALOG_TITLE,
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                    dialog.dispose();
+                    dispose(); // close login screen
+                    SwingUtilities.invokeLater(() ->
+                            PhysicianApp.launchSingleUser(newPhysician, physicianManager, appointmentManager)
+                    );
+                } catch (InvalidCredentialException ex) {
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            ex.getMessage(),
                             UIConfig.ERROR_DIALOG_TITLE,
                             JOptionPane.ERROR_MESSAGE
                     );
-                    return;
                 }
-
-                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            UIConfig.ERROR_INVALID_EMAIL,
-                            UIConfig.ERROR_DIALOG_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
-
-                if (password.length() < 6) {
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            UIConfig.ERROR_PASSWORD_LENGTH,
-                            UIConfig.ERROR_DIALOG_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
-
-                if (!password.equals(confirmPassword)) {
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            UIConfig.ERROR_PASSWORD_MISMATCH,
-                            UIConfig.ERROR_DIALOG_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
-
-                // Check if email already exists
-                if (physicianManager.getPhysicianByEmail(email) != null) {
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            UIConfig.ERROR_EMAIL_EXISTS,
-                            UIConfig.ERROR_DIALOG_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
-
-                String id = java.util.UUID.randomUUID().toString();
-                Physician newPhysician = new Physician(id, name, email, password);
-                physicianManager.addPhysician(newPhysician);
-
-                JOptionPane.showMessageDialog(
-                        dialog,
-                        UIConfig.SUCCESS_ACCOUNT_CREATED,
-                        UIConfig.SUCCESS_DIALOG_TITLE,
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-                dialog.dispose();
-
-                // Log in the newly created user and launch the main application
-                dispose(); // close login screen
-                SwingUtilities.invokeLater(() -> {
-                    PhysicianApp.launchSingleUser(newPhysician, physicianManager, appointmentManager);
-                });
             });
 
             dialog.pack();
