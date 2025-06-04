@@ -1,6 +1,9 @@
+// File: physicianconnect/presentation/MessagePanel.java
+
 package physicianconnect.presentation;
 
-import physicianconnect.logic.MessageService;
+import physicianconnect.logic.controller.MessageController;
+import physicianconnect.logic.exceptions.InvalidMessageException;
 import physicianconnect.objects.Message;
 import physicianconnect.objects.Physician;
 import physicianconnect.presentation.config.UIConfig;
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MessagePanel extends JPanel {
-    private final MessageService messageService;
+    private final MessageController messageController;
     private final String currentUserId;
     private final JList<Message> messageList;
     private final DefaultListModel<Message> messageListModel;
@@ -32,12 +35,13 @@ public class MessagePanel extends JPanel {
     private static final DateTimeFormatter TIME_FORMATTER =
             DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT_PATTERN);
 
-    public MessagePanel(MessageService messageService,
+    public MessagePanel(MessageController messageController,
                         String currentUserId,
                         List<Physician> physicians) {
-        this.messageService = messageService;
-        this.currentUserId  = currentUserId;
-        this.allPhysicians  = physicians.stream()
+        this.messageController = messageController;
+        this.currentUserId     = currentUserId;
+        // Exclude the current user from the recipient list
+        this.allPhysicians = physicians.stream()
                 .filter(p -> !p.getId().equals(currentUserId))
                 .collect(Collectors.toList());
 
@@ -101,7 +105,7 @@ public class MessagePanel extends JPanel {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Physician) {
                     Physician p = (Physician) value;
-                    int unreadMessages = (int) messageService
+                    int unreadMessages = (int) messageController
                             .getUnreadMessagesForUser(currentUserId)
                             .stream()
                             .filter(m -> m.getSenderId().equals(p.getId()))
@@ -223,7 +227,7 @@ public class MessagePanel extends JPanel {
     private void refreshMessages() {
         messageListModel.clear();
         if (selectedRecipient != null) {
-            List<Message> messages = messageService.getMessagesForUser(currentUserId);
+            List<Message> messages = messageController.getAllMessagesForUser(currentUserId);
 
             List<Message> conversationMessages = messages.stream()
                     .filter(m -> m.getSenderId().equals(selectedRecipient.getId())
@@ -233,12 +237,13 @@ public class MessagePanel extends JPanel {
 
             conversationMessages.forEach(messageListModel::addElement);
 
+            // Mark incoming ones as read
             conversationMessages.stream()
                     .filter(m -> m.getReceiverId().equals(currentUserId)
                             && m.getSenderId().equals(selectedRecipient.getId())
                             && !m.isRead())
                     .forEach(m -> {
-                        messageService.markMessageAsRead(m.getMessageId());
+                        messageController.markMessageAsRead(m.getMessageId());
                         m.setRead(true);
                     });
 
@@ -248,7 +253,7 @@ public class MessagePanel extends JPanel {
     }
 
     private void updateUnreadCount() {
-        int unreadCount = messageService.getUnreadMessageCount(currentUserId);
+        int unreadCount = messageController.getUnreadMessageCount(currentUserId);
         unreadCountLabel.setText(unreadCount > 0
                 ? unreadCount + " " + UIConfig.UNREAD_SUFFIX
                 : "");
@@ -258,15 +263,24 @@ public class MessagePanel extends JPanel {
     private void sendMessage() {
         String content = messageInput.getText().trim();
         if (!content.isEmpty() && selectedRecipient != null) {
-            Message sentMessage = messageService.sendMessage(
-                    currentUserId,
-                    selectedRecipient.getId(),
-                    content
-            );
-            messageInput.setText("");
-            messageListModel.addElement(sentMessage);
-            scrollToBottom();
-            updateUnreadCount();
+            try {
+                Message sentMessage = messageController.sendMessage(
+                        currentUserId,
+                        selectedRecipient.getId(),
+                        content
+                );
+                messageInput.setText("");
+                messageListModel.addElement(sentMessage);
+                scrollToBottom();
+                updateUnreadCount();
+            } catch (InvalidMessageException ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        ex.getMessage(),
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         } else if (selectedRecipient == null) {
             JOptionPane.showMessageDialog(
                     this,

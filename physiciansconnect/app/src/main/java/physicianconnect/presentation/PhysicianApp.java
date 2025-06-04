@@ -1,5 +1,6 @@
 package physicianconnect.presentation;
 
+import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
@@ -422,8 +423,9 @@ public class PhysicianApp {
 
     private void showMessageDialog() {
         JDialog dialog = new JDialog(frame, UIConfig.MESSAGES_DIALOG_TITLE, true);
+        MessageController messageController = new MessageController(messageService);
         MessagePanel messagePanel = new MessagePanel(
-                messageService,
+                messageController,
                 loggedIn.getId(),
                 physicianManager.getAllPhysicians());
         dialog.setContentPane(messagePanel);
