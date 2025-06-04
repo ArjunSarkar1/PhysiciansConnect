@@ -26,6 +26,17 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.awt.image.BufferedImage;
 
+// ─── Presentation‐layer imports ───
+import physicianconnect.presentation.AddAppointmentDialog;
+import physicianconnect.presentation.ViewAppointmentDialog;
+import physicianconnect.presentation.PatientHistoryPanel;
+import physicianconnect.presentation.PrescribeMedicinePanel;
+import physicianconnect.presentation.ReferralPanel;
+import physicianconnect.presentation.MessageButton;
+import physicianconnect.presentation.MessagePanel;
+import physicianconnect.presentation.DailyAvailabilityPanel;
+import physicianconnect.presentation.WeeklyAvailabilityPanel;
+
 /**
  * Main application window for a logged-in physician.
  * Business logic is still delegated to managers/services, not yet controllers.
@@ -168,7 +179,7 @@ public class PhysicianApp {
         addAppointmentButton.addActionListener(e -> {
             AddAppointmentDialog dlg = new AddAppointmentDialog(
                     frame,
-                    appointmentManager,
+                    appointmentManager,                // now passing AppointmentManager
                     loggedIn.getId(),
                     () -> {
                         dailyPanel.loadSlotsForDate(selectedDate);
@@ -190,7 +201,7 @@ public class PhysicianApp {
             }
             ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
                     frame,
-                    appointmentManager,
+                    appointmentManager,                // passing AppointmentManager here as well
                     selectedAppt,
                     () -> {
                         dailyPanel.loadSlotsForDate(selectedDate);
@@ -283,7 +294,7 @@ public class PhysicianApp {
         this.weeklyPanel = new WeeklyAvailabilityPanel(
                 physicianId,
                 availabilityService,
-                appointmentManager,
+                appointmentManager,   // passing AppointmentManager
                 weekStart,
                 () -> {
                     LocalDate dayInView = this.dailyPanel.getCurrentDate();
@@ -295,7 +306,7 @@ public class PhysicianApp {
         this.dailyPanel = new DailyAvailabilityPanel(
                 physicianId,
                 availabilityService,
-                appointmentManager,
+                appointmentManager,   // passing AppointmentManager
                 selectedDate,
                 () -> {
                     LocalDate dayInView = this.dailyPanel.getCurrentDate();

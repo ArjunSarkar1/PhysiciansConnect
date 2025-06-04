@@ -19,8 +19,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Date;
 
-
-
 /**
  * Shows a single day’s 16 half-hour slots (08:00–16:30) in one column,
  * with a dedicated left-hand column for the time labels.
@@ -76,7 +74,7 @@ public class DailyAvailabilityPanel extends JPanel {
                 int x = e.getX();
                 int y = e.getY();
 
-                // (1) If clicked in the time-label column, ignore
+                // (1) If clicked in the time‐label column, ignore
                 if (x < TIME_LABEL_WIDTH) {
                     return;
                 }
@@ -97,7 +95,7 @@ public class DailyAvailabilityPanel extends JPanel {
                             UIConfig.FREE_SLOT_MESSAGE
                                     .replace("{date}", slotTime.toLocalDate().toString())
                                     .replace("{time}", slotTime.toLocalTime().toString()),
-                            "Add Appointment",
+                            UIConfig.ADD_APPOINTMENT_CONFIRM_TITLE,
                             JOptionPane.YES_NO_OPTION
                     );
 
@@ -155,7 +153,7 @@ public class DailyAvailabilityPanel extends JPanel {
     }
 
     /**
-     * Loads 16 half-hour slots for the given date.
+     * Loads 16 half‐hour slots for the given date.
      * On SQLException, falls back to “all free” using TimeSlot.generateDailySlots().
      */
     public void loadSlotsForDate(LocalDate date) {
@@ -185,7 +183,7 @@ public class DailyAvailabilityPanel extends JPanel {
 
         int height = SLOT_COUNT * PIXEL_PER_SLOT;
 
-        // ─── (1) Draw the left-hand time labels ───
+        // ─── (1) Draw the left‐hand time labels ───
         g.setColor(UITheme.ACCENT_LIGHT_COLOR);
         g.fillRect(0, 0, TIME_LABEL_WIDTH, height);
         g.setColor(UITheme.TEXT_COLOR);

@@ -15,8 +15,8 @@ import java.util.Date;
 
 /**
  * AddAppointmentDialog supports:
- *  • A 3-arg constructor (parent, manager, physicianId)
- *  • A 4-arg constructor (parent, manager, physicianId, onSuccessCallback)
+ *  • A 3‐arg constructor (parent, manager, physicianId)
+ *  • A 4‐arg constructor (parent, manager, physicianId, onSuccessCallback)
  */
 public class AddAppointmentDialog extends JDialog {
     private final AppointmentManager appointmentManager;
@@ -182,25 +182,10 @@ public class AddAppointmentDialog extends JDialog {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
 
-            // 3) Check for conflict before creating a new Appointment
-            if (!appointmentManager.isSlotAvailable(physicianId, chosenDateTime)) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        UIConfig.ERROR_TIME_CONFLICT,
-                        UIConfig.ERROR_DIALOG_TITLE,
-                        JOptionPane.WARNING_MESSAGE
-                );
-                return;
-            }
-
-            // 4) Construct a new Appointment
-            Appointment newAppt = new Appointment(
-                    physicianId,
-                    patient,
-                    chosenDateTime
+            // 3) Delegate to manager to create the appointment
+            appointmentManager.addAppointment(
+                    new Appointment(physicianId, patient, chosenDateTime)
             );
-            newAppt.setNotes(notesArea.getText());
-            appointmentManager.addAppointment(newAppt);
 
             JOptionPane.showMessageDialog(
                     this,
@@ -209,19 +194,19 @@ public class AddAppointmentDialog extends JDialog {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            // 5) Invoke onSuccessCallback to reload calendars
+            // 4) Invoke onSuccessCallback to reload calendars
             if (onSuccessCallback != null) {
                 onSuccessCallback.run();
             }
 
-            // 6) Close the dialog now that we’ve saved
+            // 5) Close the dialog now that we’ve saved
             dispose();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            // Manager will throw InvalidAppointmentException if something is invalid
             JOptionPane.showMessageDialog(
                     this,
-                    UIConfig.ERROR_INVALID_INPUT + ex.getMessage(),
+                    ex.getMessage(),
                     UIConfig.ERROR_DIALOG_TITLE,
                     JOptionPane.ERROR_MESSAGE
             );
