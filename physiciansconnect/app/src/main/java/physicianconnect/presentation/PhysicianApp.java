@@ -2,6 +2,7 @@ package physicianconnect.presentation;
 
 import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.controller.PatientHistoryController;
+import physicianconnect.logic.controller.PrescriptionController;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
@@ -230,10 +231,14 @@ public class PhysicianApp {
         prescribeButton.addActionListener(e -> {
             JDialog dialog = new JDialog(frame,
                     UIConfig.PRESCRIBE_MEDICINE_TITLE, true);
+            // create a controller and pass it into the panel
+            var prescriptionController = new PrescriptionController(
+                    PersistenceFactory.getPrescriptionPersistence()
+            );
             dialog.setContentPane(new PrescribeMedicinePanel(
                     appointmentManager,
                     PersistenceFactory.getMedicationPersistence(),
-                    PersistenceFactory.getPrescriptionPersistence(),
+                    prescriptionController,
                     loggedIn.getId(),
                     null));
             dialog.pack();
