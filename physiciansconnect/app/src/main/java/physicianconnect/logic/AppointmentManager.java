@@ -1,9 +1,10 @@
-// src/main/java/physicianconnect/logic/AppointmentManager.java
 package physicianconnect.logic;
 
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.interfaces.AppointmentPersistence;
-import physicianconnect.exceptions.InvalidAppointmentException;
+import physicianconnect.logic.exceptions.*;
+import physicianconnect.logic.validation.*;
+
 
 import java.time.Clock;
 import java.time.LocalDateTime;
