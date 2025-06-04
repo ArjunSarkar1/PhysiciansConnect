@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class ReferralPanel extends JPanel {
     private final ReferralManager referralManager;
-    private final String physicianId;
-    private JComboBox<String> patientCombo;
-    private JTextField typeField;
-    private JTextArea detailsArea;
-    private JButton createButton;
-    private JTextArea referralListArea;
+    private final String       physicianId;
+    private JComboBox<String>  patientCombo;
+    private JTextField         typeField;
+    private JTextArea          detailsArea;
+    private JButton            createButton;
+    private JTextArea          referralListArea;
 
     public ReferralPanel(ReferralManager referralManager,
                          String physicianId,
@@ -163,14 +163,11 @@ public class ReferralPanel extends JPanel {
             return;
         }
 
-        List<Referral> referrals = referralManager.getReferralsForPhysician(physicianId)
-                .stream()
-                .filter(r -> r.getPatientName().equals(patient))
-                .toList();
+        // “getReferralsForPatient” returns all referrals for this patient
+        List<Referral> referrals = referralManager.getReferralsForPatient(patient);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(UIConfig.HISTORY_SECTION_REFERRALS.replace("Referrals:", UIConfig.REFERRALS_HEADER))
-                .append(" ").append(patient).append(":\n");
+        sb.append(UIConfig.REFERRALS_HEADER).append(" ").append(patient).append(":\n");
         for (Referral r : referrals) {
             sb.append("  [")
                     .append(r.getDateCreated())
