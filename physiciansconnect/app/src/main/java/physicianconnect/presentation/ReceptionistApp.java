@@ -64,6 +64,7 @@ public class ReceptionistApp {
     }
 
     private void initializeUI() {
+        new javax.swing.Timer(1000, e -> updateAppointments()).start();
         frame = new JFrame("Receptionist Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1200, 800);
