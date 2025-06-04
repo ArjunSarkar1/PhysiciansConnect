@@ -1,13 +1,12 @@
+// File: physicianconnect/presentation/PatientHistoryPanel.java
+
 package physicianconnect.presentation;
 
 import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.ReferralManager;
 import physicianconnect.objects.Appointment;
-import physicianconnect.objects.Prescription;
-import physicianconnect.objects.Referral;
-import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
+import physicianconnect.logic.controller.PatientHistoryController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,30 +17,37 @@ import java.util.stream.Collectors;
 
 /**
  * PatientHistoryPanel displays the history (appointments, prescriptions, referrals)
- * for a selected patient of the current physician.
+ * for a selected patient of the current physician, delegating formatting to
+ * PatientHistoryController.
  */
 public class PatientHistoryPanel extends JPanel {
     private final AppointmentManager appointmentManager;
-    private final PrescriptionPersistence prescriptionPersistence;
-    private final ReferralManager referralManager;
+    private final PatientHistoryController historyController;
     private final String physicianId;
+
     private JComboBox<String> patientCombo;
     private JTextArea historyArea;
 
-    // Constructor for dependency injection (for testing)
+    /**
+     * Constructor for dependency injection / production use.
+     *
+     * @param appointmentManager    used only to populate the patient dropdown
+     * @param historyController     controller that returns a formatted history string
+     * @param physicianId           the currently‐logged‐in physician’s ID
+     */
     public PatientHistoryPanel(AppointmentManager appointmentManager,
-                               PrescriptionPersistence prescriptionPersistence,
-                               ReferralManager referralManager,
+                               PatientHistoryController historyController,
                                String physicianId) {
-        this.appointmentManager      = appointmentManager;
-        this.prescriptionPersistence = prescriptionPersistence;
-        this.referralManager         = referralManager;
-        this.physicianId             = physicianId;
+        this.appointmentManager = appointmentManager;
+        this.historyController  = historyController;
+        this.physicianId        = physicianId;
+
         setLayout(new BorderLayout(10, 10));
         setBackground(UITheme.BACKGROUND_COLOR);
 
-        // Populate patient names into a sorted set
-        Set<String> patientNames = appointmentManager.getAppointmentsForPhysician(physicianId)
+        // ─── Populate patient names into a sorted set ───
+        Set<String> patientNames = appointmentManager
+                .getAppointmentsForPhysician(physicianId)
                 .stream()
                 .map(Appointment::getPatientName)
                 .collect(Collectors.toCollection(TreeSet::new));
@@ -69,63 +75,19 @@ public class PatientHistoryPanel extends JPanel {
         }
     }
 
-    // Original constructor for production use
-    public PatientHistoryPanel(AppointmentManager appointmentManager,
-                               PrescriptionPersistence prescriptionPersistence,
-                               String physicianId) {
-        this(appointmentManager,
-                prescriptionPersistence,
-                new ReferralManager(
-                        physicianconnect.persistence.PersistenceFactory.getReferralPersistence()
-                ),
-                physicianId);
-    }
-
-    public void updateHistory() {
+    /**
+     * Whenever the selected patient changes, query the controller for the full
+     * history string and display it.
+     */
+    private void updateHistory() {
         String patient = (String) patientCombo.getSelectedItem();
         if (patient == null) {
             historyArea.setText("");
             return;
         }
 
-        List<Appointment> appointments = appointmentManager.getAppointmentsForPhysician(physicianId)
-                .stream()
-                .filter(a -> a.getPatientName().equals(patient))
-                .collect(Collectors.toList());
-
-        List<Prescription> prescriptions = prescriptionPersistence.getPrescriptionsForPatient(patient);
-        List<Referral> referrals = referralManager.getReferralsForPatient(patient);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(UIConfig.HISTORY_SECTION_APPOINTMENTS).append("\n");
-        for (Appointment a : appointments) {
-            sb.append("  ")
-                    .append(a.getDateTime().format(UIConfig.HISTORY_DATE_FORMATTER))
-                    .append("\n");
-            if (a.getNotes() != null && !a.getNotes().trim().isEmpty()) {
-                sb.append("    ")
-                        .append(UIConfig.HISTORY_LABEL_NOTES)
-                        .append(a.getNotes())
-                        .append("\n");
-            }
-        }
-
-        sb.append("\n").append(UIConfig.HISTORY_SECTION_PRESCRIPTIONS).append("\n");
-        for (Prescription p : prescriptions) {
-            sb.append("  ").append(p.toString()).append("\n");
-        }
-
-        sb.append("\n").append(UIConfig.HISTORY_SECTION_REFERRALS).append("\n");
-        for (Referral r : referrals) {
-            sb.append("  [")
-                    .append(r.getDateCreated())  // no longer calling .format(...)
-                    .append("] ")
-                    .append(r.getReferralType())
-                    .append(" - ")
-                    .append(r.getDetails())
-                    .append("\n");
-        }
-
-        historyArea.setText(sb.toString());
+        // Delegate formatting to the controller
+        String historyText = historyController.getPatientHistoryString(physicianId, patient);
+        historyArea.setText(historyText);
     }
 }

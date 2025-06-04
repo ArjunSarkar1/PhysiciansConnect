@@ -1,6 +1,7 @@
 package physicianconnect.presentation;
 
 import physicianconnect.logic.controller.MessageController;
+import physicianconnect.logic.controller.PatientHistoryController;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
@@ -215,7 +216,8 @@ public class PhysicianApp {
         historyButton.addActionListener(e -> {
             JDialog dialog = new JDialog(frame,
                     UIConfig.PATIENT_HISTORY_DIALOG_TITLE, true);
-            PatientHistoryPanel historyPanel = new PatientHistoryPanel(
+            // Create a controller and pass it into the panel
+            var historyController = new PatientHistoryController(
                     appointmentManager,
                     PersistenceFactory.getPrescriptionPersistence(),
                     loggedIn.getId());
