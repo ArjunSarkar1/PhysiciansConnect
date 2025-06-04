@@ -1,7 +1,8 @@
+// DailyAvailabilityPanel.java
 package physicianconnect.presentation;
 
 import physicianconnect.logic.AvailabilityService;
-import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.objects.TimeSlot;
 import physicianconnect.objects.Appointment;
 import physicianconnect.presentation.config.UIConfig;
@@ -11,55 +12,50 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Date;
 
 /**
  * Shows a single day’s 16 half-hour slots (08:00–16:30) in one column,
  * with a dedicated left-hand column for the time labels.
  *
- * Added: a Runnable “onDayChanged” so that whenever we add/update/delete
- * an appointment, we can also tell the weekly view to refresh.
+ * Now uses AppointmentController instead of AppointmentManager directly.
  */
 public class DailyAvailabilityPanel extends JPanel {
     private final int physicianId;
     private final AvailabilityService availabilityService;
-    private final AppointmentManager appointmentManager;
-    private final Runnable onDayChanged;    // <-- new callback
+    private final AppointmentController appointmentController;
+    private final Runnable onDayChanged;
 
     private LocalDate currentDate;
     private List<TimeSlot> currentSlots;
 
     // Constants (layout dimensions)
-    private static final int SLOT_COUNT         = 16;   // 16 half-hour slots 08:00–16:30
-    private static final int PIXEL_PER_SLOT     = 30;   // each row is 30px tall
-    private static final int TIME_LABEL_WIDTH   = 80;   // width of the left-hand time column
-    private static final int SLOT_COLUMN_WIDTH  = 200;  // width of the slot column
+    private static final int SLOT_COUNT       = 16;   // 16 half-hour slots (08:00–16:30)
+    private static final int PIXEL_PER_SLOT   = 30;   // each row is 30px tall
+    private static final int TIME_LABEL_WIDTH = 80;   // width of the left-hand time column
+    private static final int SLOT_COLUMN_WIDTH = 200; // width of the slot column
 
     /**
-     * Updated constructor signature: now requires a Runnable “onDayChanged”.
-     *
-     * @param physicianId      the physician’s integer ID
-     * @param svc              the AvailabilityService
-     * @param apptMgr          the AppointmentManager
-     * @param date             the initially displayed date
-     * @param onDayChanged     callback to run whenever the day’s data changes
+     * @param physicianId          the physician’s integer ID
+     * @param svc                  the AvailabilityService
+     * @param apptController       the AppointmentController to use for create/update/delete/fetch
+     * @param date                 the initially displayed date
+     * @param onDayChanged         callback to run whenever the day’s data changes
      */
     public DailyAvailabilityPanel(int physicianId,
                                   AvailabilityService svc,
-                                  AppointmentManager apptMgr,
+                                  AppointmentController apptController,
                                   LocalDate date,
                                   Runnable onDayChanged) {
-        this.physicianId         = physicianId;
-        this.availabilityService = svc;
-        this.appointmentManager  = apptMgr;
-        this.currentDate         = date;
-        this.onDayChanged        = onDayChanged;
+        this.physicianId          = physicianId;
+        this.availabilityService  = svc;
+        this.appointmentController = apptController;
+        this.currentDate          = date;
+        this.onDayChanged         = onDayChanged;
 
         int totalWidth  = TIME_LABEL_WIDTH + SLOT_COLUMN_WIDTH;
         int totalHeight = SLOT_COUNT * PIXEL_PER_SLOT;
@@ -68,13 +64,14 @@ public class DailyAvailabilityPanel extends JPanel {
 
         loadSlotsForDate(date);
 
+        // When user clicks on a slot, either book a new appointment or view/edit an existing one:
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
                 int y = e.getY();
 
-                // (1) If clicked in the time‐label column, ignore
+                // (1) If clicked in the time-label column, ignore
                 if (x < TIME_LABEL_WIDTH) {
                     return;
                 }
@@ -102,15 +99,16 @@ public class DailyAvailabilityPanel extends JPanel {
                     if (choice == JOptionPane.YES_OPTION) {
                         AddAppointmentDialog addDlg = new AddAppointmentDialog(
                                 (JFrame) SwingUtilities.getWindowAncestor(DailyAvailabilityPanel.this),
-                                appointmentManager,
+                                appointmentController,
                                 String.valueOf(physicianId),
                                 () -> {
+                                    // Reload slots and notify week view (if any) of change:
                                     loadSlotsForDate(currentDate);
                                     onDayChanged.run();
                                 }
                         );
-
-                        Date prefill = Date.from(
+                        // Pre-fill date/time spinners:
+                        java.util.Date prefill = java.util.Date.from(
                                 slotTime.atZone(ZoneId.systemDefault()).toInstant()
                         );
                         addDlg.dateSpinner.setValue(prefill);
@@ -118,10 +116,9 @@ public class DailyAvailabilityPanel extends JPanel {
 
                         addDlg.setVisible(true);
                     }
-                }
-                else {
-                    // → BOOKED slot: find matching Appointment by exact date/time
-                    Appointment existingAppt = appointmentManager
+                } else {
+                    // → BOOKED slot: find matching Appointment by exact date/time via controller
+                    Appointment existingAppt = appointmentController
                             .getAppointmentsForPhysician(String.valueOf(physicianId))
                             .stream()
                             .filter(a -> a.getDateTime().equals(slotTime))
@@ -131,9 +128,10 @@ public class DailyAvailabilityPanel extends JPanel {
                     if (existingAppt != null) {
                         ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
                                 (JFrame) SwingUtilities.getWindowAncestor(DailyAvailabilityPanel.this),
-                                appointmentManager,
+                                appointmentController,
                                 existingAppt,
                                 () -> {
+                                    // Reload slots and notify week view of change:
                                     loadSlotsForDate(currentDate);
                                     onDayChanged.run();
                                 }
@@ -153,7 +151,7 @@ public class DailyAvailabilityPanel extends JPanel {
     }
 
     /**
-     * Loads 16 half‐hour slots for the given date.
+     * Loads 16 half-hour slots for the given date.
      * On SQLException, falls back to “all free” using TimeSlot.generateDailySlots().
      */
     public void loadSlotsForDate(LocalDate date) {
@@ -163,7 +161,7 @@ public class DailyAvailabilityPanel extends JPanel {
                     String.valueOf(physicianId),
                     date
             );
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             this.currentSlots = TimeSlot.generateDailySlots(date);
         }
@@ -183,7 +181,7 @@ public class DailyAvailabilityPanel extends JPanel {
 
         int height = SLOT_COUNT * PIXEL_PER_SLOT;
 
-        // ─── (1) Draw the left‐hand time labels ───
+        // ─── (1) Draw the left-hand time labels ───
         g.setColor(UITheme.ACCENT_LIGHT_COLOR);
         g.fillRect(0, 0, TIME_LABEL_WIDTH, height);
         g.setColor(UITheme.TEXT_COLOR);
@@ -202,7 +200,9 @@ public class DailyAvailabilityPanel extends JPanel {
             int y = i * PIXEL_PER_SLOT;
             TimeSlot ts = currentSlots.get(i);
 
-            Color fill = ts.isBooked() ? UITheme.ACCENT_LIGHT_COLOR.darker() : UITheme.BACKGROUND_COLOR;
+            Color fill = ts.isBooked()
+                    ? UITheme.ACCENT_LIGHT_COLOR.darker()
+                    : UITheme.BACKGROUND_COLOR;
             g.setColor(fill);
             g.fillRect(TIME_LABEL_WIDTH, y, SLOT_COLUMN_WIDTH, PIXEL_PER_SLOT);
 
@@ -211,7 +211,7 @@ public class DailyAvailabilityPanel extends JPanel {
 
             if (ts.isBooked()) {
                 String patient = ts.getPatientName();
-                String display = patient.length() > 18
+                String display = (patient.length() > 18)
                         ? patient.substring(0, 15) + "…"
                         : patient;
                 g.drawString(display, TIME_LABEL_WIDTH + 5, y + 18);

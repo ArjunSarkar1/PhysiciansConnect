@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package physicianconnect.logic.controller;
 
 import physicianconnect.logic.*;
 import physicianconnect.objects.Appointment;
