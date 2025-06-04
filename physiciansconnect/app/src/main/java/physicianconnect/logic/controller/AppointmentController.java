@@ -1,10 +1,11 @@
 package physicianconnect.logic.controller;
 
-import physicianconnect.logic.*;
-import physicianconnect.objects.Appointment;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.exceptions.InvalidAppointmentException;
+import physicianconnect.objects.Appointment;
 
 /**
  * Controller for Appointment use‐cases.

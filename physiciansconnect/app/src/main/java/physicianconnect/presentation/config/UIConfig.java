@@ -1,4 +1,5 @@
 package physicianconnect.presentation.config;
+
 import java.time.format.DateTimeFormatter;
 
 public final class UIConfig {
@@ -22,6 +23,8 @@ public final class UIConfig {
     public static final String BUTTON_UPDATE_NOTES          = "Update Notes";
     public static final String BUTTON_DELETE_APPOINTMENT    = "Delete Appointment";
     public static final String BUTTON_CLOSE                 = "Close";
+    public static final String REGISTER_BUTTON_TEXT         = "Register";
+
 
     // ─────────── Dialog Titles ───────────
     public static final String CREATE_ACCOUNT_DIALOG_TITLE  = "Create Account";

@@ -1,49 +1,59 @@
 package physicianconnect.presentation;
 
-import org.junit.jupiter.api.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.swing.JComboBox;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.controller.PrescriptionController;
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.stub.MedicationPersistenceStub;
 import physicianconnect.persistence.stub.PrescriptionPersistenceStub;
 
-import javax.swing.*;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-public class PrescribeMedicinePanelTest {
+class PrescribeMedicinePanelTest {
 
     private PrescribeMedicinePanel panel;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
+        // Minimal AppointmentManager stub
         AppointmentManager am = new AppointmentManager(null) {
             @Override
             public List<Appointment> getAppointmentsForPhysician(String id) {
-                return List.of(new Appointment("doc1", "Patient A", null));
+                return List.of(new Appointment("doc1", "Patient A", LocalDateTime.now()));
             }
         };
-        MedicationPersistenceStub medStub = new MedicationPersistenceStub(true);
-        PrescriptionPersistenceStub presStub = new PrescriptionPersistenceStub(false);
 
-        panel = new PrescribeMedicinePanel(am, medStub, presStub, "doc1", null);
+        MedicationPersistenceStub    medStub  = new MedicationPersistenceStub(true);
+        PrescriptionPersistenceStub  presStub = new PrescriptionPersistenceStub(false);
+        PrescriptionController       presCtrl = new PrescriptionController(presStub);
+
+        // Use controller-based constructor
+        panel = new PrescribeMedicinePanel(am, medStub, presCtrl, "doc1", null);
     }
 
     @Test
-    public void testPanelInitializesWithPatientsAndMedicines() {
-        JComboBox<?> patientCombo = (JComboBox<?>) getField(panel, "patientCombo");
-        JComboBox<?> medicineCombo = (JComboBox<?>) getField(panel, "medicineCombo");
-        assertTrue(patientCombo.getItemCount() > 0, "Should have at least one patient");
+    void panelInitializesWithPatientsAndMedicines() {
+        JComboBox<?> patientCombo  = (JComboBox<?>) getPrivateField(panel, "patientCombo");
+        JComboBox<?> medicineCombo = (JComboBox<?>) getPrivateField(panel, "medicineCombo");
+
+        assertTrue(patientCombo.getItemCount()  > 0, "Should have at least one patient");
         assertTrue(medicineCombo.getItemCount() > 0, "Should have at least one medicine");
     }
 
-    private Object getField(Object obj, String fieldName) {
+    /*--------------------------------------------------------------*/
+    private Object getPrivateField(Object obj, String name) {
         try {
-            var f = obj.getClass().getDeclaredField(fieldName);
+            var f = obj.getClass().getDeclaredField(name);
             f.setAccessible(true);
             return f.get(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

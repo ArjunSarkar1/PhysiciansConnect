@@ -1,19 +1,19 @@
-// File: physicianconnect/presentation/PatientHistoryPanel.java
-
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.objects.Appointment;
-import physicianconnect.presentation.config.UIConfig;
-import physicianconnect.presentation.config.UITheme;
-import physicianconnect.logic.controller.PatientHistoryController;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
+import java.awt.BorderLayout;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.controller.PatientHistoryController;
+import physicianconnect.objects.Appointment;
+import physicianconnect.presentation.config.UITheme;
 
 /**
  * PatientHistoryPanel displays the history (appointments, prescriptions, referrals)
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
  * PatientHistoryController.
  */
 public class PatientHistoryPanel extends JPanel {
-    private final AppointmentManager appointmentManager;
     private final PatientHistoryController historyController;
     private final String physicianId;
 
@@ -38,7 +37,6 @@ public class PatientHistoryPanel extends JPanel {
     public PatientHistoryPanel(AppointmentManager appointmentManager,
                                PatientHistoryController historyController,
                                String physicianId) {
-        this.appointmentManager = appointmentManager;
         this.historyController  = historyController;
         this.physicianId        = physicianId;
 

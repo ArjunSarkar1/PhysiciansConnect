@@ -1,11 +1,17 @@
 package physicianconnect.presentation;
 
-import physicianconnect.presentation.config.UIConfig;
-import physicianconnect.presentation.config.UITheme;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
+
+import physicianconnect.presentation.config.UITheme;
 
 public class MessageButton extends JPanel {
     private final JButton messageButton;
@@ -17,8 +23,8 @@ public class MessageButton extends JPanel {
 
         // Create message button
         messageButton = new JButton("Messages 💬");
-        messageButton.setFont(BUTTON_FONT);
-        messageButton.setBackground(PRIMARY_COLOR);
+        messageButton.setFont(UITheme.BUTTON_FONT);
+        messageButton.setBackground(UITheme.PRIMARY_COLOR);
         messageButton.setForeground(Color.WHITE);
         messageButton.setFocusPainted(false);
         messageButton.setBorderPainted(false);

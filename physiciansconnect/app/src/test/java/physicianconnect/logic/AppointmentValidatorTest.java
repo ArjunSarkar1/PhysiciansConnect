@@ -1,12 +1,12 @@
 package physicianconnect.logic;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
-import physicianconnect.logic.InvalidAppointmentException;
+import physicianconnect.logic.exceptions.InvalidAppointmentException;
 import physicianconnect.objects.Appointment;
 
 public class AppointmentValidatorTest {

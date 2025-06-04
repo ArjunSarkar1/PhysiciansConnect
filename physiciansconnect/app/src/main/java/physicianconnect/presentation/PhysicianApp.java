@@ -1,38 +1,55 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.controller.MessageController;
-import physicianconnect.logic.controller.PatientHistoryController;
-import physicianconnect.logic.controller.PrescriptionController;
-import physicianconnect.logic.controller.AppointmentController;
-
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.AvailabilityService;
-import physicianconnect.logic.MessageService;
-import physicianconnect.logic.ReferralManager;
-
-import physicianconnect.persistence.PersistenceFactory;
-import physicianconnect.persistence.sqlite.AppointmentDB;
-
-import physicianconnect.objects.Appointment;
-import physicianconnect.objects.Physician;
-
-import physicianconnect.presentation.config.UIConfig;
-import physicianconnect.presentation.config.UITheme;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.io.File;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.DayOfWeek;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.awt.image.BufferedImage;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
+
+import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.AvailabilityService;
+import physicianconnect.logic.MessageService;
+import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.controller.AppointmentController;
+import physicianconnect.logic.controller.MessageController;
+import physicianconnect.logic.controller.PatientHistoryController;
+import physicianconnect.logic.controller.PrescriptionController;
+import physicianconnect.objects.Appointment;
+import physicianconnect.objects.Physician;
+import physicianconnect.persistence.PersistenceFactory;
+import physicianconnect.persistence.sqlite.AppointmentDB;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
 
 /**
  * Main window for a logged-in physician.
@@ -45,17 +62,6 @@ public class PhysicianApp {
     /*------------------------------------------------------------------*/
     private JFrame frame;
     private DefaultListModel<Appointment> appointmentListModel;
-    private final Physician loggedIn;
-    private final PhysicianManager physicianManager;
-    private final AppointmentManager appointmentManager;
-    private final MessageService messageService;
-    private final ReferralManager referralManager;
-    private DailyAvailabilityPanel dailyPanel;
-    private WeeklyAvailabilityPanel weeklyPanel;
-    private LocalDate selectedDate; // for daily navigation (e.g. today, yesterday, tomorrow, …)
-    private LocalDate weekStart; // Monday of the currently shown week
-    private MessageButton messageButton;
-    private Timer messageRefreshTimer;
 
     private final Physician             loggedIn;
     private final PhysicianManager      physicianManager;
@@ -114,34 +120,9 @@ public class PhysicianApp {
         welcome.setForeground(UITheme.TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
 
-        ImageIcon profileIcon = getProfileIcon(loggedIn.getId());
-        JButton profilePicButton = new JButton(profileIcon);
-        profilePicButton.setToolTipText("Profile Management");
-        profilePicButton.setPreferredSize(new Dimension(40, 40));
-        profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
-        profilePicButton.setContentAreaFilled(false);
-        profilePicButton.setFocusPainted(false);
-        profilePicButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        profilePicButton.addActionListener(e -> {
-            JDialog dialog = new JDialog(frame, "Profile Management", true);
-            dialog.setContentPane(new ProfilePanel(loggedIn, physicianManager, appointmentManager));
-            dialog.pack();
-            dialog.setLocationRelativeTo(frame);
-            dialog.setVisible(true);
-        });
-
-        // Add message button to top panel
         messageButton = new MessageButton();
         messageButton.setOnAction(e -> showMessageDialog());
-
-        // Create a sub-panel to hold profile and message buttons
-        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        rightButtonPanel.setBackground(BACKGROUND_COLOR);
-        rightButtonPanel.add(messageButton);
-        rightButtonPanel.add(profilePicButton);
-
-        // Add the button panel to the top panel's EAST
-        topPanel.add(rightButtonPanel, BorderLayout.EAST);
+        topPanel.add(messageButton, BorderLayout.EAST);
 
         JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(UITheme.LABEL_FONT);
@@ -187,11 +168,12 @@ public class PhysicianApp {
         buttonPanel.setBackground(UITheme.BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        JButton addAppointmentButton = createStyledButton("📅 Add Appointment");
-        JButton viewAppointmentButton = createStyledButton("🔍 View Appointment");
-        JButton historyButton = createStyledButton("🗂 Patient History");
-        JButton prescribeButton = createStyledButton("💊 Prescribe Medicine");
-        JButton referralButton = createStyledButton("📄 Manage Referrals");
+        JButton addAppointmentBtn = createStyledButton(UIConfig.ADD_APPOINTMENT_BUTTON_TEXT);
+        JButton viewAppointmentBtn = createStyledButton(UIConfig.VIEW_APPOINTMENTS_BUTTON_TEXT);
+        JButton historyBtn   = createStyledButton(UIConfig.PATIENT_HISTORY_BUTTON_TEXT);
+        JButton prescribeBtn = createStyledButton(UIConfig.PRESCRIBE_MEDICINE_BUTTON);
+        JButton referralBtn  = createStyledButton(UIConfig.CREATE_REFERRAL_BUTTON_TEXT);
+        JButton logoutBtn    = createStyledButton(UIConfig.LOGOUT_BUTTON_TEXT);
 
         /*------ Add-Appointment action --------------------------------*/
         addAppointmentBtn.addActionListener(e -> {
@@ -207,13 +189,13 @@ public class PhysicianApp {
             refreshAppointments();
         });
 
-        viewAppointmentButton.addActionListener(e -> {
-            Appointment selectedAppt = appointmentListDisplay.getSelectedValue();
-            if (selectedAppt == null) {
-                JOptionPane.showMessageDialog(
-                        frame,
-                        "Please select an appointment to view.",
-                        "No Selection",
+        /*------ View-Appointment action ------------------------------*/
+        viewAppointmentBtn.addActionListener(e -> {
+            Appointment sel = appointmentListDisplay.getSelectedValue();
+            if (sel == null) {
+                JOptionPane.showMessageDialog(frame,
+                        UIConfig.ERROR_NO_APPOINTMENT_SELECTED,
+                        UIConfig.ERROR_DIALOG_TITLE,
                         JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -223,188 +205,70 @@ public class PhysicianApp {
                         dailyPanel.loadSlotsForDate(selectedDate);
                         weeklyPanel.loadWeek(weekStart);
                     });
-            viewDlg.setVisible(true);
+            d.setVisible(true);
             refreshAppointments();
         });
 
-        historyButton.addActionListener(e -> {
-            JDialog dialog = new JDialog(frame,
-                    UIConfig.PATIENT_HISTORY_DIALOG_TITLE, true);
-            // Create a controller and pass it into the panel
-            var historyController = new PatientHistoryController(
-                    appointmentManager,
-                    PersistenceFactory.getPrescriptionPersistence(),
-                    loggedIn.getId());
-            dialog.setContentPane(historyPanel);
-            dialog.pack();
-            dialog.setLocationRelativeTo(frame);
-            dialog.setVisible(true);
+        /*------ History, prescriptions, referrals, logout ------------*/
+        historyBtn.addActionListener(e -> openHistoryDialog());
+        prescribeBtn.addActionListener(e -> openPrescribeDialog());
+        referralBtn.addActionListener(e -> openReferralDialog());
+        logoutBtn.addActionListener(e -> {
+            frame.dispose();
+            new LoginScreen(physicianManager, appointmentManager);
         });
 
-        prescribeButton.addActionListener(e -> {
-            JDialog dialog = new JDialog(frame,
-                    UIConfig.PRESCRIBE_MEDICINE_TITLE, true);
-            // create a controller and pass it into the panel
-            var prescriptionController = new PrescriptionController(
-                    PersistenceFactory.getPrescriptionPersistence()
-            );
-            dialog.setContentPane(new PrescribeMedicinePanel(
-                    appointmentManager,
-                    PersistenceFactory.getMedicationPersistence(),
-                    prescriptionController,
-                    loggedIn.getId(),
-                    null));
-            dialog.pack();
-            dialog.setLocationRelativeTo(frame);
-            dialog.setVisible(true);
-        });
-
-        referralButton.addActionListener(e -> {
-            JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-            List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                    .stream().map(a -> a.getPatientName()).distinct().toList();
-            ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-            dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-            dialog.pack();
-            dialog.setLocationRelativeTo(frame);
-            dialog.setVisible(true);
-        });
-
-        buttonPanel.add(addAppointmentButton);
-        buttonPanel.add(viewAppointmentButton);
-        buttonPanel.add(historyButton);
-        buttonPanel.add(prescribeButton);
-        buttonPanel.add(referralButton);
+        buttonPanel.add(addAppointmentBtn);
+        buttonPanel.add(viewAppointmentBtn);
+        buttonPanel.add(historyBtn);
+        buttonPanel.add(prescribeBtn);
+        buttonPanel.add(referralBtn);
+        buttonPanel.add(logoutBtn);
 
         /*---------------- Availability panels (daily/weekly) ----------*/
         // DB + service
         Connection conn;
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:prod.db");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    frame,
-                    "Could not open the database:\n" + e.getMessage(),
-                    "Database Error",
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frame,
+                    UIConfig.ERROR_DATABASE_OPEN + "\n" + ex.getMessage(),
+                    UIConfig.ERROR_DIALOG_TITLE,
                     JOptionPane.ERROR_MESSAGE);
-            return; // abort UI init if we cannot connect
+            return;
         }
         AvailabilityService availabilityService =
                 new AvailabilityService(new AppointmentDB(conn));
 
-        AppointmentDB apptDb = new AppointmentDB(conn);
-        AvailabilityService availabilityService = new AvailabilityService(apptDb);
-
-        // 4) Initialize dates
         selectedDate = LocalDate.now();
-        weekStart = selectedDate.with(java.time.DayOfWeek.MONDAY);
+        weekStart    = selectedDate.with(DayOfWeek.MONDAY);
+        int physicianId = Integer.parseInt(loggedIn.getId());
 
-        String docId = loggedIn.getId();
-        int physicianId;
-        try {
-            physicianId = Integer.parseInt(docId);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                    frame,
-                    "Invalid physician ID: must be a number.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        weeklyPanel = new WeeklyAvailabilityPanel(
+                physicianId, availabilityService, appointmentController,
+                weekStart, () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
 
-        // 6) Create the weeklyPanel field first, referring to this.dailyPanel in the
-        // lambda:
-        this.weeklyPanel = new WeeklyAvailabilityPanel(
-                physicianId,
-                availabilityService,
-                appointmentManager,   // passing AppointmentManager
-                weekStart,
-                () -> {
-                    LocalDate dayInView = this.dailyPanel.getCurrentDate();
-                    this.dailyPanel.loadSlotsForDate(dayInView);
-                });
+        dailyPanel = new DailyAvailabilityPanel(
+                physicianId, availabilityService, appointmentController,
+                selectedDate, () -> weeklyPanel.loadWeek(
+                        dailyPanel.getCurrentDate().with(DayOfWeek.MONDAY)));
 
-        // 7) Then create the dailyPanel field, referring to this.weeklyPanel in its
-        // lambda:
-        this.dailyPanel = new DailyAvailabilityPanel(
-                physicianId,
-                availabilityService,
-                appointmentManager,   // passing AppointmentManager
-                selectedDate,
-                () -> {
-                    LocalDate dayInView = this.dailyPanel.getCurrentDate();
-                    LocalDate mondayOfThatDay = dayInView.with(DayOfWeek.MONDAY);
-                    this.weeklyPanel.loadWeek(mondayOfThatDay);
-                });
-        // 8) “Prev/Next Day” buttons (also keep weekly in sync when changing days)
-        JButton prevDayBtn = new JButton("← Prev Day");
-        JButton nextDayBtn = new JButton("Next Day →");
-        JLabel dayLabel = new JLabel("Show Date: " + selectedDate);
-        dayLabel.setFont(LABEL_FONT);
-        dayLabel.setForeground(TEXT_COLOR);
+        /*------ Navigation bars --------------------------------------*/
+        JPanel dailyContainer  = buildDailyContainer();
+        JPanel weeklyContainer = buildWeeklyContainer();
+
+        /*---------------- Split pane ----------------------------------*/
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(UITheme.LABEL_FONT);
+        tabs.addTab(UIConfig.TAB_DAILY_VIEW,  dailyContainer);
+        tabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
+        tabs.setPreferredSize(new Dimension(600, 500));
 
         JSplitPane center = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT, appointmentsPanel, tabs);
         center.setOneTouchExpandable(false);
 
-        JPanel dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        dayNav.setBackground(UITheme.BACKGROUND_COLOR);
-        dayNav.add(prevDayBtn);
-        dayNav.add(dayLabel);
-        dayNav.add(nextDayBtn);
-
-        JPanel dailyContainer = new JPanel(new BorderLayout());
-        dailyContainer.setBackground(UITheme.BACKGROUND_COLOR);
-        dailyContainer.add(dayNav, BorderLayout.NORTH);
-        dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
-
-        // 9) “Prev/Next Week” buttons (also keep daily in sync if you want):
-        JButton prevWeekBtn = new JButton("← Prev Week");
-        JButton nextWeekBtn = new JButton("Next Week →");
-        JLabel weekLabel = new JLabel("Week of: " + weekStart);
-        weekLabel.setFont(LABEL_FONT);
-        weekLabel.setForeground(TEXT_COLOR);
-
-        prevWeekBtn.addActionListener(e -> {
-            weekStart = weekStart.minusWeeks(1);
-            weeklyPanel.loadWeek(weekStart);
-            weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
-            selectedDate = weekStart;
-            dailyPanel.loadSlotsForDate(selectedDate);
-        });
-        nextWeekBtn.addActionListener(e -> {
-            weekStart = weekStart.plusWeeks(1);
-            weeklyPanel.loadWeek(weekStart);
-            weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
-            selectedDate = weekStart;
-            dailyPanel.loadSlotsForDate(selectedDate);
-        });
-
-        JPanel weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        weekNav.setBackground(UITheme.BACKGROUND_COLOR);
-        weekNav.add(prevWeekBtn);
-        weekNav.add(weekLabel);
-        weekNav.add(nextWeekBtn);
-
-        JPanel weeklyContainer = new JPanel(new BorderLayout());
-        weeklyContainer.setBackground(UITheme.BACKGROUND_COLOR);
-        weeklyContainer.add(weekNav, BorderLayout.NORTH);
-        weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
-
-        // ─────────── Split Pane (Appointments vs. Availability) ───────────
-        JTabbedPane availabilityTabs = new JTabbedPane();
-        availabilityTabs.setFont(UITheme.LABEL_FONT);
-        availabilityTabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
-        availabilityTabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
-        availabilityTabs.setPreferredSize(new Dimension(600, 500));
-
-        JSplitPane centerSplit = new JSplitPane(
-                JSplitPane.HORIZONTAL_SPLIT,
-                appointmentsPanel,
-                availabilityTabs);
-        centerSplit.setOneTouchExpandable(false);
-        frame.add(centerSplit, BorderLayout.CENTER);
+        frame.add(center, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         refreshAppointments();
@@ -497,21 +361,20 @@ public class PhysicianApp {
     private void refreshAppointments() {
         appointmentListModel.clear();
         appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                .forEach(appointmentListModel::addElement);
+                          .forEach(appointmentListModel::addElement);
     }
 
     /*------------------------------------------------------------------*/
     private void showMessageDialog() {
-        JDialog dialog = new JDialog(frame, UIConfig.MESSAGES_DIALOG_TITLE, true);
-        MessageController messageController = new MessageController(messageService);
-        MessagePanel messagePanel = new MessagePanel(
-                messageController,
-                loggedIn.getId(),
-                physicianManager.getAllPhysicians());
-        dialog.setContentPane(messagePanel);
-        dialog.pack();
-        dialog.setLocationRelativeTo(frame);
-        dialog.setVisible(true);
+        MessageController mc = new MessageController(messageService);
+        MessagePanel panel  = new MessagePanel(
+                mc, loggedIn.getId(), physicianManager.getAllPhysicians());
+
+        JDialog dlg = new JDialog(frame, UIConfig.MESSAGES_DIALOG_TITLE, true);
+        dlg.setContentPane(panel);
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
         refreshMessageCount();
     }
 
@@ -520,28 +383,71 @@ public class PhysicianApp {
         messageButton.updateNotificationCount(unread);
     }
 
-    public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager) {
-        try {
-            SwingUtilities.invokeLater(() -> {
-                new PhysicianApp(loggedIn, physicianManager, appointmentManager);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
-                    "Error launching application: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+    /*------------------------------------------------------------------*/
+    /* Light wrappers for other dialogs                                 */
+    /*------------------------------------------------------------------*/
+    private void openHistoryDialog() {
+        var historyController = new PatientHistoryController(
+                appointmentManager,
+                PersistenceFactory.getPrescriptionPersistence(),
+                referralManager);
+
+        PatientHistoryPanel panel = new PatientHistoryPanel(
+                appointmentManager, historyController, loggedIn.getId());
+
+        JDialog dlg = new JDialog(frame, UIConfig.PATIENT_HISTORY_DIALOG_TITLE, true);
+        dlg.setContentPane(panel);
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
+    }
+
+    private void openPrescribeDialog() {
+        var prescriptionController =
+                new PrescriptionController(PersistenceFactory.getPrescriptionPersistence());
+
+        JDialog dlg = new JDialog(frame, UIConfig.PRESCRIBE_MEDICINE_TITLE, true);
+        dlg.setContentPane(new PrescribeMedicinePanel(
+                appointmentManager,
+                PersistenceFactory.getMedicationPersistence(),
+                prescriptionController,
+                loggedIn.getId(),
+                null));
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
+    }
+
+    private void openReferralDialog() {
+        List<String> patientNames =
+                appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+                                  .stream().map(Appointment::getPatientName)
+                                  .distinct().toList();
+
+        JDialog dlg = new JDialog(frame, UIConfig.REFERRAL_DIALOG_TITLE, true);
+        dlg.setContentPane(new ReferralPanel(
+                referralManager, loggedIn.getId(), patientNames));
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
+    }
+
+    /*------------------------------------------------------------------*/
+    public static void launchSingleUser(Physician loggedIn,
+                                        PhysicianManager pm,
+                                        AppointmentManager am) {
+        SwingUtilities.invokeLater(() -> new PhysicianApp(loggedIn, pm, am));
     }
 
     /*------------------------------------------------------------------*/
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
         @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            label.setBorder(BorderFactory.createCompoundBorder(
+        public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                      int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            JLabel lbl = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+            lbl.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(
                             isSelected ? UITheme.PRIMARY_COLOR : UITheme.ACCENT_LIGHT_COLOR, 2),
                     new EmptyBorder(10, 10, 10, 10)));
@@ -552,23 +458,4 @@ public class PhysicianApp {
             return lbl;
         }
     }
-
-    private ImageIcon getProfileIcon(String physicianId) {
-        File photoFile = new File("src/main/java/physicianconnect/src/profile_photos", physicianId + ".png");
-        if (photoFile.exists()) {
-            ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
-            Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
-            return new ImageIcon(img);
-        } else {
-            BufferedImage placeholder = new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = placeholder.createGraphics();
-            g2.setColor(Color.LIGHT_GRAY);
-            g2.fillRect(0, 0, 40, 40);
-            g2.setColor(Color.DARK_GRAY);
-            g2.drawString("👤", 10, 25);
-            g2.dispose();
-            return new ImageIcon(placeholder);
-        }
-    }
-
 }

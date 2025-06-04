@@ -1,18 +1,34 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.controller.AppointmentController;
-import physicianconnect.logic.InvalidAppointmentException;
-import physicianconnect.presentation.config.UIConfig;
-import physicianconnect.presentation.config.UITheme;
-import physicianconnect.objects.Appointment;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
+import javax.swing.border.EmptyBorder;
+
+import physicianconnect.logic.controller.AppointmentController;
+import physicianconnect.logic.exceptions.InvalidAppointmentException;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
 
 /**
  * AddAppointmentDialog supports:
