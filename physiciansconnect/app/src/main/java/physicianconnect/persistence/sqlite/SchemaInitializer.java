@@ -20,7 +20,8 @@ public class SchemaInitializer {
                 + "patient_name TEXT NOT NULL, "
                 + "datetime TEXT NOT NULL, "
                 + "notes TEXT, "
-                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE, "
+                + "UNIQUE (physician_id, patient_name, datetime)"
                 + ");";
 
         String createMedicationsTable = "CREATE TABLE IF NOT EXISTS medications ("
@@ -28,7 +29,8 @@ public class SchemaInitializer {
                 + "name TEXT NOT NULL, "
                 + "dosage TEXT NOT NULL, "
                 + "default_frequency TEXT, "
-                + "default_notes TEXT"
+                + "default_notes TEXT, "
+                + "UNIQUE (name, dosage)"
                 + ");";
 
         String createPrescriptionsTable = "CREATE TABLE IF NOT EXISTS prescriptions ("
@@ -41,7 +43,8 @@ public class SchemaInitializer {
                 + "frequency TEXT, "
                 + "notes TEXT, "
                 + "date_prescribed TEXT NOT NULL, "
-                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE, "
+                + "UNIQUE (physician_id, patient_name, medication_name, date_prescribed)"
                 + ");";
 
         String createReferralsTable = "CREATE TABLE IF NOT EXISTS referrals ("
@@ -51,7 +54,8 @@ public class SchemaInitializer {
                 + "referral_type TEXT NOT NULL, "
                 + "details TEXT, "
                 + "date_created TEXT NOT NULL, "
-                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                + "FOREIGN KEY (physician_id) REFERENCES physicians(id) ON DELETE CASCADE, "
+                + "UNIQUE (physician_id, patient_name, referral_type, date_created)"
                 + ");";
         
         String createReceptionistTable = "CREATE TABLE IF NOT EXISTS receptionists ("

@@ -100,6 +100,8 @@ public class LoginScreen extends JFrame {
         panel.add(buttons, gbc);
 
         add(panel, BorderLayout.CENTER);
+        getRootPane().setDefaultButton(loginBtn); 
+
 
         // Login logic (auto-detect user type)
         loginBtn.addActionListener(e -> {
