@@ -1,14 +1,14 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.MessageService;
-import physicianconnect.objects.Appointment;
-import physicianconnect.objects.Physician;
+import physicianconnect.logic.ReferralManager;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.sqlite.AppointmentDB;
+import physicianconnect.objects.Appointment;
+import physicianconnect.objects.Physician;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 
@@ -26,6 +26,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.awt.image.BufferedImage;
 
+/**
+ * Main application window for a logged-in physician.
+ * Business logic is still delegated to managers/services, not yet controllers.
+ */
 public class PhysicianApp {
     private JFrame frame;
     private DefaultListModel<Appointment> appointmentListModel;
@@ -33,6 +37,7 @@ public class PhysicianApp {
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
     private final MessageService messageService;
+    private final ReferralManager referralManager;
     private DailyAvailabilityPanel dailyPanel;
     private WeeklyAvailabilityPanel weeklyPanel;
     private LocalDate selectedDate; // for daily navigation (e.g. today, yesterday, tomorrow, …)
@@ -46,9 +51,17 @@ public class PhysicianApp {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
+
+        // Use MessageService directly
         this.messageService = new MessageService(
                 PersistenceFactory.getMessageRepository()
         );
+
+        // Use ReferralManager directly
+        this.referralManager = new ReferralManager(
+                PersistenceFactory.getReferralPersistence()
+        );
+
         initializeUI();
     }
 
@@ -231,12 +244,10 @@ public class PhysicianApp {
         buttonPanel.add(prescribeButton);
         buttonPanel.add(referralButton);
 
-        // ─────────── Database Initialization ───────────
+        // ─────────── Database Initialization & Availability ───────────
         Connection conn;
         try {
-            conn = DriverManager.getConnection(
-                    "jdbc:sqlite:prod.db"
-            );
+            conn = DriverManager.getConnection("jdbc:sqlite:prod.db");
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(
@@ -254,7 +265,6 @@ public class PhysicianApp {
         selectedDate = LocalDate.now();
         weekStart = selectedDate.with(java.time.DayOfWeek.MONDAY);
 
-        // ─────────── Parse Physician ID ───────────
         String docId = loggedIn.getId();
         int physicianId;
         try {
@@ -303,7 +313,6 @@ public class PhysicianApp {
             selectedDate = selectedDate.minusDays(1);
             dailyPanel.loadSlotsForDate(selectedDate);
             dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
-
             LocalDate monday = selectedDate.with(DayOfWeek.MONDAY);
             weeklyPanel.loadWeek(monday);
         });
@@ -311,7 +320,6 @@ public class PhysicianApp {
             selectedDate = selectedDate.plusDays(1);
             dailyPanel.loadSlotsForDate(selectedDate);
             dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
-
             LocalDate monday = selectedDate.with(DayOfWeek.MONDAY);
             weeklyPanel.loadWeek(monday);
         });
@@ -338,7 +346,6 @@ public class PhysicianApp {
             weekStart = weekStart.minusWeeks(1);
             weeklyPanel.loadWeek(weekStart);
             weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
-
             selectedDate = weekStart;
             dailyPanel.loadSlotsForDate(selectedDate);
         });
@@ -346,7 +353,6 @@ public class PhysicianApp {
             weekStart = weekStart.plusWeeks(1);
             weeklyPanel.loadWeek(weekStart);
             weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
-
             selectedDate = weekStart;
             dailyPanel.loadSlotsForDate(selectedDate);
         });
