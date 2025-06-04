@@ -23,4 +23,8 @@ public class StubFactory {
     public static ReferralPersistence createReferralPersistence() {
         return new ReferralPersistenceStub(true); // seeded
     }
+
+    public static ReceptionistPersistence createReceptionistPersistence() {
+        return new ReceptionistPersistenceStub(true); // seeded
+    }
 }

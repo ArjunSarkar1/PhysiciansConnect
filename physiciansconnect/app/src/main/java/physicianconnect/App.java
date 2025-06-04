@@ -1,23 +1,21 @@
 package physicianconnect;
 
-import javax.swing.SwingUtilities;
-
 import physicianconnect.config.AppConfig;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.persistence.PersistenceFactory;
-import physicianconnect.presentation.LoginScreen;
 
 public class App {
     public static void main(String[] args) {
-        // Step 1: Initialize shared DB connection using AppConfig
         PersistenceFactory.initialize(AppConfig.getPersistenceType(), AppConfig.shouldSeedData());
 
-        // Step 2: Create logic layer
         PhysicianManager physicianManager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());
         AppointmentManager appointmentManager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
-        
-        // Step 3: Launch the UI (pass managers to the UI)
-        SwingUtilities.invokeLater(() -> new LoginScreen(physicianManager, appointmentManager));
+        ReceptionistManager receptionistManager = new ReceptionistManager(PersistenceFactory.getReceptionistPersistence());
+
+        AppController controller = new AppController(physicianManager, appointmentManager, receptionistManager);
+        controller.showLoginScreen();
+        controller.showLoginScreen(); 
     }
 }

@@ -3,6 +3,7 @@ package physicianconnect.persistence.stub;
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.interfaces.AppointmentPersistence;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class AppointmentPersistenceStub implements AppointmentPersistence {
@@ -57,6 +58,25 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
     @Override
     public void deleteAllAppointments() {
         appointments.clear();
+    }
+
+    @Override
+    public List<Appointment> getAppointmentsForPhysicianInRange(
+            String physicianId,
+            LocalDateTime start,
+            LocalDateTime end
+    ) {
+        List<Appointment> result = new ArrayList<>();
+        for (Appointment appt : appointments) {
+            if (appt.getPhysicianId().equals(physicianId)) {
+                LocalDateTime dt = appt.getDateTime();
+                // include appts where start <= dt < end
+                if (!dt.isBefore(start) && dt.isBefore(end)) {
+                    result.add(appt);
+                }
+            }
+        }
+        return result;
     }
 
     public void close() {
