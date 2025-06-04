@@ -14,11 +14,11 @@ public class LoginScreen extends JFrame {
     private final AppController controller;
 
     public LoginScreen(PhysicianManager physicianManager, AppointmentManager appointmentManager,
-                       ReceptionistManager receptionistManager, AppController controller) {
+            ReceptionistManager receptionistManager, AppController controller) {
         this.controller = controller;
 
         setTitle("PhysicianConnect Login");
-        setSize(420, 340);
+        setSize(400, 250);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -33,11 +33,11 @@ public class LoginScreen extends JFrame {
         testInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
         testInfo.setForeground(new Color(0, 0, 0));
 
-        JLabel emailLabel = new JLabel("example@email.com");
+        JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField(20);
         emailField.setName("emailField");
 
-        JLabel passLabel = new JLabel("password");
+        JLabel passLabel = new JLabel("Password:");
         JPasswordField passField = new JPasswordField(20);
         passField.setName("passwordField");
 
@@ -63,18 +63,29 @@ public class LoginScreen extends JFrame {
         addHoverEffect(createBtn);
 
         // Add components to panel with GridBagLayout
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(testInfo, gbc);
 
-        gbc.gridx = 0; gbc.gridy++; gbc.anchor = GridBagConstraints.EAST;
+        // Email row
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 0;
         panel.add(emailLabel, gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 1;
         panel.add(emailField, gbc);
 
-        gbc.gridx = 0; gbc.gridy++; gbc.anchor = GridBagConstraints.EAST;
+        // Password row
+        gbc.gridy++;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 0;
         panel.add(passLabel, gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 1;
         panel.add(passField, gbc);
 
         // Buttons row
@@ -82,7 +93,10 @@ public class LoginScreen extends JFrame {
         buttons.add(loginBtn);
         buttons.add(createBtn);
 
-        gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
         panel.add(buttons, gbc);
 
         add(panel, BorderLayout.CENTER);
@@ -125,27 +139,32 @@ public class LoginScreen extends JFrame {
             JPasswordField passwordField = new JPasswordField(20);
             JPasswordField confirmPasswordField = new JPasswordField(20);
 
-            regGbc.gridx = 0; regGbc.gridy = 0;
+            regGbc.gridx = 0;
+            regGbc.gridy = 0;
             dialog.add(new JLabel("Account Type:"), regGbc);
             regGbc.gridx = 1;
             dialog.add(userTypeCombo, regGbc);
 
-            regGbc.gridx = 0; regGbc.gridy = 1;
+            regGbc.gridx = 0;
+            regGbc.gridy = 1;
             dialog.add(new JLabel("Name:"), regGbc);
             regGbc.gridx = 1;
             dialog.add(nameField, regGbc);
 
-            regGbc.gridx = 0; regGbc.gridy = 2;
+            regGbc.gridx = 0;
+            regGbc.gridy = 2;
             dialog.add(new JLabel("Email:"), regGbc);
             regGbc.gridx = 1;
             dialog.add(regEmailField, regGbc);
 
-            regGbc.gridx = 0; regGbc.gridy = 3;
+            regGbc.gridx = 0;
+            regGbc.gridy = 3;
             dialog.add(new JLabel("Password:"), regGbc);
             regGbc.gridx = 1;
             dialog.add(passwordField, regGbc);
 
-            regGbc.gridx = 0; regGbc.gridy = 4;
+            regGbc.gridx = 0;
+            regGbc.gridy = 4;
             dialog.add(new JLabel("Confirm Password:"), regGbc);
             regGbc.gridx = 1;
             dialog.add(confirmPasswordField, regGbc);
@@ -159,7 +178,10 @@ public class LoginScreen extends JFrame {
             registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             addHoverEffect(registerBtn);
 
-            regGbc.gridx = 0; regGbc.gridy = 5; regGbc.gridwidth = 2; regGbc.anchor = GridBagConstraints.CENTER;
+            regGbc.gridx = 0;
+            regGbc.gridy = 5;
+            regGbc.gridwidth = 2;
+            regGbc.anchor = GridBagConstraints.CENTER;
             dialog.add(registerBtn, regGbc);
 
             registerBtn.addActionListener(ev -> {
@@ -171,28 +193,33 @@ public class LoginScreen extends JFrame {
 
                 // Validation
                 if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                    JOptionPane.showMessageDialog(dialog, "Please enter a valid email address.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Please enter a valid email address.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 if (password.length() < 6) {
-                    JOptionPane.showMessageDialog(dialog, "Password must be at least 6 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Password must be at least 6 characters long.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 if (!password.equals(confirmPassword)) {
-                    JOptionPane.showMessageDialog(dialog, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Passwords do not match.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 if (physicianManager.getPhysicianByEmail(email) != null ||
                         receptionistManager.getReceptionistByEmail(email) != null) {
-                    JOptionPane.showMessageDialog(dialog, "An account with this email already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "An account with this email already exists.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -202,7 +229,8 @@ public class LoginScreen extends JFrame {
                     Physician newPhysician = new Physician(id, name, email, password);
                     physicianManager.addPhysician(newPhysician);
 
-                    JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
                     dialog.dispose();
 
                     SwingUtilities.invokeLater(() -> controller.showPhysicianApp(newPhysician));
@@ -210,7 +238,8 @@ public class LoginScreen extends JFrame {
                     Receptionist newReceptionist = new Receptionist(id, name, email, password);
                     receptionistManager.addReceptionist(newReceptionist);
 
-                    JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
                     dialog.dispose();
 
                     SwingUtilities.invokeLater(() -> controller.showReceptionistApp(newReceptionist));
