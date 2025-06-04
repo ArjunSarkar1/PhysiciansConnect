@@ -344,6 +344,8 @@ public class PhysicianApp {
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         refreshAppointments();
+        appointmentManager.addChangeListener(this::refreshAppointments);
+
         frame.setVisible(true);
     }
 

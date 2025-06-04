@@ -1,4 +1,3 @@
-// src/main/java/physicianconnect/logic/AppointmentManager.java
 package physicianconnect.logic;
 
 import physicianconnect.objects.Appointment;
@@ -9,11 +8,15 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AppointmentManager {
 
     private final AppointmentPersistence appointmentDB;
-    private final Clock clock;   // ← we inject a clock here
+    private final Clock clock;
+
+    // Observer pattern: listeners for appointment changes
+    private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
 
     /** Production‐ready constructor */
     public AppointmentManager(AppointmentPersistence appointmentDB) {
@@ -26,8 +29,22 @@ public class AppointmentManager {
         this.clock = clock;
     }
 
+    // Observer pattern methods
+    public void addChangeListener(Runnable listener) {
+        listeners.add(listener);
+    }
+
+    public void removeChangeListener(Runnable listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (Runnable listener : listeners) {
+            listener.run();
+        }
+    }
+
     public void addAppointment(Appointment appointment) {
-        // ← use validate(appointment, clock) so “now” is correct
         AppointmentValidator.validate(appointment, clock);
 
         if (!isSlotAvailable(appointment.getPhysicianId(), appointment.getDateTime())) {
@@ -36,6 +53,7 @@ public class AppointmentManager {
             );
         }
         appointmentDB.addAppointment(appointment);
+        notifyListeners(); 
     }
 
     public void updateAppointment(Appointment appointment) {
@@ -50,10 +68,12 @@ public class AppointmentManager {
             );
         }
         appointmentDB.updateAppointment(appointment);
+        notifyListeners(); 
     }
 
     public void deleteAppointment(Appointment appointment) {
         appointmentDB.deleteAppointment(appointment);
+        notifyListeners(); 
     }
 
     public List<Appointment> getAppointmentsForPhysician(String physicianId) {
@@ -62,6 +82,7 @@ public class AppointmentManager {
 
     public void deleteAll() {
         appointmentDB.deleteAllAppointments();
+        notifyListeners(); 
     }
 
     public boolean isSlotAvailable(String physicianId, LocalDateTime slotTime) {

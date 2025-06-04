@@ -64,7 +64,6 @@ public class ReceptionistApp {
     }
 
     private void initializeUI() {
-        new javax.swing.Timer(1000, e -> updateAppointments()).start();
         frame = new JFrame("Receptionist Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1200, 800);
@@ -256,6 +255,8 @@ public class ReceptionistApp {
                 calendarTabs);
         centerSplit.setOneTouchExpandable(false);
         frame.add(centerSplit, BorderLayout.CENTER);
+        centerSplit.setDividerLocation(600); 
+
 
         // --- Bottom Button Panel ---
         JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
@@ -360,6 +361,8 @@ public class ReceptionistApp {
         // Initial load
         updateAppointments();
         updateCalendarPanels();
+
+        appointmentManager.addChangeListener(this::updateAppointments);
 
         frame.setVisible(true);
     }
