@@ -24,7 +24,8 @@ public class AllPhysiciansDailyPanel extends JPanel {
             PhysicianManager physicianManager,
             AppointmentManager appointmentManager,
             AvailabilityService availabilityService,
-            LocalDate date
+            LocalDate date,
+            java.util.function.Consumer<LocalDate> onDateChange // <-- add this
     ) {
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
@@ -34,6 +35,22 @@ public class AllPhysiciansDailyPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBackground(new Color(245, 247, 250));
 
+        // Navigation panel
+        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        navPanel.setBackground(new Color(245, 247, 250));
+        JButton prevDayBtn = new JButton("← Prev Day");
+        JButton nextDayBtn = new JButton("Next Day →");
+        JLabel dayLabel = new JLabel("Show Date: " + date);
+        dayLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        dayLabel.setForeground(new Color(34, 40, 49));
+        navPanel.add(prevDayBtn);
+        navPanel.add(dayLabel);
+        navPanel.add(nextDayBtn);
+
+        prevDayBtn.addActionListener(e -> onDateChange.accept(date.minusDays(1)));
+        nextDayBtn.addActionListener(e -> onDateChange.accept(date.plusDays(1)));
+
+        add(navPanel, BorderLayout.SOUTH); // or BorderLayout.NORTH, above searchPanel
         // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         searchPanel.setBackground(new Color(245, 247, 250));
@@ -61,9 +78,18 @@ public class AllPhysiciansDailyPanel extends JPanel {
 
         // Search filter
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filter();
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filter();
+            }
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filter();
+            }
+
             private void filter() {
                 String text = searchField.getText().trim().toLowerCase();
                 List<Physician> filtered = allPhysicians.stream()
@@ -89,8 +115,7 @@ public class AllPhysiciansDailyPanel extends JPanel {
                     p.getId(),
                     availabilityService,
                     appointmentManager,
-                    date
-            );
+                    date);
             panelWithLabel.add(dailyPanel, BorderLayout.CENTER);
             panelsContainer.add(panelWithLabel);
         }

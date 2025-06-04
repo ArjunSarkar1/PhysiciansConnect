@@ -157,9 +157,17 @@ public class ReceptionistApp {
         appointmentTable.setRowSorter(appointmentTableSorter);
 
         appointmentSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
         });
 
         JScrollPane appointmentScroll = new JScrollPane(appointmentTable);
@@ -422,7 +430,11 @@ public class ReceptionistApp {
 
         if (allPhysiciansSelected) {
             // Show only daily view for all physicians
-            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(physicianManager, appointmentManager, availabilityService, selectedDate);
+            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(physicianManager, appointmentManager,
+                    availabilityService, selectedDate, newDate -> {
+                        selectedDate = newDate;
+                        updateCalendarPanels();
+                    });
             if (calendarTabs != null) {
                 calendarTabs.addTab("Daily View", allPhysiciansDailyPanel);
             }
