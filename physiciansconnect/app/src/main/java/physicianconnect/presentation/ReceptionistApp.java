@@ -31,7 +31,7 @@ public class ReceptionistApp {
     private final MessageService messageService;
     private final AvailabilityService availabilityService;
     private JFrame frame;
-    private JComboBox<Physician> physicianCombo;
+    private JComboBox<Object> physicianCombo;
     private DefaultTableModel appointmentTableModel;
     private JTable appointmentTable;
     private DailyAvailabilityPanel dailyPanel;
@@ -49,6 +49,7 @@ public class ReceptionistApp {
     private MessageButton messageButton;
     private JTextField appointmentSearchField;
     private TableRowSorter<DefaultTableModel> appointmentTableSorter;
+    private AllPhysiciansDailyPanel allPhysiciansDailyPanel;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
             AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
@@ -84,7 +85,7 @@ public class ReceptionistApp {
         // Physician dropdown
         List<Physician> physicians = physicianManager.getAllPhysicians();
         physicianCombo = new JComboBox<>();
-        physicianCombo.addItem(null); // "All"
+        physicianCombo.addItem("ALL PHYSICIANS");
         for (Physician p : physicians)
             physicianCombo.addItem(p);
 
@@ -135,7 +136,6 @@ public class ReceptionistApp {
         appointmentSearchField.putClientProperty("JTextField.placeholderText", "Type patient name...");
         searchPanel.add(searchLabel, BorderLayout.WEST);
         searchPanel.add(appointmentSearchField, BorderLayout.CENTER);
-        // Add the search panel to the top (just below the title)
         appointmentsPanel.add(searchPanel, BorderLayout.BEFORE_FIRST_LINE);
 
         // Table for appointments
@@ -157,17 +157,9 @@ public class ReceptionistApp {
         appointmentTable.setRowSorter(appointmentTableSorter);
 
         appointmentSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
-
-            public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
-
-            public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
         });
 
         JScrollPane appointmentScroll = new JScrollPane(appointmentTable);
@@ -255,8 +247,7 @@ public class ReceptionistApp {
                 calendarTabs);
         centerSplit.setOneTouchExpandable(false);
         frame.add(centerSplit, BorderLayout.CENTER);
-        centerSplit.setDividerLocation(600); 
-
+        centerSplit.setDividerLocation(600);
 
         // --- Bottom Button Panel ---
         JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
@@ -288,7 +279,8 @@ public class ReceptionistApp {
 
         // Add listeners for buttons
         addAppointmentButton.addActionListener(e -> {
-            Physician selectedPhysician = (Physician) physicianCombo.getSelectedItem();
+            Object selected = physicianCombo.getSelectedItem();
+            Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
             if (selectedPhysician == null) {
                 JOptionPane.showMessageDialog(frame, "Please select a physician to add an appointment.",
                         "No Physician Selected", JOptionPane.WARNING_MESSAGE);
@@ -368,7 +360,8 @@ public class ReceptionistApp {
     }
 
     private void updateAppointments() {
-        Physician selectedPhysician = (Physician) physicianCombo.getSelectedItem();
+        Object selected = physicianCombo.getSelectedItem();
+        Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
         List<Appointment> allAppointments;
         if (selectedPhysician == null) {
             allAppointments = physicianManager.getAllPhysicians().stream()
@@ -396,50 +389,77 @@ public class ReceptionistApp {
     }
 
     private void filterAppointments() {
-    String text = appointmentSearchField.getText();
-    if (text.trim().length() == 0) {
-        appointmentTableSorter.setRowFilter(null);
-    } else {
-        appointmentTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0)); // 0 = Patient Name column
+        String text = appointmentSearchField.getText();
+        if (text.trim().length() == 0) {
+            appointmentTableSorter.setRowFilter(null);
+        } else {
+            appointmentTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0)); // 0 = Patient Name column
+        }
     }
-}
 
     private void updateCalendarPanels() {
-        Physician selectedPhysician = (Physician) physicianCombo.getSelectedItem();
+        Object selected = physicianCombo.getSelectedItem();
+        boolean allPhysiciansSelected = selected instanceof String && "ALL PHYSICIANS".equals(selected);
+        Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
         currentPhysicianId = (selectedPhysician != null) ? selectedPhysician.getId() : null;
 
         // Remove old panels
         dailyContainer.removeAll();
         weeklyContainer.removeAll();
 
-        // Recreate panels with the new physicianId
-        dailyPanel = new DailyAvailabilityPanel(
-                currentPhysicianId,
-                availabilityService,
-                appointmentManager,
-                selectedDate);
-        weeklyPanel = new WeeklyAvailabilityPanel(
-                currentPhysicianId,
-                availabilityService,
-                appointmentManager,
-                weekStart);
+        // Remove all tabs and add only the relevant ones
+        JTabbedPane calendarTabs = null;
+        for (Component comp : frame.getContentPane().getComponents()) {
+            if (comp instanceof JSplitPane split) {
+                Component right = split.getRightComponent();
+                if (right instanceof JTabbedPane tabs) {
+                    calendarTabs = tabs;
+                    tabs.removeAll();
+                    break;
+                }
+            }
+        }
 
-        // Add navigation and new panels back
-        dailyContainer.add(dayNav, BorderLayout.NORTH);
-        dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
+        if (allPhysiciansSelected) {
+            // Show only daily view for all physicians
+            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(physicianManager, appointmentManager, availabilityService, selectedDate);
+            if (calendarTabs != null) {
+                calendarTabs.addTab("Daily View", allPhysiciansDailyPanel);
+            }
+        } else {
+            // Show daily and weekly for a specific physician
+            dailyPanel = new DailyAvailabilityPanel(
+                    currentPhysicianId,
+                    availabilityService,
+                    appointmentManager,
+                    selectedDate);
+            weeklyPanel = new WeeklyAvailabilityPanel(
+                    currentPhysicianId,
+                    availabilityService,
+                    appointmentManager,
+                    weekStart);
 
-        weeklyContainer.add(weekNav, BorderLayout.NORTH);
-        weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
+            dailyContainer.add(dayNav, BorderLayout.NORTH);
+            dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
+
+            weeklyContainer.add(weekNav, BorderLayout.NORTH);
+            weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
+
+            if (calendarTabs != null) {
+                calendarTabs.addTab("Daily View", dailyContainer);
+                calendarTabs.addTab("Weekly View", weeklyContainer);
+            }
+        }
 
         // Update labels
         dayLabel.setText("Show Date: " + selectedDate);
         weekLabel.setText("Week of: " + weekStart);
 
         // Refresh UI
-        dailyContainer.revalidate();
-        dailyContainer.repaint();
-        weeklyContainer.revalidate();
-        weeklyContainer.repaint();
+        if (calendarTabs != null) {
+            calendarTabs.revalidate();
+            calendarTabs.repaint();
+        }
     }
 
     private void showMessageDialog() {
