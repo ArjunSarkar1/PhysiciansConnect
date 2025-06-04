@@ -1,5 +1,8 @@
 package physicianconnect.presentation;
 
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -7,9 +10,6 @@ import java.awt.event.ActionListener;
 public class MessageButton extends JPanel {
     private final JButton messageButton;
     private final JLabel notificationLabel;
-    private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
-    private static final Color NOTIFICATION_COLOR = new Color(244, 67, 54);
-    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
 
     public MessageButton() {
         setLayout(new OverlayLayout(this));
@@ -27,9 +27,9 @@ public class MessageButton extends JPanel {
 
         // Create notification label
         notificationLabel = new JLabel();
-        notificationLabel.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        notificationLabel.setForeground(Color.WHITE);
-        notificationLabel.setBackground(NOTIFICATION_COLOR);
+        notificationLabel.setFont(UITheme.NOTIFICATION_FONT);
+        notificationLabel.setForeground(UITheme.BACKGROUND_COLOR);
+        notificationLabel.setBackground(UITheme.ERROR_COLOR);
         notificationLabel.setOpaque(true);
         notificationLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         notificationLabel.setVisible(false);
@@ -43,15 +43,7 @@ public class MessageButton extends JPanel {
         add(notificationPanel);
 
         // Add hover effect
-        messageButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                messageButton.setBackground(PRIMARY_COLOR.darker());
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                messageButton.setBackground(PRIMARY_COLOR);
-            }
-        });
+        UITheme.applyHoverEffect(messageButton);
     }
 
     public void setOnAction(ActionListener listener) {

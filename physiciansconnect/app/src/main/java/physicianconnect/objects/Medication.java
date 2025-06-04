@@ -18,6 +18,7 @@ public class Medication {
     public String getDefaultFrequency() { return defaultFrequency; }
     public String getDefaultNotes() { return defaultNotes; }
 
+    // Being Used in prescription
     @Override
     public String toString() {
         return name + " - " + dosage;

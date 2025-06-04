@@ -2,6 +2,8 @@ package physicianconnect.presentation;
 
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Appointment;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,23 +28,10 @@ public class AddAppointmentDialog extends JDialog {
     public JSpinner timeSpinner;
     private JTextArea notesArea;
 
-    private static final Color PRIMARY_COLOR    = new Color(33, 150, 243); // Blue
-    private static final Color POSITIVE_COLOR   = new Color(76, 175, 80);  // Green
-    private static final Color CANCEL_COLOR     = new Color(120, 124, 130);// Gray
-    private static final Color TEXT_COLOR       = new Color(34, 40, 49);   // Dark text
-    private static final Color BACKGROUND_COLOR = new Color(240, 248, 255);// Light blue background
-
-    private static final Font TITLE_FONT  = new Font("Segoe UI", Font.BOLD, 18);
-    private static final Font LABEL_FONT  = new Font("Segoe UI", Font.PLAIN, 14);
-    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
-
-    /**
-     * 3-arg constructor (no callback).
-     */
     public AddAppointmentDialog(JFrame parent,
                                 AppointmentManager appointmentManager,
                                 String physicianId) {
-        super(parent, "Add Appointment", true);
+        super(parent, UIConfig.ADD_APPOINTMENT_DIALOG_TITLE, true);
         this.appointmentManager = appointmentManager;
         this.physicianId        = physicianId;
         this.onSuccessCallback  = null;
@@ -50,15 +39,11 @@ public class AddAppointmentDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
-    /**
-     * 4-arg constructor (with callback).
-     * @param onSuccessCallback  Runnable to invoke after successful save
-     */
     public AddAppointmentDialog(JFrame parent,
                                 AppointmentManager appointmentManager,
                                 String physicianId,
                                 Runnable onSuccessCallback) {
-        super(parent, "Add Appointment", true);
+        super(parent, UIConfig.ADD_APPOINTMENT_DIALOG_TITLE, true);
         this.appointmentManager = appointmentManager;
         this.physicianId        = physicianId;
         this.onSuccessCallback  = onSuccessCallback;
@@ -66,26 +51,23 @@ public class AddAppointmentDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
-    /**
-     * Builds the UI and wires up the Save/Cancel buttons.
-     */
     private void initializeUI() {
         setLayout(new BorderLayout(10, 10));
-        getContentPane().setBackground(BACKGROUND_COLOR);
+        getContentPane().setBackground(UITheme.BACKGROUND_COLOR);
         setSize(500, 500);
 
         // ─── Title Panel ───
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        titlePanel.setBackground(BACKGROUND_COLOR);
-        JLabel titleLabel = new JLabel("New Appointment");
-        titleLabel.setFont(TITLE_FONT);
-        titleLabel.setForeground(TEXT_COLOR);
+        titlePanel.setBackground(UITheme.BACKGROUND_COLOR);
+        JLabel titleLabel = new JLabel(UIConfig.ADD_APPOINTMENT_DIALOG_TITLE);
+        titleLabel.setFont(UITheme.HEADER_FONT);
+        titleLabel.setForeground(UITheme.TEXT_COLOR);
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
 
         // ─── Form Panel ───
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(BACKGROUND_COLOR);
+        formPanel.setBackground(UITheme.BACKGROUND_COLOR);
         formPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -94,67 +76,71 @@ public class AddAppointmentDialog extends JDialog {
 
         // Patient Name
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
-        JLabel nameLabel = new JLabel("Patient Name:*");
-        nameLabel.setFont(LABEL_FONT);
-        nameLabel.setForeground(TEXT_COLOR);
+        JLabel nameLabel = new JLabel(UIConfig.PATIENT_NAME_LABEL);
+        nameLabel.setFont(UITheme.LABEL_FONT);
+        nameLabel.setForeground(UITheme.TEXT_COLOR);
         formPanel.add(nameLabel, gbc);
 
         gbc.gridx = 1; gbc.weightx = 1.0;
         patientNameField = new JTextField(20);
-        patientNameField.setFont(LABEL_FONT);
+        patientNameField.setFont(UITheme.TEXTFIELD_FONT);
         formPanel.add(patientNameField, gbc);
 
         // Date
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
-        JLabel dateLabel = new JLabel("Date:");
-        dateLabel.setFont(LABEL_FONT);
-        dateLabel.setForeground(TEXT_COLOR);
+        JLabel dateLabel = new JLabel(UIConfig.DATE_LABEL);
+        dateLabel.setFont(UITheme.LABEL_FONT);
+        dateLabel.setForeground(UITheme.TEXT_COLOR);
         formPanel.add(dateLabel, gbc);
 
         gbc.gridx = 1; gbc.weightx = 1.0;
         dateSpinner = new JSpinner(new SpinnerDateModel());
-        dateSpinner.setFont(LABEL_FONT);
+        dateSpinner.setFont(UITheme.LABEL_FONT);
         dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
         formPanel.add(dateSpinner, gbc);
 
         // Time
         gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0;
-        JLabel timeLabel = new JLabel("Time:");
-        timeLabel.setFont(LABEL_FONT);
-        timeLabel.setForeground(TEXT_COLOR);
+        JLabel timeLabel = new JLabel(UIConfig.TIME_LABEL);
+        timeLabel.setFont(UITheme.LABEL_FONT);
+        timeLabel.setForeground(UITheme.TEXT_COLOR);
         formPanel.add(timeLabel, gbc);
 
         gbc.gridx = 1; gbc.weightx = 1.0;
         timeSpinner = new JSpinner(new SpinnerDateModel());
-        timeSpinner.setFont(LABEL_FONT);
+        timeSpinner.setFont(UITheme.LABEL_FONT);
         timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm"));
         formPanel.add(timeSpinner, gbc);
 
         // Notes
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0;
-        JLabel notesLabel = new JLabel("Notes:");
-        notesLabel.setFont(LABEL_FONT);
-        notesLabel.setForeground(TEXT_COLOR);
+        JLabel notesLabel = new JLabel(UIConfig.NOTES_LABEL);
+        notesLabel.setFont(UITheme.LABEL_FONT);
+        notesLabel.setForeground(UITheme.TEXT_COLOR);
         formPanel.add(notesLabel, gbc);
 
         gbc.gridx = 1; gbc.weightx = 1.0; gbc.weighty = 0.5;
         notesArea = new JTextArea(3, 20);
-        notesArea.setFont(LABEL_FONT);
+        notesArea.setFont(UITheme.TEXTFIELD_FONT);
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
         JScrollPane notesScroll = new JScrollPane(notesArea);
-        notesScroll.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 1));
+        notesScroll.setBorder(BorderFactory.createLineBorder(
+                UITheme.PRIMARY_COLOR, 1
+        ));
         formPanel.add(notesScroll, gbc);
 
         add(formPanel, BorderLayout.CENTER);
 
         // ─── Button Panel ───
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.setBackground(BACKGROUND_COLOR);
+        JPanel buttonPanel = new JPanel(new FlowLayout(
+                FlowLayout.RIGHT, 10, 10
+        ));
+        buttonPanel.setBackground(UITheme.BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        JButton saveButton   = createStyledButton("Save");
-        JButton cancelButton = createStyledButton("Cancel");
+        JButton saveButton   = createStyledButton(UIConfig.SAVE_BUTTON_TEXT);
+        JButton cancelButton = createStyledButton(UIConfig.CANCEL_BUTTON_TEXT);
 
         saveButton.addActionListener(e -> saveAppointment());
         cancelButton.addActionListener(e -> dispose());
@@ -165,19 +151,17 @@ public class AddAppointmentDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    /**
-     * Called when the user clicks “Save.”
-     * Performs validation, conflict check, calls AppointmentManager, then callback.
-     */
     private void saveAppointment() {
         try {
             // 1) Read & validate patient name
             String patient = patientNameField.getText().trim();
             if (patient.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Please enter a patient name.",
-                        "Validation Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        UIConfig.ERROR_INVALID_NAME,
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE
+                );
                 return;
             }
 
@@ -189,39 +173,41 @@ public class AddAppointmentDialog extends JDialog {
             Calendar cTime = Calendar.getInstance();
             cTime.setTime(timePart);
 
-            // Overwrite hours/minutes on the date
             cDate.set(Calendar.HOUR_OF_DAY, cTime.get(Calendar.HOUR_OF_DAY));
             cDate.set(Calendar.MINUTE,     cTime.get(Calendar.MINUTE));
             cDate.set(Calendar.SECOND,     0);
             cDate.set(Calendar.MILLISECOND,0);
 
-            LocalDateTime chosenDateTime =
-                    cDate.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime();
+            LocalDateTime chosenDateTime = cDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
 
             // 3) Check for conflict before creating a new Appointment
-            //    Use your AppointmentManager.isSlotAvailable(...)
-            //    ‒ It returns true if no appointment exists for this physician at exactly chosenDateTime
             if (!appointmentManager.isSlotAvailable(physicianId, chosenDateTime)) {
-                // If false, that slot is already taken
-                JOptionPane.showMessageDialog(this,
-                        "That time slot is already booked.\nPlease pick a different time.",
-                        "Time Conflict",
-                        JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        UIConfig.ERROR_TIME_CONFLICT,
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
 
-            // 4) Construct a brand‐new Appointment using the correct constructor
-            //    (physicianId, patientName, LocalDateTime)
-            Appointment newAppt = new Appointment(physicianId, patient, chosenDateTime);
+            // 4) Construct a new Appointment
+            Appointment newAppt = new Appointment(
+                    physicianId,
+                    patient,
+                    chosenDateTime
+            );
             newAppt.setNotes(notesArea.getText());
             appointmentManager.addAppointment(newAppt);
 
-            JOptionPane.showMessageDialog(this,
-                    "Appointment added successfully.",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    UIConfig.SUCCESS_APPOINTMENT_ADDED,
+                    UIConfig.SUCCESS_DIALOG_TITLE,
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
             // 5) Invoke onSuccessCallback to reload calendars
             if (onSuccessCallback != null) {
@@ -233,37 +219,33 @@ public class AddAppointmentDialog extends JDialog {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Invalid input: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    UIConfig.ERROR_INVALID_INPUT + ex.getMessage(),
+                    UIConfig.ERROR_DIALOG_TITLE,
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(BUTTON_FONT);
-        button.setForeground(Color.WHITE);
-        if (text.equalsIgnoreCase("Save")) {
-            button.setBackground(POSITIVE_COLOR);
-        } else { // “Cancel”
-            button.setBackground(CANCEL_COLOR);
+        button.setFont(UITheme.BUTTON_FONT);
+        button.setForeground(UITheme.BACKGROUND_COLOR);
+
+        // Determine background color
+        if (text.equalsIgnoreCase(UIConfig.SAVE_BUTTON_TEXT)) {
+            button.setBackground(UITheme.POSITIVE_COLOR);
+        } else {
+            button.setBackground(UITheme.ACCENT_LIGHT_COLOR);
         }
+
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setOpaque(true);
 
-        // Hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(button.getBackground().darker());
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(button.getBackground().brighter());
-            }
-        });
-
+        UITheme.applyHoverEffect(button);
         return button;
     }
 }

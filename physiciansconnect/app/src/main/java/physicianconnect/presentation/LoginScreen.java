@@ -1,53 +1,63 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Physician;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseListener;
 
 public class LoginScreen extends JFrame {
     public LoginScreen(PhysicianManager physicianManager, AppointmentManager appointmentManager) {
-        setTitle("PhysicianConnect Login");
+        setTitle(UIConfig.LOGIN_DIALOG_TITLE);
         setSize(400, 250);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        JLabel emailLabel = new JLabel("Email:");
+        // ─────────── Labels & Fields ───────────
+        JLabel emailLabel = new JLabel(UIConfig.USER_EMAIL_LABEL);
+        emailLabel.setFont(UITheme.LABEL_FONT);
+        emailLabel.setForeground(UITheme.TEXT_COLOR);
+
         JTextField emailField = new JTextField(20);
         emailField.setName("emailField");
 
-        JLabel passLabel = new JLabel("Password:");
+        JLabel passLabel = new JLabel(UIConfig.USER_PASSWORD_LABEL);
+        passLabel.setFont(UITheme.LABEL_FONT);
+        passLabel.setForeground(UITheme.TEXT_COLOR);
+
         JPasswordField passField = new JPasswordField(20);
         passField.setName("passwordField");
 
-        JButton loginBtn = new JButton("Login");
-        JButton createBtn = new JButton("Create Account");
+        // ─────────── Buttons ───────────
+        JButton loginBtn = new JButton(UIConfig.LOGIN_BUTTON_TEXT);
         loginBtn.setName("loginBtn");
-        createBtn.setName("createBtn");
-
-        JLabel testInfo = new JLabel("Test login: test@email.com / test123");
-        testInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        testInfo.setForeground(new Color(0, 0, 0));
-
-        loginBtn.setBackground(new Color(33, 150, 243));
-        loginBtn.setForeground(Color.WHITE);
-        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        loginBtn.setFont(UITheme.BUTTON_FONT);
+        loginBtn.setBackground(UITheme.PRIMARY_COLOR);
+        loginBtn.setForeground(UITheme.BACKGROUND_COLOR);
         loginBtn.setOpaque(true);
         loginBtn.setBorderPainted(false);
         loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addHoverEffect(loginBtn);
+        UITheme.applyHoverEffect(loginBtn);
 
-        createBtn.setBackground(new Color(76, 175, 80));
-        createBtn.setForeground(Color.WHITE);
-        createBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JButton createBtn = new JButton(UIConfig.CREAT_ACCOUNT_BUTTON_TEXT);
+        createBtn.setName("createBtn");
+        createBtn.setFont(UITheme.BUTTON_FONT);
+        createBtn.setBackground(UITheme.SUCCESS_COLOR);
+        createBtn.setForeground(UITheme.BACKGROUND_COLOR);
         createBtn.setOpaque(true);
         createBtn.setBorderPainted(false);
         createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addHoverEffect(createBtn);
+        UITheme.applyHoverEffect(createBtn);
 
+        // ─────────── Test Info Label ───────────
+        JLabel testInfo = new JLabel(UIConfig.LOADING_MESSAGE.replace("Loading...", "Test login: test@email.com / test123"));
+        testInfo.setFont(UITheme.LABEL_FONT);
+        testInfo.setForeground(UITheme.TEXT_COLOR);
+
+        // ─────────── Action Listeners ───────────
         loginBtn.addActionListener(e -> {
             String email = emailField.getText().trim();
             String pass = new String(passField.getPassword());
@@ -57,54 +67,83 @@ public class LoginScreen extends JFrame {
                 dispose(); // close login screen
                 PhysicianApp.launchSingleUser(user, physicianManager, appointmentManager);
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        UIConfig.ERROR_LOGIN_FAILED,
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
         createBtn.addActionListener(e -> {
-            JDialog dialog = new JDialog(this, "Create Account", true);
+            JDialog dialog = new JDialog(this, UIConfig.CREATE_ACCOUNT_DIALOG_TITLE, true);
             dialog.setLayout(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets = new Insets(5, 5, 5, 5);
             gbc.fill = GridBagConstraints.HORIZONTAL;
 
+            JLabel nameLabel = new JLabel(UIConfig.PATIENT_NAME_LABEL.replace("Patient Name:", "Name:"));
+            nameLabel.setFont(UITheme.LABEL_FONT);
+            nameLabel.setForeground(UITheme.TEXT_COLOR);
+
             JTextField nameField = new JTextField(20);
+
+            JLabel regEmailLabel = new JLabel(UIConfig.USER_EMAIL_LABEL);
+            regEmailLabel.setFont(UITheme.LABEL_FONT);
+            regEmailLabel.setForeground(UITheme.TEXT_COLOR);
+
             JTextField regEmailField = new JTextField(20);
+
+            JLabel passwordLabel = new JLabel(UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Password:"));
+            passwordLabel.setFont(UITheme.LABEL_FONT);
+            passwordLabel.setForeground(UITheme.TEXT_COLOR);
+
             JPasswordField passwordField = new JPasswordField(20);
+
+            JLabel confirmPasswordLabel = new JLabel(UIConfig.USER_PASSWORD_LABEL.replace("Password:", "Confirm Password:"));
+            confirmPasswordLabel.setFont(UITheme.LABEL_FONT);
+            confirmPasswordLabel.setForeground(UITheme.TEXT_COLOR);
+
             JPasswordField confirmPasswordField = new JPasswordField(20);
 
+            // Row 0: Name
             gbc.gridx = 0;
             gbc.gridy = 0;
-            dialog.add(new JLabel("Name:"), gbc);
+            dialog.add(nameLabel, gbc);
             gbc.gridx = 1;
             dialog.add(nameField, gbc);
 
+            // Row 1: Email
             gbc.gridx = 0;
             gbc.gridy = 1;
-            dialog.add(new JLabel("Email:"), gbc);
+            dialog.add(regEmailLabel, gbc);
             gbc.gridx = 1;
             dialog.add(regEmailField, gbc);
 
+            // Row 2: Password
             gbc.gridx = 0;
             gbc.gridy = 2;
-            dialog.add(new JLabel("Password:"), gbc);
+            dialog.add(passwordLabel, gbc);
             gbc.gridx = 1;
             dialog.add(passwordField, gbc);
 
+            // Row 3: Confirm Password
             gbc.gridx = 0;
             gbc.gridy = 3;
-            dialog.add(new JLabel("Confirm Password:"), gbc);
+            dialog.add(confirmPasswordLabel, gbc);
             gbc.gridx = 1;
             dialog.add(confirmPasswordField, gbc);
 
+            // Register Button
             JButton registerBtn = new JButton("Register");
-            registerBtn.setBackground(new Color(76, 175, 80));
-            registerBtn.setForeground(Color.WHITE);
-            registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            registerBtn.setFont(UITheme.BUTTON_FONT);
+            registerBtn.setBackground(UITheme.SUCCESS_COLOR);
+            registerBtn.setForeground(UITheme.BACKGROUND_COLOR);
             registerBtn.setOpaque(true);
             registerBtn.setBorderPainted(false);
             registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            addHoverEffect(registerBtn);
+            UITheme.applyHoverEffect(registerBtn);
 
             gbc.gridx = 0;
             gbc.gridy = 4;
@@ -120,51 +159,73 @@ public class LoginScreen extends JFrame {
 
                 // Validation
                 if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            UIConfig.ERROR_REQUIRED_FIELD,
+                            UIConfig.ERROR_DIALOG_TITLE,
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
 
                 if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                    JOptionPane.showMessageDialog(dialog, "Please enter a valid email address.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            UIConfig.ERROR_INVALID_EMAIL,
+                            UIConfig.ERROR_DIALOG_TITLE,
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
 
                 if (password.length() < 6) {
-                    JOptionPane.showMessageDialog(dialog, "Password must be at least 6 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            UIConfig.ERROR_PASSWORD_LENGTH,
+                            UIConfig.ERROR_DIALOG_TITLE,
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
 
                 if (!password.equals(confirmPassword)) {
-                    JOptionPane.showMessageDialog(dialog, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            UIConfig.ERROR_PASSWORD_MISMATCH,
+                            UIConfig.ERROR_DIALOG_TITLE,
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
 
                 // Check if email already exists
                 if (physicianManager.getPhysicianByEmail(email) != null) {
-                    JOptionPane.showMessageDialog(dialog, "An account with this email already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            UIConfig.ERROR_EMAIL_EXISTS,
+                            UIConfig.ERROR_DIALOG_TITLE,
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
 
                 String id = java.util.UUID.randomUUID().toString();
                 Physician newPhysician = new Physician(id, name, email, password);
                 physicianManager.addPhysician(newPhysician);
-                
-                JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        UIConfig.SUCCESS_ACCOUNT_CREATED,
+                        UIConfig.SUCCESS_DIALOG_TITLE,
+                        JOptionPane.INFORMATION_MESSAGE
+                );
                 dialog.dispose();
-                
+
                 // Log in the newly created user and launch the main application
                 dispose(); // close login screen
-                try {
-                    SwingUtilities.invokeLater(() -> {
-                        PhysicianApp.launchSingleUser(newPhysician, physicianManager, appointmentManager);
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null,
-                        "Error launching application: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                }
+                SwingUtilities.invokeLater(() -> {
+                    PhysicianApp.launchSingleUser(newPhysician, physicianManager, appointmentManager);
+                });
             });
 
             dialog.pack();
@@ -172,7 +233,8 @@ public class LoginScreen extends JFrame {
             dialog.setVisible(true);
         });
 
-        JPanel panel = new JPanel(new GridLayout(5, 1));
+        // ─────────── Layout ───────────
+        JPanel panel = new JPanel(new GridLayout(5, 1, 0, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         panel.add(testInfo);
         panel.add(emailLabel);
@@ -187,19 +249,5 @@ public class LoginScreen extends JFrame {
         add(panel, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
         setVisible(true);
-    }
-
-    private void addHoverEffect(JButton button) {
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                Color currentColor = button.getBackground();
-                button.setBackground(currentColor.darker());
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                Color currentColor = button.getBackground();
-                button.setBackground(currentColor.brighter());
-            }
-        });
     }
 }

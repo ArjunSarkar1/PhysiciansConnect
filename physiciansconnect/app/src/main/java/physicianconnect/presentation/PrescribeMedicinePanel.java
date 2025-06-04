@@ -1,10 +1,12 @@
 package physicianconnect.presentation;
 
+import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Medication;
 import physicianconnect.objects.Prescription;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
-import physicianconnect.logic.AppointmentManager;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,28 +25,47 @@ public class PrescribeMedicinePanel extends JPanel {
     private JTextArea notesArea;
     private JButton prescribeButton;
 
-    public PrescribeMedicinePanel(AppointmentManager appointmentManager, MedicationPersistence medicationPersistence,
-            PrescriptionPersistence prescriptionPersistence, String physicianId, Runnable onPrescriptionAdded) {
+    public PrescribeMedicinePanel(AppointmentManager appointmentManager,
+                                  MedicationPersistence medicationPersistence,
+                                  PrescriptionPersistence prescriptionPersistence,
+                                  String physicianId,
+                                  Runnable onPrescriptionAdded) {
         setLayout(new GridBagLayout());
+        setBackground(UITheme.BACKGROUND_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Patient ComboBox
-        Set<String> patientNames = new TreeSet<>(appointmentManager.getAppointmentsForPhysician(physicianId)
-                .stream().map(a -> a.getPatientName()).collect(Collectors.toSet()));
+        // ─────────── Patient ComboBox ───────────
+        Set<String> patientNames = new TreeSet<>(appointmentManager
+                .getAppointmentsForPhysician(physicianId)
+                .stream()
+                .map(a -> a.getPatientName())
+                .collect(Collectors.toSet()));
         patientCombo = new JComboBox<>(patientNames.toArray(new String[0]));
+        patientCombo.setFont(UITheme.LABEL_FONT);
+        patientCombo.setBackground(UITheme.BACKGROUND_COLOR);
+        patientCombo.setForeground(UITheme.TEXT_COLOR);
 
-        // Medicine ComboBox
+        // ─────────── Medicine ComboBox ───────────
         List<Medication> meds = medicationPersistence.getAllMedications();
         medicineCombo = new JComboBox<>(meds.toArray(new Medication[0]));
+        medicineCombo.setFont(UITheme.LABEL_FONT);
+        medicineCombo.setBackground(UITheme.BACKGROUND_COLOR);
+        medicineCombo.setForeground(UITheme.TEXT_COLOR);
 
+        // Set up dosage, frequency, notes fields
         dosageField = new JTextField();
+        dosageField.setFont(UITheme.LABEL_FONT);
         frequencyField = new JTextField();
+        frequencyField.setFont(UITheme.LABEL_FONT);
         notesArea = new JTextArea(3, 20);
-        prescribeButton = new JButton("Prescribe");
+        notesArea.setFont(UITheme.TEXTFIELD_FONT);
+        notesArea.setLineWrap(true);
+        notesArea.setWrapStyleWord(true);
+        JScrollPane notesScroll = new JScrollPane(notesArea);
 
-        // Auto-fill dosage, frequency, and notes when medicine changes
+        // ─────────── Auto-fill when medicine changes ───────────
         medicineCombo.addActionListener(e -> {
             Medication med = (Medication) medicineCombo.getSelectedItem();
             if (med != null) {
@@ -63,45 +84,53 @@ public class PrescribeMedicinePanel extends JPanel {
             }
         }
 
+        // ─────────── Add Components ───────────
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(new JLabel("Patient:"), gbc);
+        add(new JLabel(UIConfig.PATIENT_LABEL), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 0;
         add(patientCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        add(new JLabel("Medicine:"), gbc);
+        add(new JLabel(UIConfig.MEDICINE_LABEL), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 1;
         add(medicineCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        add(new JLabel("Dosage:"), gbc);
+        add(new JLabel(UIConfig.DOSAGE_LABEL), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 2;
         add(dosageField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        add(new JLabel("Frequency:"), gbc);
+        add(new JLabel(UIConfig.FREQUENCY_LABEL), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 3;
         add(frequencyField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
-        add(new JLabel("Notes:"), gbc);
+        add(new JLabel(UIConfig.NOTES_LABEL), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 4;
-        add(new JScrollPane(notesArea), gbc);
+        gbc.fill = GridBagConstraints.BOTH;
+        add(notesScroll, gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        prescribeButton = new JButton(UIConfig.PRESCRIBE_BUTTON_TEXT);
+        prescribeButton.setFont(UITheme.BUTTON_FONT);
+        prescribeButton.setBackground(UITheme.PRIMARY_COLOR);
+        prescribeButton.setForeground(UITheme.BACKGROUND_COLOR);
+        prescribeButton.setFocusPainted(false);
+        prescribeButton.setBorderPainted(false);
+        prescribeButton.setOpaque(true);
+        UITheme.applyHoverEffect(prescribeButton);
 
         gbc.gridx = 1;
         gbc.gridy = 5;
         add(prescribeButton, gbc);
 
+        // ─────────── Action Listener ───────────
         prescribeButton.addActionListener(e -> {
             String patient = (String) patientCombo.getSelectedItem();
             Medication med = (Medication) medicineCombo.getSelectedItem();
@@ -111,17 +140,39 @@ public class PrescribeMedicinePanel extends JPanel {
             String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
             if (patient == null || med == null || dosage.isEmpty() || frequency.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "All fields except notes are required.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        UIConfig.ERROR_REQUIRED_FIELD,
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE
+                );
                 return;
             }
 
             Prescription prescription = new Prescription(
-                    0, physicianId, patient, med.getName(), med.getDosage(), dosage, frequency, notes, now);
+                    0,
+                    physicianId,
+                    patient,
+                    med.getName(),
+                    med.getDosage(),
+                    dosage,
+                    frequency,
+                    notes,
+                    now
+            );
             prescriptionPersistence.addPrescription(prescription);
-            JOptionPane.showMessageDialog(this, "Prescription added for " + patient + ": " + med.getName());
-            if (onPrescriptionAdded != null)
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    UIConfig.SUCCESS_PRESCRIPTION_ADDED.replace("{patient}", patient)
+                            .replace("{med}", med.getName()),
+                    UIConfig.SUCCESS_DIALOG_TITLE,
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            if (onPrescriptionAdded != null) {
                 onPrescriptionAdded.run();
+            }
         });
     }
 }
