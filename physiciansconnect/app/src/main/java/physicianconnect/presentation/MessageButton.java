@@ -16,8 +16,8 @@ public class MessageButton extends JPanel {
         setOpaque(false);
 
         // Create message button
-        messageButton = new JButton("💬");
-        messageButton.setFont(new Font("Segoe UI", Font.PLAIN, 24));
+        messageButton = new JButton("Messages 💬");
+        messageButton.setFont(BUTTON_FONT);
         messageButton.setBackground(PRIMARY_COLOR);
         messageButton.setForeground(Color.WHITE);
         messageButton.setFocusPainted(false);
@@ -66,4 +66,4 @@ public class MessageButton extends JPanel {
             notificationLabel.setVisible(false);
         }
     }
-} 
+}

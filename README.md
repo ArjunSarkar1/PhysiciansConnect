@@ -149,6 +149,41 @@ PhysicianConnect is designed following a 3-tier architecture, which separates th
 - **Scalability & Maintainability:**  
   Clear separation of concerns makes the application easier to extend and troubleshoot over time.
 
+### Image Licensing Notice
+All images used in the physiciansconnect/app/src/main/java/physicianconnect/src directory are sourced from publicly available stock image libraries or licensed third-party providers. These images are used for illustrative and design purposes only and are not owned by the development team. Proper licensing and usage rights should be verified before using these images in production or commercial deployments.
+s
+
+### Profile Photo Handling
+In PhysicianConnect, each physician can upload a profile photo, which is displayed throughout the application (e.g., in the dashboard and profile management screen). This feature is implemented with local file storage due to the constraints of a desktop-based class project.
+
+How It Works (In This Project)
+
+File Naming:
+Each physician’s photo is saved with their user ID as the filename. For example, a physician with ID 1 will have a profile photo saved as: src/main/java/physicianconnect/src/profile_photos/1.png
+
+Saving:
+When a photo is uploaded through the UI, it’s resized to fit a standard dimension (maximum 200x200 pixels), then saved to the local profile_photos folder.
+
+Loading:
+The app uses the logged-in user's ID to load the appropriate image file during runtime. If no photo exists, a placeholder image is generated and displayed.
+
+Access Control:
+Since this is a standalone desktop app running entirely on the local machine, all profile images are stored locally and are not secured by any authentication system.
+
+In a Real-World Web-Based Application
+If this system were deployed on a real server:
+
+Photos would be stored on a secure server or cloud storage, not in local folders.
+Authentication and file access control would ensure that users can only access their own images.
+Images would likely be served over HTTPS and may be protected with access tokens or session-based permissions.
+Images would be uploaded via HTTP endpoints and stored with unique paths or database references, not raw filenames.
+
+So why did we use Local Storage?
+Because this application is a desktop-based project designed for offline use and classroom demonstration, we opted for: 
+Simple local folder storage to reduce dependency on external servers.
+Readable file paths to aid debugging and testing.
+Easy manual file replacement for testing default or custom photos.
+
 ---
 
 ## Summary

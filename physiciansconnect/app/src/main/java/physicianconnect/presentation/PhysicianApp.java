@@ -8,14 +8,12 @@ import physicianconnect.logic.MessageService;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
-import physicianconnect.persistence.InMemoryMessageRepository;
-import physicianconnect.persistence.interfaces.MedicationPersistence;
-import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.awt.image.BufferedImage;
 
 public class PhysicianApp {
     private JFrame frame;
@@ -34,8 +33,8 @@ public class PhysicianApp {
     private final MessageService messageService;
     private DailyAvailabilityPanel dailyPanel;
     private WeeklyAvailabilityPanel weeklyPanel;
-    private LocalDate selectedDate;     // for daily navigation (e.g. today, yesterday, tomorrow, …)
-    private LocalDate weekStart;        // Monday of the currently shown week
+    private LocalDate selectedDate; // for daily navigation (e.g. today, yesterday, tomorrow, …)
+    private LocalDate weekStart; // Monday of the currently shown week
     private MessageButton messageButton;
     private Timer messageRefreshTimer;
 
@@ -75,10 +74,34 @@ public class PhysicianApp {
         welcome.setForeground(TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
 
+        ImageIcon profileIcon = getProfileIcon(loggedIn.getId());
+        JButton profilePicButton = new JButton(profileIcon);
+        profilePicButton.setToolTipText("Profile Management");
+        profilePicButton.setPreferredSize(new Dimension(40, 40));
+        profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
+        profilePicButton.setContentAreaFilled(false);
+        profilePicButton.setFocusPainted(false);
+        profilePicButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        profilePicButton.addActionListener(e -> {
+            JDialog dialog = new JDialog(frame, "Profile Management", true);
+            dialog.setContentPane(new ProfilePanel(loggedIn, physicianManager, appointmentManager));
+            dialog.pack();
+            dialog.setLocationRelativeTo(frame);
+            dialog.setVisible(true);
+        });
+
         // Add message button to top panel
         messageButton = new MessageButton();
         messageButton.setOnAction(e -> showMessageDialog());
-        topPanel.add(messageButton, BorderLayout.EAST);
+
+        // Create a sub-panel to hold profile and message buttons
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightButtonPanel.setBackground(BACKGROUND_COLOR);
+        rightButtonPanel.add(messageButton);
+        rightButtonPanel.add(profilePicButton);
+
+        // Add the button panel to the top panel's EAST
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(LABEL_FONT);
@@ -115,7 +138,7 @@ public class PhysicianApp {
         appointmentListDisplay.setForeground(TEXT_COLOR);
         appointmentListDisplay.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         appointmentListDisplay.setCellRenderer(new ListCardRenderer<>());
-        
+
         JScrollPane appointmentScroll = new JScrollPane(appointmentListDisplay);
         appointmentScroll.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 1));
         appointmentsPanel.add(appointmentScroll, BorderLayout.CENTER);
@@ -132,7 +155,6 @@ public class PhysicianApp {
         JButton historyButton = createStyledButton("🗂 Patient History");
         JButton prescribeButton = createStyledButton("💊 Prescribe Medicine");
         JButton referralButton = createStyledButton("📄 Manage Referrals");
-        JButton signOutButton = createStyledButton("🚪 Sign Out");
 
         addAppointmentButton.addActionListener(e -> {
             AddAppointmentDialog dlg = new AddAppointmentDialog(
@@ -143,8 +165,7 @@ public class PhysicianApp {
                         // refresh both calendars after the user saves
                         dailyPanel.loadSlotsForDate(selectedDate);
                         weeklyPanel.loadWeek(weekStart);
-                    }
-            );
+                    });
             dlg.setVisible(true);
             // After the dialog closes, update the "Your Appointments" list on the left:
             refreshAppointments();
@@ -158,8 +179,7 @@ public class PhysicianApp {
                         frame,
                         "Please select an appointment to view.",
                         "No Selection",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
@@ -169,20 +189,17 @@ public class PhysicianApp {
                     () -> {
                         dailyPanel.loadSlotsForDate(selectedDate);
                         weeklyPanel.loadWeek(weekStart);
-                    }
-            );
+                    });
             viewDlg.setVisible(true);
             refreshAppointments();
         });
-
 
         historyButton.addActionListener(e -> {
             JDialog dialog = new JDialog(frame, "Patient Medical History", true);
             PatientHistoryPanel historyPanel = new PatientHistoryPanel(
                     appointmentManager,
                     PersistenceFactory.getPrescriptionPersistence(),
-                    loggedIn.getId()
-            );
+                    loggedIn.getId());
             dialog.setContentPane(historyPanel);
             dialog.pack();
             dialog.setLocationRelativeTo(frame);
@@ -196,27 +213,21 @@ public class PhysicianApp {
                     PersistenceFactory.getMedicationPersistence(),
                     PersistenceFactory.getPrescriptionPersistence(),
                     loggedIn.getId(),
-                    null
-            ));
+                    null));
             dialog.pack();
             dialog.setLocationRelativeTo(frame);
             dialog.setVisible(true);
         });
 
         referralButton.addActionListener(e -> {
-    JDialog dialog = new JDialog(frame, "Manage Referrals", true);
-    List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-            .stream().map(a -> a.getPatientName()).distinct().toList();
-    ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
-    dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
-    dialog.pack();
-    dialog.setLocationRelativeTo(frame);
-    dialog.setVisible(true);
-});
-
-        signOutButton.addActionListener(e -> {
-            frame.dispose();
-            new LoginScreen(physicianManager, appointmentManager);
+            JDialog dialog = new JDialog(frame, "Manage Referrals", true);
+            List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+                    .stream().map(a -> a.getPatientName()).distinct().toList();
+            ReferralManager referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+            dialog.setContentPane(new ReferralPanel(referralManager, loggedIn.getId(), patientNames));
+            dialog.pack();
+            dialog.setLocationRelativeTo(frame);
+            dialog.setVisible(true);
         });
 
         buttonPanel.add(addAppointmentButton);
@@ -224,7 +235,6 @@ public class PhysicianApp {
         buttonPanel.add(historyButton);
         buttonPanel.add(prescribeButton);
         buttonPanel.add(referralButton);
-        buttonPanel.add(signOutButton);
 
         // 1)
         Connection conn;
@@ -236,8 +246,7 @@ public class PhysicianApp {
                     frame,
                     "Could not open the database:\n" + e.getMessage(),
                     "Database Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return; // abort UI init if we cannot connect
         }
 
@@ -247,10 +256,9 @@ public class PhysicianApp {
         // 3) Build AvailabilityService with that AppointmentDB:
         AvailabilityService availabilityService = new AvailabilityService(apptDb);
 
-
         // 4) Initialize dates
         selectedDate = LocalDate.now();
-        weekStart    = selectedDate.with(java.time.DayOfWeek.MONDAY);
+        weekStart = selectedDate.with(java.time.DayOfWeek.MONDAY);
 
         // 5) Parse physicianId
         String docId = loggedIn.getId();
@@ -262,12 +270,12 @@ public class PhysicianApp {
                     frame,
                     "Invalid physician ID: must be a number.",
                     "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // 6) Create the weeklyPanel field first, referring to this.dailyPanel in the lambda:
+        // 6) Create the weeklyPanel field first, referring to this.dailyPanel in the
+        // lambda:
         this.weeklyPanel = new WeeklyAvailabilityPanel(
                 physicianId,
                 availabilityService,
@@ -277,10 +285,10 @@ public class PhysicianApp {
                     // Now “this.dailyPanel” refers to the field (not a local var).
                     LocalDate dayInView = this.dailyPanel.getCurrentDate();
                     this.dailyPanel.loadSlotsForDate(dayInView);
-                }
-        );
+                });
 
-        // 7) Then create the dailyPanel field, referring to this.weeklyPanel in its lambda:
+        // 7) Then create the dailyPanel field, referring to this.weeklyPanel in its
+        // lambda:
         this.dailyPanel = new DailyAvailabilityPanel(
                 physicianId,
                 availabilityService,
@@ -290,12 +298,11 @@ public class PhysicianApp {
                     LocalDate dayInView = this.dailyPanel.getCurrentDate();
                     LocalDate mondayOfThatDay = dayInView.with(DayOfWeek.MONDAY);
                     this.weeklyPanel.loadWeek(mondayOfThatDay);
-                }
-        );
+                });
         // 8) “Prev/Next Day” buttons (also keep weekly in sync when changing days)
         JButton prevDayBtn = new JButton("← Prev Day");
         JButton nextDayBtn = new JButton("Next Day →");
-        JLabel dayLabel    = new JLabel("Show Date: " + selectedDate);
+        JLabel dayLabel = new JLabel("Show Date: " + selectedDate);
         dayLabel.setFont(LABEL_FONT);
         dayLabel.setForeground(TEXT_COLOR);
 
@@ -331,7 +338,7 @@ public class PhysicianApp {
         // 9) “Prev/Next Week” buttons (also keep daily in sync if you want):
         JButton prevWeekBtn = new JButton("← Prev Week");
         JButton nextWeekBtn = new JButton("Next Week →");
-        JLabel weekLabel    = new JLabel("Week of: " + weekStart);
+        JLabel weekLabel = new JLabel("Week of: " + weekStart);
         weekLabel.setFont(LABEL_FONT);
         weekLabel.setForeground(TEXT_COLOR);
 
@@ -374,8 +381,7 @@ public class PhysicianApp {
         JSplitPane centerSplit = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 appointmentsPanel,
-                availabilityTabs
-        );
+                availabilityTabs);
         centerSplit.setOneTouchExpandable(false);
         frame.add(centerSplit, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
@@ -421,10 +427,9 @@ public class PhysicianApp {
     private void showMessageDialog() {
         JDialog dialog = new JDialog(frame, "Messages", true);
         MessagePanel messagePanel = new MessagePanel(
-            messageService,
-            loggedIn.getId(),
-            physicianManager.getAllPhysicians()
-        );
+                messageService,
+                loggedIn.getId(),
+                physicianManager.getAllPhysicians());
         dialog.setContentPane(messagePanel);
         dialog.pack();
         dialog.setLocationRelativeTo(frame);
@@ -438,7 +443,7 @@ public class PhysicianApp {
     }
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-                                        AppointmentManager appointmentManager) {
+            AppointmentManager appointmentManager) {
         try {
             SwingUtilities.invokeLater(() -> {
                 new PhysicianApp(loggedIn, physicianManager, appointmentManager);
@@ -446,16 +451,16 @@ public class PhysicianApp {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Error launching application: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+                    "Error launching application: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
+                boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             label.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(isSelected ? PRIMARY_COLOR : Color.LIGHT_GRAY, 2),
@@ -467,4 +472,23 @@ public class PhysicianApp {
             return label;
         }
     }
+
+    private ImageIcon getProfileIcon(String physicianId) {
+        File photoFile = new File("src/main/java/physicianconnect/src/profile_photos", physicianId + ".png");
+        if (photoFile.exists()) {
+            ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
+            Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        } else {
+            BufferedImage placeholder = new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = placeholder.createGraphics();
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.fillRect(0, 0, 40, 40);
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawString("👤", 10, 25);
+            g2.dispose();
+            return new ImageIcon(placeholder);
+        }
+    }
+
 }
