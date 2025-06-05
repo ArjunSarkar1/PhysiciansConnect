@@ -26,7 +26,7 @@ import java.util.Map;
  * Now uses AppointmentController instead of AppointmentManager directly.
  */
 public class WeeklyAvailabilityPanel extends JPanel {
-    private final int physicianId;
+    private final String physicianId;
     private final AvailabilityService availabilityService;
     private final AppointmentController appointmentController;
     private final Runnable onWeekChanged;
@@ -48,7 +48,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
      * @param monday           the LocalDate representing the Monday of the week to display
      * @param onWeekChanged    callback to run after any appointment add/update/delete inside weekly view
      */
-    public WeeklyAvailabilityPanel(int physicianId,
+    public WeeklyAvailabilityPanel(String physicianId,
                                    AvailabilityService svc,
                                    AppointmentController apptController,
                                    LocalDate monday,

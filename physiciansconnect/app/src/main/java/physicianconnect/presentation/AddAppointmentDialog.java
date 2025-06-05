@@ -42,7 +42,7 @@ public class AddAppointmentDialog extends JDialog {
     /*------------------------------------------------------------------*/
     private final AppointmentController appointmentController;
     private final String physicianId;
-    private final Runnable onSuccessCallback;   // may be null
+    private final Runnable onSuccessCallback;  // may be null
 
     private JTextField patientNameField;
     public JSpinner dateSpinner;

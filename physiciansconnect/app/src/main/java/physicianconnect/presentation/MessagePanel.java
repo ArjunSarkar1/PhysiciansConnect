@@ -5,9 +5,9 @@ package physicianconnect.presentation;
 import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.exceptions.InvalidMessageException;
 import physicianconnect.objects.Message;
-import physicianconnect.objects.Physician;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
+import physicianconnect.presentation.util.UserUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,28 +21,27 @@ import java.util.stream.Collectors;
 public class MessagePanel extends JPanel {
     private final MessageController messageController;
     private final String currentUserId;
+    private final String currentUserType; // "physician" or "receptionist"
     private final JList<Message> messageList;
     private final DefaultListModel<Message> messageListModel;
     private final JTextField messageInput;
     private final JTextField searchField;
-    private final JList<Physician> searchResultsList;
-    private final DefaultListModel<Physician> searchResultsModel;
+    private final JList<Object> searchResultsList;
+    private final DefaultListModel<Object> searchResultsModel;
     private final JLabel unreadCountLabel;
-    private final List<Physician> allPhysicians;
-    private Physician selectedRecipient;
+    private final List<Object> allUsers; // Physician or Receptionist
+    private Object selectedRecipient;
     private final JLabel selectedRecipientLabel;
 
-    private static final DateTimeFormatter TIME_FORMATTER =
-            DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT_PATTERN);
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT_PATTERN);
 
-    public MessagePanel(MessageController messageController,
-                        String currentUserId,
-                        List<Physician> physicians) {
+    public MessagePanel(MessageController messageController, String currentUserId, String currentUserType,
+            List<Object> users) {
+        this.currentUserId = currentUserId;
+        this.currentUserType = currentUserType;
         this.messageController = messageController;
-        this.currentUserId     = currentUserId;
-        // Exclude the current user from the recipient list
-        this.allPhysicians = physicians.stream()
-                .filter(p -> !p.getId().equals(currentUserId))
+        this.allUsers = users.stream()
+                .filter(u -> !(UserUtil.getUserId(u).equals(currentUserId) && UserUtil.getUserType(u).equals(currentUserType)))
                 .collect(Collectors.toList());
 
         setLayout(new BorderLayout(10, 10));
@@ -76,9 +75,17 @@ public class MessagePanel extends JPanel {
         searchField.putClientProperty("JTextField.placeholderText", UIConfig.SEARCH_PLACEHOLDER);
 
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(searchField.getText()); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e)  { filter(searchField.getText()); }
-            public void insertUpdate(javax.swing.event.DocumentEvent e)  { filter(searchField.getText()); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filter(searchField.getText());
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filter(searchField.getText());
+            }
+
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filter(searchField.getText());
+            }
         });
 
         searchPanel.add(searchLabel, BorderLayout.WEST);
@@ -92,53 +99,51 @@ public class MessagePanel extends JPanel {
 
         // ─────────── Search Results List ───────────
         searchResultsModel = new DefaultListModel<>();
-        searchResultsList  = new JList<>(searchResultsModel);
+        searchResultsList = new JList<>(searchResultsModel);
         searchResultsList.setFont(UITheme.LABEL_FONT);
         searchResultsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         searchResultsList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list,
-                                                          Object value,
-                                                          int index,
-                                                          boolean isSelected,
-                                                          boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Physician) {
-                    Physician p = (Physician) value;
-                    int unreadMessages = (int) messageController
-                            .getUnreadMessagesForUser(currentUserId)
-                            .stream()
-                            .filter(m -> m.getSenderId().equals(p.getId()))
-                            .count();
-                    String unreadText = unreadMessages > 0
-                            ? " (" + unreadMessages + " unread)"
-                            : "";
-                    setText(p.getName() + " (" + p.getEmail() + ")" + unreadText);
-                }
+                String name = UserUtil.getUserName(value);
+                String email = UserUtil.getUserEmail(value);
+                // Show unread count for this user
+                List<Message> unreadMessages = messageController
+                        .getUnreadMessagesForUser(currentUserId, currentUserType)
+                        .stream()
+                        .filter(m -> m.getSenderId().equals(UserUtil.getUserId(value))
+                                && m.getSenderType().equals(UserUtil.getUserType(value)))
+                        .collect(Collectors.toList());
+                String unreadText = !unreadMessages.isEmpty() ? " (" + unreadMessages.size() + " unread)" : "";
+                setText(name + " (" + email + ")" + unreadText);
                 return this;
             }
         });
 
+        // Add selection listener
         searchResultsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                Physician newSelection = searchResultsList.getSelectedValue();
+                Object newSelection = searchResultsList.getSelectedValue();
                 if (newSelection != null) {
                     selectedRecipient = newSelection;
-                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + selectedRecipient.getName());
+                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + UserUtil.getUserName(selectedRecipient));
                     refreshMessages();
                 }
             }
         });
 
+        // Add mouse listener to handle clicks
         searchResultsList.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int index = searchResultsList.locationToIndex(e.getPoint());
                 if (index != -1) {
                     searchResultsList.setSelectedIndex(index);
-                    Physician clickedPhysician = searchResultsList.getModel().getElementAt(index);
-                    selectedRecipient = clickedPhysician;
-                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + selectedRecipient.getName());
+                    Object clickedUser = searchResultsList.getModel().getElementAt(index);
+                    selectedRecipient = clickedUser;
+                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + UserUtil.getUserName(selectedRecipient));
                     refreshMessages();
                 }
             }
@@ -150,7 +155,7 @@ public class MessagePanel extends JPanel {
 
         // ─────────── Message List ───────────
         messageListModel = new DefaultListModel<>();
-        messageList      = new JList<>(messageListModel);
+        messageList = new JList<>(messageListModel);
         messageList.setCellRenderer(new MessageCellRenderer());
         messageList.setFont(UITheme.LABEL_FONT);
         messageList.setBackground(UITheme.BACKGROUND_COLOR);
@@ -204,22 +209,23 @@ public class MessagePanel extends JPanel {
         add(searchContainer, BorderLayout.WEST);
         add(messageContainer, BorderLayout.CENTER);
 
-        showAllPhysicians();
+        // Show all users by default
+        showAllUsers();
     }
 
-    private void showAllPhysicians() {
+    private void showAllUsers() {
         searchResultsModel.clear();
-        allPhysicians.forEach(searchResultsModel::addElement);
+        allUsers.forEach(searchResultsModel::addElement);
     }
 
     private void filter(String searchText) {
         searchResultsModel.clear();
         if (searchText.isEmpty()) {
-            showAllPhysicians();
+            showAllUsers();
         } else {
-            allPhysicians.stream()
-                    .filter(p -> p.getName().toLowerCase().contains(searchText.toLowerCase())
-                            || p.getEmail().toLowerCase().contains(searchText.toLowerCase()))
+            allUsers.stream()
+                    .filter(u -> UserUtil.getUserName(u).toLowerCase().contains(searchText.toLowerCase()) ||
+                            UserUtil.getUserEmail(u).toLowerCase().contains(searchText.toLowerCase()))
                     .forEach(searchResultsModel::addElement);
         }
     }
@@ -227,21 +233,26 @@ public class MessagePanel extends JPanel {
     private void refreshMessages() {
         messageListModel.clear();
         if (selectedRecipient != null) {
-            List<Message> messages = messageController.getAllMessagesForUser(currentUserId);
-
+            List<Message> messages = messageController.getAllMessagesForUser(currentUserId, currentUserType);
+            String recipientId = UserUtil.getUserId(selectedRecipient);
             List<Message> conversationMessages = messages.stream()
-                    .filter(m -> m.getSenderId().equals(selectedRecipient.getId())
-                            || m.getReceiverId().equals(selectedRecipient.getId()))
+                    .filter(m -> ((m.getSenderId().equals(currentUserId) && m.getSenderType().equals(currentUserType) &&
+                            m.getReceiverId().equals(UserUtil.getUserId(selectedRecipient))
+                            && m.getReceiverType().equals(UserUtil.getUserType(selectedRecipient)))
+                            ||
+                            (m.getReceiverId().equals(currentUserId) && m.getReceiverType().equals(currentUserType) &&
+                                    m.getSenderId().equals(UserUtil.getUserId(selectedRecipient))
+                                    && m.getSenderType().equals(UserUtil.getUserType(selectedRecipient)))))
                     .sorted((m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()))
-                    .toList();
+                    .collect(Collectors.toList());
 
             conversationMessages.forEach(messageListModel::addElement);
 
-            // Mark incoming ones as read
+            // Mark messages as read only if they were sent by the selected recipient
             conversationMessages.stream()
-                    .filter(m -> m.getReceiverId().equals(currentUserId)
-                            && m.getSenderId().equals(selectedRecipient.getId())
-                            && !m.isRead())
+                    .filter(m -> m.getReceiverId().equals(currentUserId) &&
+                            m.getSenderId().equals(recipientId) &&
+                            !m.isRead())
                     .forEach(m -> {
                         messageController.markMessageAsRead(m.getMessageId());
                         m.setRead(true);
@@ -253,11 +264,11 @@ public class MessagePanel extends JPanel {
     }
 
     private void updateUnreadCount() {
-        int unreadCount = messageController.getUnreadMessageCount(currentUserId);
+        int unreadCount = messageController.getUnreadMessageCount(currentUserId, currentUserType);
         unreadCountLabel.setText(unreadCount > 0
                 ? unreadCount + " " + UIConfig.UNREAD_SUFFIX
                 : "");
-        showAllPhysicians();
+        showAllUsers();
     }
 
     private void sendMessage() {
@@ -266,9 +277,10 @@ public class MessagePanel extends JPanel {
             try {
                 Message sentMessage = messageController.sendMessage(
                         currentUserId,
-                        selectedRecipient.getId(),
-                        content
-                );
+                        currentUserType,
+                        UserUtil.getUserId(selectedRecipient),
+                        UserUtil.getUserType(selectedRecipient),
+                        content);
                 messageInput.setText("");
                 messageListModel.addElement(sentMessage);
                 scrollToBottom();
@@ -278,16 +290,14 @@ public class MessagePanel extends JPanel {
                         this,
                         ex.getMessage(),
                         UIConfig.ERROR_DIALOG_TITLE,
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         } else if (selectedRecipient == null) {
             JOptionPane.showMessageDialog(
                     this,
                     UIConfig.ERROR_NO_RECIPIENT,
                     UIConfig.ERROR_DIALOG_TITLE,
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -302,35 +312,30 @@ public class MessagePanel extends JPanel {
 
     private class MessageCellRenderer extends DefaultListCellRenderer {
         @Override
-        public Component getListCellRendererComponent(JList<?> list,
-                                                      Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
             if (value instanceof Message) {
                 Message message = (Message) value;
-                boolean isSent = message.getSenderId().equals(currentUserId);
+                boolean isSent = message.getSenderId().equals(currentUserId)
+                        && message.getSenderType().equals(currentUserType);
 
                 String timestamp = message.getTimestamp().format(TIME_FORMATTER);
-                String status = isSent
+                   String status = isSent
                         ? (message.isRead() ? UIConfig.STATUS_READ : UIConfig.STATUS_SENT)
                         : "";
 
                 setText(String.format(
-                        "<html><div style='width: 100%%; padding: 5px;'>" +
-                                "<b>%s</b> (%s) %s<br>%s</div></html>",
-                        isSent ? UIConfig.YOU_LABEL : selectedRecipient.getName(),
+                        "<html><div style='width: 100%%; padding: 5px;'><b>%s</b> (%s) %s<br>%s</div></html>",
+                        isSent ? UIConfig.YOU_LABEL : UserUtil.getUserName(message.getSenderId(), message.getSenderType(),allUsers),
                         timestamp,
                         status,
                         message.getContent()
-                ));
+                        ));
 
-                setHorizontalAlignment(isSent
-                        ? SwingConstants.RIGHT
-                        : SwingConstants.LEFT);
-
+                setHorizontalAlignment(isSent ? SwingConstants.RIGHT : SwingConstants.LEFT);
                 setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 if (!isSelected) {
                     setBackground(isSent
@@ -339,8 +344,13 @@ public class MessagePanel extends JPanel {
                 }
                 setPreferredSize(new Dimension(list.getWidth() - 20, getPreferredSize().height));
             }
-
             return this;
         }
     }
+
+
 }
+
+
+
+

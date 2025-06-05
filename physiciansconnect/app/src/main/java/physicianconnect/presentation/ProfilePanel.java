@@ -1,5 +1,6 @@
 package physicianconnect.presentation;
 
+import physicianconnect.AppController;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.objects.Physician;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.awt.image.BufferedImage;
 
 public class ProfilePanel extends JPanel {
+    private final AppController appController;
     private final JTextField nameField;
     private final JTextField emailField;
     private final JTextField specialtyField;
@@ -33,7 +35,10 @@ public class ProfilePanel extends JPanel {
     private static final String PHOTO_DIR = new File("src/main/java/physicianconnect/src/profile_photos")
             .getAbsolutePath();
 
-    public ProfilePanel(Physician physician, PhysicianManager physicianManager, AppointmentManager appointmentManager) {
+    public ProfilePanel(Physician physician, PhysicianManager physicianManager, AppointmentManager appointmentManager,
+            AppController appController) {
+        this.appController = appController;
+
         setLayout(new BorderLayout(10, 10));
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
@@ -187,7 +192,9 @@ public class ProfilePanel extends JPanel {
             }
 
             // Launch login again
-            new LoginScreen(physicianManager, appointmentManager);
+            if (appController != null) {
+                appController.showLoginScreen();
+            }
         });
 
         saveButton.setVisible(false);

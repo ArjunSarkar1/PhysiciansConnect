@@ -25,7 +25,7 @@ import java.util.List;
  * Now uses AppointmentController instead of AppointmentManager directly.
  */
 public class DailyAvailabilityPanel extends JPanel {
-    private final int physicianId;
+    private final String physicianId;
     private final AvailabilityService availabilityService;
     private final AppointmentController appointmentController;
     private final Runnable onDayChanged;
@@ -46,7 +46,7 @@ public class DailyAvailabilityPanel extends JPanel {
      * @param date                 the initially displayed date
      * @param onDayChanged         callback to run whenever the day’s data changes
      */
-    public DailyAvailabilityPanel(int physicianId,
+    public DailyAvailabilityPanel(String physicianId,
                                   AvailabilityService svc,
                                   AppointmentController apptController,
                                   LocalDate date,

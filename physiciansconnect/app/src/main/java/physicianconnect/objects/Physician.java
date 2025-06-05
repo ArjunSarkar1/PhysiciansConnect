@@ -113,6 +113,10 @@ public class Physician {
 
     @Override
     public String toString() {
-        return name + " (ID: " + id + ", Email: " + email + ")";
+        return getName() + " (" + getEmail() + ")";
+    }
+
+    public String getUserType() {
+        return "physician";
     }
 }
