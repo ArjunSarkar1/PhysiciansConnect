@@ -32,7 +32,7 @@ public class ProfilePanel extends JPanel {
     private final JButton changePhotoButton;
     private final int MAX_PHOTO_SIZE = 200;
 
-    private static final String PHOTO_DIR = new File("src/main/java/physicianconnect/src/profile_photos")
+    private static final String PHOTO_DIR = new File("src/main/resources/profile_photos")
             .getAbsolutePath();
 
     public ProfilePanel(Physician physician, PhysicianManager physicianManager, AppointmentManager appointmentManager,

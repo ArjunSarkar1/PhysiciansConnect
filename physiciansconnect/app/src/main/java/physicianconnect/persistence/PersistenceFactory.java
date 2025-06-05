@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import physicianconnect.persistence.interfaces.*;
-import physicianconnect.persistence.interfaces.MessageRepository;
 import physicianconnect.persistence.sqlite.*;
-
-import physicianconnect.persistence.sqlite.SchemaInitializer;
 import physicianconnect.persistence.stub.StubFactory;
 
 public class PersistenceFactory {
@@ -19,15 +16,16 @@ public class PersistenceFactory {
     private static PrescriptionPersistence prescriptionPersistence;
     private static ReferralPersistence referralPersistence;
     private static MessageRepository messageRepository;
-    private static ReceptionistPersistence receptionistPersistence; 
+    private static ReceptionistPersistence receptionistPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null || receptionistPersistence != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null
+                || prescriptionPersistence != null || referralPersistence != null || messageRepository != null
+                || receptionistPersistence != null)
             return;
 
         switch (type) {
             case PROD, TEST -> {
-                // Store in root dir like your teacher's version
                 String dbPath = type == PersistenceType.PROD ? "prod.db" : "test.db";
                 try {
                     ConnectionManager.initialize(dbPath);
@@ -37,13 +35,12 @@ public class PersistenceFactory {
 
                     if (seed) {
                         DatabaseSeeder.seed(conn, List.of(
-                            "seed_physicians.sql",
-                            "seed_appointments.sql",
-                            "seed_medications.sql",
-                            "seed_prescriptions.sql",
-                            "seed_referrals.sql",
-                            "seed_receptionists.sql"
-                        ));
+                                "database_seeds/seed_physicians.sql",
+                                "database_seeds/seed_appointments.sql",
+                                "database_seeds/seed_medications.sql",
+                                "database_seeds/seed_prescriptions.sql",
+                                "database_seeds/seed_referrals.sql",
+                                "database_seeds/seed_receptionists.sql"));
                     }
 
                     physicianPersistence = new PhysicianDB(conn);

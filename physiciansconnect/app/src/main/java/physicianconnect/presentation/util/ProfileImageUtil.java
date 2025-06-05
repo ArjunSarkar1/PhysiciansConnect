@@ -7,7 +7,7 @@ import java.io.File;
 
 public class ProfileImageUtil {
     public static ImageIcon getProfileIcon(String physicianId) {
-        File photoFile = new File("src/main/java/physicianconnect/src/profile_photos", physicianId + ".png");
+        File photoFile = new File("src/main/resources/profile_photos", physicianId + ".png");
         if (photoFile.exists()) {
             ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
             Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);

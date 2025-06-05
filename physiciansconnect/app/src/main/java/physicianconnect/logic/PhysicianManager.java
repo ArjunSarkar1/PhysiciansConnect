@@ -97,7 +97,7 @@ public class PhysicianManager {
             g2d.drawImage(original, 0, 0, newW, newH, null);
             g2d.dispose();
 
-            Path outputDir = Paths.get("src/main/java/physicianconnect/src/profile_photos").toAbsolutePath();
+            Path outputDir = Paths.get("src/main/resources/profile_photos").toAbsolutePath();
             Files.createDirectories(outputDir);
             File outputFile = outputDir.resolve(physicianId + ".png").toFile();
             ImageIO.write(resized, "png", outputFile);
