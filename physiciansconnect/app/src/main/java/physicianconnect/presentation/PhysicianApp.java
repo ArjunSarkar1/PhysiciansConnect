@@ -89,6 +89,8 @@ public class PhysicianApp {
     private MessageButton messageButton;
     private Timer messageRefreshTimer;
 
+    private JButton profilePicButton;
+
     private final Runnable logoutCallback;
 
     /*------------------------------------------------------------------*/
@@ -130,7 +132,7 @@ public class PhysicianApp {
         topPanel.add(welcome, BorderLayout.WEST);
 
         ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
-        JButton profilePicButton = new JButton(profileIcon);
+        profilePicButton = new JButton(profileIcon);
         profilePicButton.setToolTipText(UIConfig.PROFILE_BUTTON_TEXT);
         profilePicButton.setPreferredSize(new Dimension(40, 40));
         profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
@@ -485,8 +487,12 @@ public class PhysicianApp {
                 loggedIn,
                 physicianManager,
                 appointmentManager,
-                null // or appController if needed
-        );
+                null, // or appController if needed
+                () -> {
+                    // Refresh icon in dashboard
+                    ImageIcon updatedIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
+                    profilePicButton.setIcon(updatedIcon);
+                });
         dlg.setContentPane(profilePanel);
         dlg.pack();
         dlg.setLocationRelativeTo(frame);

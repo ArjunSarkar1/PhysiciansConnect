@@ -5,14 +5,14 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.objects.Physician;
+import physicianconnect.objects.Receptionist;
 import physicianconnect.logic.controller.PhysicianController;
 import physicianconnect.logic.controller.ReceptionistController;
-import physicianconnect.objects.Receptionist;
-
 import physicianconnect.logic.exceptions.InvalidCredentialException;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
-
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.*;
 import java.awt.*;
 
@@ -24,18 +24,34 @@ public class LoginScreen extends JFrame {
                 this.controller = controller;
 
                 setTitle(UIConfig.LOGIN_DIALOG_TITLE);
-                setSize(400, 250);
+                setSize(900, 600);
                 setLocationRelativeTo(null);
                 setDefaultCloseOperation(EXIT_ON_CLOSE);
+                setLayout(new BorderLayout());
 
-                // Main panel with GridBagLayout
-                JPanel panel = new JPanel(new GridBagLayout());
-                panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+                // ───── Left Panel: Image ─────
+                JPanel imagePanel = new JPanel(new BorderLayout());
+                try {
+                        Path imagePath = Paths.get("src/main/resources/picture_assets/login_image.png")
+                                        .toAbsolutePath();
+                        ImageIcon icon = new ImageIcon(imagePath.toString());
+                        Image scaled = icon.getImage().getScaledInstance(500, 600, Image.SCALE_SMOOTH);
+                        JLabel imageLabel = new JLabel(new ImageIcon(scaled));
+                        imagePanel.add(imageLabel, BorderLayout.CENTER);
+
+                } catch (Exception e) {
+                        imagePanel.add(new JLabel("Image failed to load"), BorderLayout.CENTER);
+                }
+
+                // ───── Right Panel: Login Form ─────
+                JPanel rightPanel = new JPanel(new BorderLayout());
+                rightPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+
+                JPanel formPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(8, 8, 8, 8);
                 gbc.fill = GridBagConstraints.HORIZONTAL;
 
-                // ─────────── Labels & Fields ───────────
                 JLabel emailLabel = new JLabel(UIConfig.USER_EMAIL_LABEL);
                 emailLabel.setFont(UITheme.LABEL_FONT);
                 emailLabel.setForeground(UITheme.TEXT_COLOR);
@@ -50,16 +66,12 @@ public class LoginScreen extends JFrame {
                 JPasswordField passField = new JPasswordField(20);
                 passField.setName("passwordField");
 
-                // ─────────── Test Info Label ───────────
-                JLabel testInfo = new JLabel(
-                                UIConfig.LOADING_MESSAGE.replace("Loading...", "Test login: test@email.com / test123"));
+                JLabel testInfo = new JLabel(UIConfig.TEST_LOGIN_INFO);
                 testInfo.setFont(UITheme.LABEL_FONT);
                 testInfo.setForeground(UITheme.TEXT_COLOR);
 
-                // ─────────── Buttons ───────────
                 JButton loginBtn = new JButton(UIConfig.LOGIN_BUTTON_TEXT);
                 loginBtn.setName("loginBtn");
-
                 loginBtn.setFont(UITheme.BUTTON_FONT);
                 loginBtn.setBackground(UITheme.PRIMARY_COLOR);
                 loginBtn.setForeground(UITheme.BACKGROUND_COLOR);
@@ -78,46 +90,35 @@ public class LoginScreen extends JFrame {
                 createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 UITheme.applyHoverEffect(createBtn);
 
-                // Add components to panel with GridBagLayout
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 gbc.gridwidth = 2;
                 gbc.anchor = GridBagConstraints.CENTER;
-                panel.add(testInfo, gbc);
+                formPanel.add(testInfo, gbc);
 
-                // Email row
                 gbc.gridy++;
                 gbc.gridwidth = 1;
                 gbc.anchor = GridBagConstraints.EAST;
-                gbc.gridx = 0;
-                panel.add(emailLabel, gbc);
-                gbc.anchor = GridBagConstraints.WEST;
-                gbc.gridx = 1;
-                panel.add(emailField, gbc);
+                formPanel.add(emailLabel, gbc);
 
-                // Password row
+                gbc.gridx = 1;
+                gbc.anchor = GridBagConstraints.WEST;
+                formPanel.add(emailField, gbc);
+
+                gbc.gridx = 0;
                 gbc.gridy++;
                 gbc.anchor = GridBagConstraints.EAST;
-                gbc.gridx = 0;
-                panel.add(passLabel, gbc);
-                gbc.anchor = GridBagConstraints.WEST;
-                gbc.gridx = 1;
-                panel.add(passField, gbc);
+                formPanel.add(passLabel, gbc);
 
-                // Buttons row
+                gbc.gridx = 1;
+                gbc.anchor = GridBagConstraints.WEST;
+                formPanel.add(passField, gbc);
+
                 JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+                buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
                 buttons.add(loginBtn);
                 buttons.add(createBtn);
 
-                gbc.gridx = 0;
-                gbc.gridy++;
-                gbc.gridwidth = 2;
-                gbc.anchor = GridBagConstraints.CENTER;
-                UIConfig.LOADING_MESSAGE.replace("Loading...", "Test login: test@email.com / test123");
-                testInfo.setFont(UITheme.LABEL_FONT);
-                testInfo.setForeground(UITheme.TEXT_COLOR);
-
-                // ─────────── Action Listeners ───────────
                 loginBtn.addActionListener(e -> {
                         String email = emailField.getText().trim();
                         String pass = new String(passField.getPassword());
@@ -131,7 +132,6 @@ public class LoginScreen extends JFrame {
                                 controller.showPhysicianApp(user);
                                 return;
                         } catch (InvalidCredentialException ex) {
-                                // Try receptionist login if physician fails
                                 try {
                                         Receptionist receptionist = receptionistController.login(email, pass);
                                         dispose();
@@ -147,12 +147,11 @@ public class LoginScreen extends JFrame {
                         }
                 });
 
-                // Registration logic (show combo box)
                 createBtn.addActionListener(e -> {
                         String[] userTypes = { "Physician", "Receptionist" };
                         JComboBox<String> userTypeCombo = new JComboBox<>(userTypes);
 
-                        JDialog dialog = new JDialog(this, "Create Account", true);
+                        JDialog dialog = new JDialog(this, UIConfig.CREATE_ACCOUNT_DIALOG_TITLE, true);
                         dialog.setLayout(new GridBagLayout());
                         GridBagConstraints regGbc = new GridBagConstraints();
                         regGbc.insets = new Insets(5, 5, 5, 5);
@@ -165,35 +164,35 @@ public class LoginScreen extends JFrame {
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 0;
-                        dialog.add(new JLabel("Account Type:"), regGbc);
+                        dialog.add(new JLabel(UIConfig.ACCOUNT_TYPE_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(userTypeCombo, regGbc);
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 1;
-                        dialog.add(new JLabel("Name:"), regGbc);
+                        dialog.add(new JLabel(UIConfig.NAME_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(nameField, regGbc);
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 2;
-                        dialog.add(new JLabel("Email:"), regGbc);
+                        dialog.add(new JLabel(UIConfig.EMAIL_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(regEmailField, regGbc);
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 3;
-                        dialog.add(new JLabel("Password:"), regGbc);
+                        dialog.add(new JLabel(UIConfig.PASSWORD_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(passwordField, regGbc);
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 4;
-                        dialog.add(new JLabel("Confirm Password:"), regGbc);
+                        dialog.add(new JLabel(UIConfig.CONFIRM_PASSWORD_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(confirmPasswordField, regGbc);
 
-                        JButton registerBtn = new JButton("Register");
+                        JButton registerBtn = new JButton(UIConfig.REGISTER_BUTTON_TEXT);
                         registerBtn.setBackground(new Color(76, 175, 80));
                         registerBtn.setForeground(Color.WHITE);
                         registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -215,29 +214,29 @@ public class LoginScreen extends JFrame {
                                 String password = new String(passwordField.getPassword());
                                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
-                                // Validation
                                 if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                                        JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error",
+                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_REQUIRED_FIELD,
+                                                        UIConfig.ERROR_DIALOG_TITLE,
                                                         JOptionPane.ERROR_MESSAGE);
                                         return;
                                 }
 
                                 if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                                        JOptionPane.showMessageDialog(dialog, "Please enter a valid email address.",
-                                                        "Error",
-                                                        JOptionPane.ERROR_MESSAGE);
+                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_INVALID_EMAIL,
+                                                        "Error", JOptionPane.ERROR_MESSAGE);
                                         return;
                                 }
 
                                 if (password.length() < 6) {
                                         JOptionPane.showMessageDialog(dialog,
-                                                        "Password must be at least 6 characters long.", "Error",
+                                                        UIConfig.ERROR_PASSWORD_LENGTH, UIConfig.ERROR_DIALOG_TITLE,
                                                         JOptionPane.ERROR_MESSAGE);
                                         return;
                                 }
 
                                 if (!password.equals(confirmPassword)) {
-                                        JOptionPane.showMessageDialog(dialog, "Passwords do not match.", "Error",
+                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_PASSWORD_MISMATCH,
+                                                        UIConfig.ERROR_DIALOG_TITLE,
                                                         JOptionPane.ERROR_MESSAGE);
                                         return;
                                 }
@@ -245,12 +244,10 @@ public class LoginScreen extends JFrame {
                                 if (physicianManager.getPhysicianByEmail(email) != null ||
                                                 receptionistManager.getReceptionistByEmail(email) != null) {
                                         JOptionPane.showMessageDialog(dialog,
-                                                        "An account with this email already exists.", "Error",
+                                                        UIConfig.ERROR_EMAIL_EXISTS, UIConfig.ERROR_DIALOG_TITLE,
                                                         JOptionPane.ERROR_MESSAGE);
                                         return;
                                 }
-
-                                // String id = java.util.UUID.randomUUID().toString();
 
                                 PhysicianController physicianController = new PhysicianController(physicianManager);
                                 ReceptionistController receptionistController = new ReceptionistController(
@@ -260,22 +257,25 @@ public class LoginScreen extends JFrame {
                                         if ("Physician".equals(userType)) {
                                                 Physician newPhysician = physicianController.register(name, email,
                                                                 password, confirmPassword);
-                                                JOptionPane.showMessageDialog(dialog, "Account created successfully!",
-                                                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                                                JOptionPane.showMessageDialog(dialog, UIConfig.SUCCESS_ACCOUNT_CREATED,
+                                                                UIConfig.SUCCESS_DIALOG_TITLE,
+                                                                JOptionPane.INFORMATION_MESSAGE);
                                                 dialog.dispose();
                                                 SwingUtilities.invokeLater(
                                                                 () -> controller.showPhysicianApp(newPhysician));
-                                        } else if ("Receptionist".equals(userType)) {
+                                        } else {
                                                 Receptionist newReceptionist = receptionistController.register(name,
                                                                 email, password, confirmPassword);
-                                                JOptionPane.showMessageDialog(dialog, "Account created successfully!",
-                                                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                                                JOptionPane.showMessageDialog(dialog, UIConfig.SUCCESS_ACCOUNT_CREATED,
+                                                                UIConfig.SUCCESS_DIALOG_TITLE,
+                                                                JOptionPane.INFORMATION_MESSAGE);
                                                 dialog.dispose();
                                                 SwingUtilities.invokeLater(
                                                                 () -> controller.showReceptionistApp(newReceptionist));
                                         }
                                 } catch (InvalidCredentialException ex) {
-                                        JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Error",
+                                        JOptionPane.showMessageDialog(dialog, ex.getMessage(),
+                                                        UIConfig.ERROR_DIALOG_TITLE,
                                                         JOptionPane.ERROR_MESSAGE);
                                 }
                         });
@@ -285,8 +285,31 @@ public class LoginScreen extends JFrame {
                         dialog.setVisible(true);
                 });
 
-                add(panel, BorderLayout.CENTER);
-                add(buttons, BorderLayout.SOUTH);
+                // ───── Welcome Header ─────
+                JPanel headerPanel = new JPanel();
+                headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+                headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                headerPanel.setBackground(rightPanel.getBackground()); // Match background
+
+                JLabel welcomeLabel = new JLabel(UIConfig.WELCOME_MESSAGE);
+                welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                JLabel appLabel = new JLabel(UIConfig.APP_NAME);
+                appLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
+                appLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                headerPanel.add(welcomeLabel);
+                headerPanel.add(Box.createRigidArea(new Dimension(0, 1)));
+                headerPanel.add(appLabel);
+
+                rightPanel.add(headerPanel, BorderLayout.NORTH);
+                rightPanel.add(formPanel, BorderLayout.CENTER);
+                rightPanel.add(buttons, BorderLayout.SOUTH);
+
+                add(imagePanel, BorderLayout.WEST);
+                add(rightPanel, BorderLayout.CENTER);
+
                 setVisible(true);
         }
 }

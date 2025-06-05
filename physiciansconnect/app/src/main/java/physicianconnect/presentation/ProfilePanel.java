@@ -31,13 +31,16 @@ public class ProfilePanel extends JPanel {
     private final JLabel photoLabel;
     private final JButton changePhotoButton;
     private final int MAX_PHOTO_SIZE = 200;
+    private final Runnable onProfileUpdated;
 
     private static final String PHOTO_DIR = new File("src/main/resources/profile_photos")
             .getAbsolutePath();
 
     public ProfilePanel(Physician physician, PhysicianManager physicianManager, AppointmentManager appointmentManager,
-            AppController appController) {
+            AppController appController, Runnable onProfileUpdated) {
+
         this.appController = appController;
+        this.onProfileUpdated = onProfileUpdated;
 
         setLayout(new BorderLayout(10, 10));
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
@@ -158,6 +161,11 @@ public class ProfilePanel extends JPanel {
                 // Validate before saving
                 physicianManager.validateBasicInfo(physician);
                 physicianManager.updatePhysician(physician);
+
+                // Notify parent that profile was updated
+                if (onProfileUpdated != null) {
+                    onProfileUpdated.run();
+                }
 
                 JOptionPane.showMessageDialog(this, "Profile updated successfully.");
                 setEditable(false);
