@@ -2,7 +2,9 @@ package physicianconnect.logic;
 
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.interfaces.AppointmentPersistence;
-import physicianconnect.exceptions.InvalidAppointmentException;
+import physicianconnect.logic.exceptions.*;
+import physicianconnect.logic.validation.*;
+
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -45,6 +47,7 @@ public class AppointmentManager {
     }
 
     public void addAppointment(Appointment appointment) {
+        // ← use validate(appointment, clock) so “now” is correct
         AppointmentValidator.validate(appointment, clock);
 
         if (!isSlotAvailable(appointment.getPhysicianId(), appointment.getDateTime())) {

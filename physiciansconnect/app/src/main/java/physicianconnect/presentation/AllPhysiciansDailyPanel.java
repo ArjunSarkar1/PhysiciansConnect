@@ -1,12 +1,13 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.objects.Physician;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,20 +16,20 @@ public class AllPhysiciansDailyPanel extends JPanel {
     private final JPanel panelsContainer;
     private final JTextField searchField;
     private final PhysicianManager physicianManager;
-    private final AppointmentManager appointmentManager;
+    private final AppointmentController appointmentController;
     private final AvailabilityService availabilityService;
     private final LocalDate date;
     private List<Physician> allPhysicians;
 
     public AllPhysiciansDailyPanel(
             PhysicianManager physicianManager,
-            AppointmentManager appointmentManager,
+            AppointmentController appointmentController,
             AvailabilityService availabilityService,
             LocalDate date,
-            java.util.function.Consumer<LocalDate> onDateChange // <-- add this
+            java.util.function.Consumer<LocalDate> onDateChange
     ) {
         this.physicianManager = physicianManager;
-        this.appointmentManager = appointmentManager;
+        this.appointmentController = appointmentController;
         this.availabilityService = availabilityService;
         this.date = date;
 
@@ -50,7 +51,7 @@ public class AllPhysiciansDailyPanel extends JPanel {
         prevDayBtn.addActionListener(e -> onDateChange.accept(date.minusDays(1)));
         nextDayBtn.addActionListener(e -> onDateChange.accept(date.plusDays(1)));
 
-        add(navPanel, BorderLayout.SOUTH); // or BorderLayout.NORTH, above searchPanel
+        add(navPanel, BorderLayout.SOUTH);
         // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         searchPanel.setBackground(new Color(245, 247, 250));
@@ -114,8 +115,9 @@ public class AllPhysiciansDailyPanel extends JPanel {
             DailyAvailabilityPanel dailyPanel = new DailyAvailabilityPanel(
                     p.getId(),
                     availabilityService,
-                    appointmentManager,
-                    date);
+                    appointmentController,
+                    date,
+                    () -> date.with(DayOfWeek.MONDAY));
             panelWithLabel.add(dailyPanel, BorderLayout.CENTER);
             panelsContainer.add(panelWithLabel);
         }

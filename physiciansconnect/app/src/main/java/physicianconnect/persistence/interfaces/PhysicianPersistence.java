@@ -14,4 +14,6 @@ public interface PhysicianPersistence {
     List<Physician> getAllPhysicians();
 
     Physician getPhysicianById(String id);
+
+    void updatePhysician(Physician physician);
 }

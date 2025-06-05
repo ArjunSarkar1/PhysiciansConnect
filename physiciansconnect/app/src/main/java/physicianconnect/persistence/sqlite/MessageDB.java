@@ -2,10 +2,8 @@ package physicianconnect.persistence.sqlite;
 
 import physicianconnect.objects.Message;
 import physicianconnect.persistence.interfaces.MessageRepository;
-
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 public class MessageDB implements MessageRepository {
@@ -19,17 +17,17 @@ public class MessageDB implements MessageRepository {
     private void createTable() {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("""
-                        CREATE TABLE IF NOT EXISTS messages (
-                            message_id TEXT PRIMARY KEY,
-                            sender_id TEXT NOT NULL,
-                            sender_type TEXT NOT NULL,
-                            receiver_id TEXT NOT NULL,
-                            receiver_type TEXT NOT NULL,
-                            content TEXT NOT NULL,
-                            timestamp TEXT NOT NULL,
-                            is_read BOOLEAN NOT NULL
-                        )
-                    """);
+                CREATE TABLE IF NOT EXISTS messages (
+                    message_id TEXT PRIMARY KEY,
+                    sender_id TEXT NOT NULL,
+                    sender_type TEXT NOT NULL,
+                    receiver_id TEXT NOT NULL,
+                    receiver_type TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    timestamp TEXT NOT NULL,
+                    is_read BOOLEAN NOT NULL
+                )
+            """);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create messages table: " + e.getMessage(), e);
         }
@@ -42,6 +40,24 @@ public class MessageDB implements MessageRepository {
         }
         if (message.getMessageId() == null) {
             throw new IllegalArgumentException("Message ID cannot be null");
+        }
+        if (message.getSenderId() == null || message.getSenderId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Sender ID cannot be null or empty");
+        }
+        if (message.getSenderType() == null || message.getSenderType().trim().isEmpty()) {
+            throw new IllegalArgumentException("Sender type cannot be null or empty");
+        }
+        if (message.getReceiverId() == null || message.getReceiverId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver ID cannot be null or empty");
+        }
+        if (message.getReceiverType() == null || message.getReceiverType().trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver type cannot be null or empty");
+        }
+        if (message.getContent() == null) {
+            throw new IllegalArgumentException("Content cannot be null");
+        }
+        if (message.getTimestamp() == null) {
+            throw new IllegalArgumentException("Timestamp cannot be null");
         }
 
         String sql = "INSERT OR REPLACE INTO messages (message_id, sender_id, sender_type, receiver_id, receiver_type, content, timestamp, is_read) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -64,19 +80,37 @@ public class MessageDB implements MessageRepository {
 
     @Override
     public List<Message> findByReceiverId(String receiverId, String receiverType) {
-        String sql = "SELECT * FROM messages WHERE receiver_id = ? AND receiver_type = ?";
+        if (receiverId == null || receiverId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver ID cannot be null or empty");
+        }
+        if (receiverType == null || receiverType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver type cannot be null or empty");
+        }
+        String sql = "SELECT * FROM messages WHERE receiver_id = ? AND receiver_type = ? ORDER BY timestamp";
         return queryMessages(sql, receiverId, receiverType, "Failed to find messages by receiver");
     }
 
     @Override
     public List<Message> findBySenderId(String senderId, String senderType) {
-        String sql = "SELECT * FROM messages WHERE sender_id = ? AND sender_type = ?";
+        if (senderId == null || senderId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Sender ID cannot be null or empty");
+        }
+        if (senderType == null || senderType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Sender type cannot be null or empty");
+        }
+        String sql = "SELECT * FROM messages WHERE sender_id = ? AND sender_type = ? ORDER BY timestamp";
         return queryMessages(sql, senderId, senderType, "Failed to find messages by sender");
     }
 
     @Override
     public List<Message> findUnreadByReceiverId(String receiverId, String receiverType) {
-        String sql = "SELECT * FROM messages WHERE receiver_id = ? AND receiver_type = ? AND is_read = 0";
+        if (receiverId == null || receiverId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver ID cannot be null or empty");
+        }
+        if (receiverType == null || receiverType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver type cannot be null or empty");
+        }
+        String sql = "SELECT * FROM messages WHERE receiver_id = ? AND receiver_type = ? AND is_read = 0 ORDER BY timestamp";
         return queryMessages(sql, receiverId, receiverType, "Failed to find unread messages by receiver");
     }
 
@@ -85,7 +119,6 @@ public class MessageDB implements MessageRepository {
         if (messageId == null) {
             throw new IllegalArgumentException("Message ID cannot be null");
         }
-
         String sql = "UPDATE messages SET is_read = 1 WHERE message_id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, messageId.toString());
@@ -101,6 +134,12 @@ public class MessageDB implements MessageRepository {
 
     @Override
     public int countUnreadMessages(String receiverId, String receiverType) {
+        if (receiverId == null || receiverId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver ID cannot be null or empty");
+        }
+        if (receiverType == null || receiverType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Receiver type cannot be null or empty");
+        }
         String sql = "SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND receiver_type = ? AND is_read = 0";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, receiverId);
@@ -115,7 +154,7 @@ public class MessageDB implements MessageRepository {
         }
     }
 
-    // Update queryMessages to accept two params:
+    // Helper for queries with two parameters (id, type)
     private List<Message> queryMessages(String sql, String id, String type, String errorMessage) {
         List<Message> messages = new ArrayList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {

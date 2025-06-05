@@ -1,8 +1,7 @@
 package physicianconnect.logic;
 
-import physicianconnect.exceptions.InvalidAppointmentException;
 import physicianconnect.objects.Appointment;
-
+import physicianconnect.logic.exceptions.*;
 import java.time.Clock;
 import java.time.LocalDateTime;
 

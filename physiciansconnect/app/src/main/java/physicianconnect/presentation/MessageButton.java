@@ -1,24 +1,30 @@
 package physicianconnect.presentation;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
+
+import physicianconnect.presentation.config.UITheme;
 
 public class MessageButton extends JPanel {
     private final JButton messageButton;
     private final JLabel notificationLabel;
-    private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
-    private static final Color NOTIFICATION_COLOR = new Color(244, 67, 54);
-    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
 
     public MessageButton() {
         setLayout(new OverlayLayout(this));
         setOpaque(false);
 
         // Create message button
-        messageButton = new JButton("💬");
-        messageButton.setFont(new Font("Segoe UI", Font.PLAIN, 24));
-        messageButton.setBackground(PRIMARY_COLOR);
+        messageButton = new JButton("Messages 💬");
+        messageButton.setFont(UITheme.BUTTON_FONT);
+        messageButton.setBackground(UITheme.PRIMARY_COLOR);
         messageButton.setForeground(Color.WHITE);
         messageButton.setFocusPainted(false);
         messageButton.setBorderPainted(false);
@@ -27,9 +33,9 @@ public class MessageButton extends JPanel {
 
         // Create notification label
         notificationLabel = new JLabel();
-        notificationLabel.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        notificationLabel.setForeground(Color.WHITE);
-        notificationLabel.setBackground(NOTIFICATION_COLOR);
+        notificationLabel.setFont(UITheme.NOTIFICATION_FONT);
+        notificationLabel.setForeground(UITheme.BACKGROUND_COLOR);
+        notificationLabel.setBackground(UITheme.ERROR_COLOR);
         notificationLabel.setOpaque(true);
         notificationLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         notificationLabel.setVisible(false);
@@ -43,15 +49,7 @@ public class MessageButton extends JPanel {
         add(notificationPanel);
 
         // Add hover effect
-        messageButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                messageButton.setBackground(PRIMARY_COLOR.darker());
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                messageButton.setBackground(PRIMARY_COLOR);
-            }
-        });
+        UITheme.applyHoverEffect(messageButton);
     }
 
     public void setOnAction(ActionListener listener) {
@@ -66,4 +64,4 @@ public class MessageButton extends JPanel {
             notificationLabel.setVisible(false);
         }
     }
-} 
+}

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import physicianconnect.persistence.interfaces.*;
+import physicianconnect.persistence.interfaces.MessageRepository;
 import physicianconnect.persistence.sqlite.*;
 
 import physicianconnect.persistence.sqlite.SchemaInitializer;

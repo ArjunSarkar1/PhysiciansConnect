@@ -42,6 +42,7 @@ public class Appointment {
         this.notes = notes;
     }
 
+    // Being used to in dashboard
     @Override
     public String toString() {
         return "Appointment with " + patientName + " on " + 

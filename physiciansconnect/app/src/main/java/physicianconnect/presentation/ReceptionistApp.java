@@ -4,6 +4,8 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReceptionistManager;
+import physicianconnect.logic.controller.AppointmentController;
+import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.MessageService;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
@@ -30,6 +32,8 @@ public class ReceptionistApp {
     private final Runnable logoutCallback;
     private final MessageService messageService;
     private final AvailabilityService availabilityService;
+    private final AppointmentController appointmentController;
+    private final MessageController messageController;
     private JFrame frame;
     private JComboBox<Object> physicianCombo;
     private DefaultTableModel appointmentTableModel;
@@ -59,6 +63,8 @@ public class ReceptionistApp {
         this.receptionistManager = receptionistManager;
         this.logoutCallback = logoutCallback;
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
+        this.appointmentController = new AppointmentController(appointmentManager);
+        this.messageController = new MessageController(messageService);
         this.availabilityService = new AvailabilityService(
                 (physicianconnect.persistence.sqlite.AppointmentDB) PersistenceFactory.getAppointmentPersistence());
         initializeUI();
@@ -182,13 +188,15 @@ public class ReceptionistApp {
         dailyPanel = new DailyAvailabilityPanel(
                 currentPhysicianId,
                 availabilityService,
-                appointmentManager,
-                selectedDate);
+                appointmentController,
+                selectedDate,
+                () -> weeklyPanel.loadWeek(selectedDate.with(java.time.DayOfWeek.MONDAY)));
         weeklyPanel = new WeeklyAvailabilityPanel(
                 currentPhysicianId,
                 availabilityService,
-                appointmentManager,
-                weekStart);
+                appointmentController,
+                weekStart,
+                () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
 
         // Navigation for calendar
         JButton prevDayBtn = new JButton("← Prev Day");
@@ -296,9 +304,10 @@ public class ReceptionistApp {
             }
             AddAppointmentDialog dlg = new AddAppointmentDialog(
                     frame,
-                    appointmentManager,
+                    appointmentController,
                     selectedPhysician.getId(),
                     this::updateAppointments);
+            dlg.setVisible(true);
             dlg.setVisible(true);
         });
 
@@ -338,9 +347,10 @@ public class ReceptionistApp {
             }
             ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
                     frame,
-                    appointmentManager,
+                    appointmentController,
                     selectedAppt,
                     this::updateAppointments);
+            viewDlg.setVisible(true);
             viewDlg.setVisible(true);
         });
 
@@ -430,8 +440,12 @@ public class ReceptionistApp {
 
         if (allPhysiciansSelected) {
             // Show only daily view for all physicians
-            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(physicianManager, appointmentManager,
-                    availabilityService, selectedDate, newDate -> {
+            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(
+                    physicianManager,
+                    appointmentController,
+                    availabilityService,
+                    selectedDate,
+                    newDate -> {
                         selectedDate = newDate;
                         updateCalendarPanels();
                     });
@@ -443,13 +457,15 @@ public class ReceptionistApp {
             dailyPanel = new DailyAvailabilityPanel(
                     currentPhysicianId,
                     availabilityService,
-                    appointmentManager,
-                    selectedDate);
+                    appointmentController,
+                    selectedDate,
+                    () -> weeklyPanel.loadWeek(selectedDate.with(java.time.DayOfWeek.MONDAY)));
             weeklyPanel = new WeeklyAvailabilityPanel(
                     currentPhysicianId,
                     availabilityService,
-                    appointmentManager,
-                    weekStart);
+                    appointmentController,
+                    weekStart,
+                    () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
 
             dailyContainer.add(dayNav, BorderLayout.NORTH);
             dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
@@ -482,7 +498,7 @@ public class ReceptionistApp {
         allUsers.addAll(physicianManager.getAllPhysicians());
         allUsers.addAll(receptionistManager.getAllReceptionists());
 
-        MessagePanel messagePanel = new MessagePanel(messageService, loggedIn.getId(), "receptionist", allUsers);
+        MessagePanel messagePanel = new MessagePanel(messageController, loggedIn.getId(), "receptionist", allUsers);
         dialog.setContentPane(messagePanel);
         dialog.pack();
         dialog.setLocationRelativeTo(frame);

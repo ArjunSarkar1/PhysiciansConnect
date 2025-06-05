@@ -8,6 +8,11 @@ import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;
 import java.nio.file.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.file.*;
+
 public class PhysicianManagerTest {
 
     private PhysicianManager manager;
@@ -74,5 +79,38 @@ public class PhysicianManagerTest {
     public void testLoginFailureUnknownEmail() {
         Physician result = manager.login("notfound@email.com", "pw");
         assertNull(result);
+    }
+
+    @Test
+    public void testValidationRejectsInvalidPhone() {
+        Physician p = new Physician("3", "Dr. BadPhone", "bad@clinic.com", "x");
+        p.setPhone("123456");
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> manager.validateBasicInfo(p));
+        assertEquals("Phone must match (204) 123-4567 format.", ex.getMessage());
+    }
+
+    @Test
+    public void testValidationPassesValidPhone() {
+        Physician p = new Physician("4", "Dr. Good", "good@clinic.com", "x");
+        p.setPhone("(204) 123-4567");
+        assertDoesNotThrow(() -> manager.validateBasicInfo(p));
+    }
+
+    @Test
+    public void testUpdatePhysicianNotificationSettings() {
+        Physician p = new Physician("2", "Dr. Notify", "notify@clinic.com", "123");
+        p.setNotifyAppointment(false);
+        p.setNotifyBilling(true);
+        p.setNotifyMessages(false);
+        manager.addPhysician(p);
+
+        p.setNotifyAppointment(true);
+        p.setNotifyMessages(true);
+        manager.updatePhysician(p);
+
+        Physician updated = manager.getPhysicianById("2");
+        assertTrue(updated.isNotifyAppointment());
+        assertTrue(updated.isNotifyMessages());
+        assertTrue(updated.isNotifyBilling());
     }
 }
