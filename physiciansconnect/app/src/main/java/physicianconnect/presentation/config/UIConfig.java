@@ -24,6 +24,7 @@ public final class UIConfig {
     public static final String BUTTON_DELETE_APPOINTMENT    = "Delete Appointment";
     public static final String BUTTON_CLOSE                 = "Close";
     public static final String REGISTER_BUTTON_TEXT         = "Register";
+    public static final String PROFILE_BUTTON_TEXT          = "Profile";
 
 
     // ─────────── Dialog Titles ───────────
@@ -35,6 +36,8 @@ public final class UIConfig {
     public static final String REFERRAL_DIALOG_TITLE        = "Manage Referrals";
     public static final String MESSAGES_DIALOG_TITLE        = "Messages";
     public static final String CONFIRM_DIALOG_TITLE         = "Confirm Deletion";
+    public static final String PROFILE_DIALOG_TITLE         = "Profile Settings";
+
     // ─────────── Field Labels & Sections ───────────
     public static final String PATIENT_NAME_LABEL           = "Patient Name: ";
     public static final String PATIENT_LABEL                = "Patient: ";

@@ -273,21 +273,9 @@ public class LoginScreen extends JFrame {
             dialog.setVisible(true);
         });
 
-        // // ─────────── Layout ───────────
-        // JPanel panel = new JPanel(new GridLayout(5, 1, 0, 5));
-        // panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        // panel.add(testInfo);
-        // panel.add(emailLabel);
-        // panel.add(emailField);
-        // panel.add(passLabel);
-        // panel.add(passField);
 
-        // JPanel buttons = new JPanel();
-        // buttons.add(loginBtn);
-        // buttons.add(createBtn);
-
-        // add(panel, BorderLayout.CENTER);
-        // add(buttons, BorderLayout.SOUTH);
-        // setVisible(true);
+        add(panel, BorderLayout.CENTER);
+        add(buttons, BorderLayout.SOUTH);
+        setVisible(true);
     }
 }

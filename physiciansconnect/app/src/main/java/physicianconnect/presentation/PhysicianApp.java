@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -56,6 +57,7 @@ import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
+import physicianconnect.presentation.util.ProfileImageUtil;
 
 /**
  * Main window for a logged-in physician.
@@ -64,7 +66,7 @@ import physicianconnect.presentation.config.UITheme;
 public class PhysicianApp {
 
     /*------------------------------------------------------------------*/
-    /* Instance fields                                                  */
+    /* Instance fields */
     /*------------------------------------------------------------------*/
     private JFrame frame;
     private DefaultListModel<Appointment> appointmentListModel;
@@ -72,7 +74,7 @@ public class PhysicianApp {
     private final Physician loggedIn;
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
-    private final AppointmentController appointmentController;   // unified controller
+    private final AppointmentController appointmentController; // unified controller
     private final ReceptionistManager receptionistManager;
     private final MessageService messageService;
     private final MessageController messageController;
@@ -86,14 +88,13 @@ public class PhysicianApp {
 
     private MessageButton messageButton;
     private Timer messageRefreshTimer;
-    
+
     private final Runnable logoutCallback;
 
-
     /*------------------------------------------------------------------*/
-    /* Constructor                                                      */
-    /*------------------------------------------------------------------*/    
-public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, AppointmentManager appointmentManager,
+    /* Constructor */
+    /*------------------------------------------------------------------*/
+    public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, AppointmentManager appointmentManager,
             ReceptionistManager receptionistManager, Runnable logoutCallback) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
@@ -101,12 +102,14 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
         this.receptionistManager = receptionistManager;
         this.logoutCallback = logoutCallback;
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
+        this.messageController = new MessageController(messageService);
+        this.appointmentController = new AppointmentController(appointmentManager);
         this.referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
         initializeUI();
     }
 
     /*------------------------------------------------------------------*/
-    /* UI setup                                                         */
+    /* UI setup */
     /*------------------------------------------------------------------*/
     private void initializeUI() {
         frame = new JFrame(UIConfig.APP_TITLE + " - " + loggedIn.getName());
@@ -126,9 +129,26 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
         welcome.setForeground(UITheme.TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
 
+        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
+        JButton profilePicButton = new JButton(profileIcon);
+        profilePicButton.setToolTipText(UIConfig.PROFILE_BUTTON_TEXT);
+        profilePicButton.setPreferredSize(new Dimension(40, 40));
+        profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
+        profilePicButton.setContentAreaFilled(false);
+        profilePicButton.setFocusPainted(false);
+        profilePicButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        profilePicButton.addActionListener(e -> openProfileDialog());
+
         messageButton = new MessageButton();
         messageButton.setOnAction(e -> showMessageDialog());
-        topPanel.add(messageButton, BorderLayout.EAST);
+
+        // Right-side panel for profile and message buttons
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightButtonPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        rightButtonPanel.add(messageButton);
+        rightButtonPanel.add(profilePicButton);
+
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(UITheme.LABEL_FONT);
@@ -136,9 +156,8 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
         dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         topPanel.add(dateTimeLabel, BorderLayout.CENTER);
 
-        Timer clock = new Timer(1000, e ->
-                dateTimeLabel.setText(LocalDateTime.now()
-                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        Timer clock = new Timer(1000, e -> dateTimeLabel.setText(LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         clock.start();
 
         messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
@@ -176,16 +195,16 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
 
         JButton addAppointmentBtn = createStyledButton(UIConfig.ADD_APPOINTMENT_BUTTON_TEXT);
         JButton viewAppointmentBtn = createStyledButton(UIConfig.VIEW_APPOINTMENTS_BUTTON_TEXT);
-        JButton historyBtn   = createStyledButton(UIConfig.PATIENT_HISTORY_BUTTON_TEXT);
+        JButton historyBtn = createStyledButton(UIConfig.PATIENT_HISTORY_BUTTON_TEXT);
         JButton prescribeBtn = createStyledButton(UIConfig.PRESCRIBE_MEDICINE_BUTTON);
-        JButton referralBtn  = createStyledButton(UIConfig.CREATE_REFERRAL_BUTTON_TEXT);
-        JButton logoutBtn    = createStyledButton(UIConfig.LOGOUT_BUTTON_TEXT);
+        JButton referralBtn = createStyledButton(UIConfig.CREATE_REFERRAL_BUTTON_TEXT);
+        JButton logoutBtn = createStyledButton(UIConfig.LOGOUT_BUTTON_TEXT);
 
         /*------ Add-Appointment action --------------------------------*/
         addAppointmentBtn.addActionListener(e -> {
             AddAppointmentDialog dlg = new AddAppointmentDialog(
                     frame,
-                    appointmentController,                    // controller not manager
+                    appointmentController, // controller not manager
                     loggedIn.getId(),
                     () -> {
                         dailyPanel.loadSlotsForDate(selectedDate);
@@ -243,13 +262,11 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        AvailabilityService availabilityService =
-                new AvailabilityService(new AppointmentDB(conn));
+        AvailabilityService availabilityService = new AvailabilityService(new AppointmentDB(conn));
 
         selectedDate = LocalDate.now();
-        weekStart    = selectedDate.with(DayOfWeek.MONDAY);
+        weekStart = selectedDate.with(DayOfWeek.MONDAY);
         String physicianId = loggedIn.getId();
-
 
         weeklyPanel = new WeeklyAvailabilityPanel(
                 physicianId, availabilityService, appointmentController,
@@ -261,13 +278,13 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
                         dailyPanel.getCurrentDate().with(DayOfWeek.MONDAY)));
 
         /*------ Navigation bars --------------------------------------*/
-        JPanel dailyContainer  = buildDailyContainer();
+        JPanel dailyContainer = buildDailyContainer();
         JPanel weeklyContainer = buildWeeklyContainer();
 
         /*---------------- Split pane ----------------------------------*/
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(UITheme.LABEL_FONT);
-        tabs.addTab(UIConfig.TAB_DAILY_VIEW,  dailyContainer);
+        tabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
         tabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
         tabs.setPreferredSize(new Dimension(600, 500));
 
@@ -285,12 +302,12 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     }
 
     /*------------------------------------------------------------------*/
-    /* Helper: create day view container with navigation buttons        */
+    /* Helper: create day view container with navigation buttons */
     /*------------------------------------------------------------------*/
     private JPanel buildDailyContainer() {
         JButton prev = createStyledButton(UIConfig.PREV_DAY_BUTTON_TEXT);
         JButton next = createStyledButton(UIConfig.NEXT_DAY_BUTTON_TEXT);
-        JLabel  lbl  = new JLabel(UIConfig.LABEL_SHOW_DATE + selectedDate);
+        JLabel lbl = new JLabel(UIConfig.LABEL_SHOW_DATE + selectedDate);
         lbl.setFont(UITheme.LABEL_FONT);
         lbl.setForeground(UITheme.TEXT_COLOR);
 
@@ -309,7 +326,9 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
 
         JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         nav.setBackground(UITheme.BACKGROUND_COLOR);
-        nav.add(prev); nav.add(lbl); nav.add(next);
+        nav.add(prev);
+        nav.add(lbl);
+        nav.add(next);
 
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(UITheme.BACKGROUND_COLOR);
@@ -322,7 +341,7 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     private JPanel buildWeeklyContainer() {
         JButton prev = createStyledButton(UIConfig.PREV_WEEK_BUTTON_TEXT);
         JButton next = createStyledButton(UIConfig.NEXT_WEEK_BUTTON_TEXT);
-        JLabel  lbl  = new JLabel(UIConfig.LABEL_WEEK_OF + weekStart);
+        JLabel lbl = new JLabel(UIConfig.LABEL_WEEK_OF + weekStart);
         lbl.setFont(UITheme.LABEL_FONT);
         lbl.setForeground(UITheme.TEXT_COLOR);
 
@@ -343,7 +362,9 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
 
         JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         nav.setBackground(UITheme.BACKGROUND_COLOR);
-        nav.add(prev); nav.add(lbl); nav.add(next);
+        nav.add(prev);
+        nav.add(lbl);
+        nav.add(next);
 
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(UITheme.BACKGROUND_COLOR);
@@ -370,7 +391,7 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     private void refreshAppointments() {
         appointmentListModel.clear();
         appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                          .forEach(appointmentListModel::addElement);
+                .forEach(appointmentListModel::addElement);
     }
 
     private void showMessageDialog() {
@@ -412,7 +433,7 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     }
 
     /*------------------------------------------------------------------*/
-    /* Light wrappers for other dialogs                                 */
+    /* Light wrappers for other dialogs */
     /*------------------------------------------------------------------*/
     private void openHistoryDialog() {
         var historyController = new PatientHistoryController(
@@ -431,8 +452,7 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     }
 
     private void openPrescribeDialog() {
-        var prescriptionController =
-                new PrescriptionController(PersistenceFactory.getPrescriptionPersistence());
+        var prescriptionController = new PrescriptionController(PersistenceFactory.getPrescriptionPersistence());
 
         JDialog dlg = new JDialog(frame, UIConfig.PRESCRIBE_MEDICINE_TITLE, true);
         dlg.setContentPane(new PrescribeMedicinePanel(
@@ -447,10 +467,9 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
     }
 
     private void openReferralDialog() {
-        List<String> patientNames =
-                appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                                  .stream().map(Appointment::getPatientName)
-                                  .distinct().toList();
+        List<String> patientNames = appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
+                .stream().map(Appointment::getPatientName)
+                .distinct().toList();
 
         JDialog dlg = new JDialog(frame, UIConfig.REFERRAL_DIALOG_TITLE, true);
         dlg.setContentPane(new ReferralPanel(
@@ -460,12 +479,26 @@ public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, Appoi
         dlg.setVisible(true);
     }
 
+    private void openProfileDialog() {
+        JDialog dlg = new JDialog(frame, UIConfig.PROFILE_DIALOG_TITLE, true);
+        ProfilePanel profilePanel = new ProfilePanel(
+                loggedIn,
+                physicianManager,
+                appointmentManager,
+                null // or appController if needed
+        );
+        dlg.setContentPane(profilePanel);
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
+    }
+
     /*------------------------------------------------------------------*/
     private static class ListCardRenderer<T> extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value,
-                                                      int index, boolean isSelected,
-                                                      boolean cellHasFocus) {
+                int index, boolean isSelected,
+                boolean cellHasFocus) {
             JLabel lbl = (JLabel) super.getListCellRendererComponent(
                     list, value, index, isSelected, cellHasFocus);
             lbl.setBorder(BorderFactory.createCompoundBorder(

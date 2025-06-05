@@ -22,7 +22,7 @@ public class PersistenceFactory {
     private static ReceptionistPersistence receptionistPersistence; 
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null || receptionistPersistence != null)
             return;
 
         switch (type) {
