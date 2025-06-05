@@ -133,6 +133,18 @@ public final class UIConfig {
     public static final String REFERRALS_LIST_TITLE         = "All Referrals";
     public static final String ADD_APPOINTMENT_CONFIRM_TITLE= "Add Appointment";
 
+
+    // ─────────── Receptionist stuff to be sorted ───────────
+        public static final String RECEPTIONIST_DASHBOARD_TITLE = "Receptionist Dashboard";
+    public static final String ALL_PHYSICIANS_LABEL = "ALL PHYSICIANS";
+    public static final String PHYSICIAN_LABEL = "Physician:";
+    public static final String SEARCH_PATIENT_LABEL = "Search Patient: ";
+    public static final String SEARCH_PATIENT_PLACEHOLDER = "Type patient name...";
+    public static final String UNKNOWN_PHYSICIAN_LABEL = "Unknown";
+    public static final String ERROR_NO_PHYSICIAN_SELECTED = "Please select a physician to add an appointment.";
+    public static final String DATE_FORMAT = "MMM dd, yyyy";
+    public static final String TIME_FORMAT = "hh:mm a";
+
     // Prevent instantiation
     private UIConfig() { }
 }

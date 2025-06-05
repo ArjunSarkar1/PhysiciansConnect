@@ -5,10 +5,9 @@ package physicianconnect.presentation;
 import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.exceptions.InvalidMessageException;
 import physicianconnect.objects.Message;
-import physicianconnect.objects.Physician;
-import physicianconnect.objects.Receptionist;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
+import physicianconnect.presentation.util.UserUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -42,7 +41,7 @@ public class MessagePanel extends JPanel {
         this.currentUserType = currentUserType;
         this.messageController = messageController;
         this.allUsers = users.stream()
-                .filter(u -> !(getUserId(u).equals(currentUserId) && getUserType(u).equals(currentUserType)))
+                .filter(u -> !(UserUtil.getUserId(u).equals(currentUserId) && UserUtil.getUserType(u).equals(currentUserType)))
                 .collect(Collectors.toList());
 
         setLayout(new BorderLayout(10, 10));
@@ -108,14 +107,14 @@ public class MessagePanel extends JPanel {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                     boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                String name = getUserName(value);
-                String email = getUserEmail(value);
+                String name = UserUtil.getUserName(value);
+                String email = UserUtil.getUserEmail(value);
                 // Show unread count for this user
                 List<Message> unreadMessages = messageController
                         .getUnreadMessagesForUser(currentUserId, currentUserType)
                         .stream()
-                        .filter(m -> m.getSenderId().equals(getUserId(value))
-                                && m.getSenderType().equals(getUserType(value)))
+                        .filter(m -> m.getSenderId().equals(UserUtil.getUserId(value))
+                                && m.getSenderType().equals(UserUtil.getUserType(value)))
                         .collect(Collectors.toList());
                 String unreadText = !unreadMessages.isEmpty() ? " (" + unreadMessages.size() + " unread)" : "";
                 setText(name + " (" + email + ")" + unreadText);
@@ -129,7 +128,7 @@ public class MessagePanel extends JPanel {
                 Object newSelection = searchResultsList.getSelectedValue();
                 if (newSelection != null) {
                     selectedRecipient = newSelection;
-                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + getUserName(selectedRecipient));
+                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + UserUtil.getUserName(selectedRecipient));
                     refreshMessages();
                 }
             }
@@ -144,7 +143,7 @@ public class MessagePanel extends JPanel {
                     searchResultsList.setSelectedIndex(index);
                     Object clickedUser = searchResultsList.getModel().getElementAt(index);
                     selectedRecipient = clickedUser;
-                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + getUserName(selectedRecipient));
+                    selectedRecipientLabel.setText(UIConfig.SELECTED_PREFIX + UserUtil.getUserName(selectedRecipient));
                     refreshMessages();
                 }
             }
@@ -225,8 +224,8 @@ public class MessagePanel extends JPanel {
             showAllUsers();
         } else {
             allUsers.stream()
-                    .filter(u -> getUserName(u).toLowerCase().contains(searchText.toLowerCase()) ||
-                            getUserEmail(u).toLowerCase().contains(searchText.toLowerCase()))
+                    .filter(u -> UserUtil.getUserName(u).toLowerCase().contains(searchText.toLowerCase()) ||
+                            UserUtil.getUserEmail(u).toLowerCase().contains(searchText.toLowerCase()))
                     .forEach(searchResultsModel::addElement);
         }
     }
@@ -235,15 +234,15 @@ public class MessagePanel extends JPanel {
         messageListModel.clear();
         if (selectedRecipient != null) {
             List<Message> messages = messageController.getAllMessagesForUser(currentUserId, currentUserType);
-            String recipientId = getUserId(selectedRecipient);
+            String recipientId = UserUtil.getUserId(selectedRecipient);
             List<Message> conversationMessages = messages.stream()
                     .filter(m -> ((m.getSenderId().equals(currentUserId) && m.getSenderType().equals(currentUserType) &&
-                            m.getReceiverId().equals(getUserId(selectedRecipient))
-                            && m.getReceiverType().equals(getUserType(selectedRecipient)))
+                            m.getReceiverId().equals(UserUtil.getUserId(selectedRecipient))
+                            && m.getReceiverType().equals(UserUtil.getUserType(selectedRecipient)))
                             ||
                             (m.getReceiverId().equals(currentUserId) && m.getReceiverType().equals(currentUserType) &&
-                                    m.getSenderId().equals(getUserId(selectedRecipient))
-                                    && m.getSenderType().equals(getUserType(selectedRecipient)))))
+                                    m.getSenderId().equals(UserUtil.getUserId(selectedRecipient))
+                                    && m.getSenderType().equals(UserUtil.getUserType(selectedRecipient)))))
                     .sorted((m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()))
                     .collect(Collectors.toList());
 
@@ -279,8 +278,8 @@ public class MessagePanel extends JPanel {
                 Message sentMessage = messageController.sendMessage(
                         currentUserId,
                         currentUserType,
-                        getUserId(selectedRecipient),
-                        getUserType(selectedRecipient),
+                        UserUtil.getUserId(selectedRecipient),
+                        UserUtil.getUserType(selectedRecipient),
                         content);
                 messageInput.setText("");
                 messageListModel.addElement(sentMessage);
@@ -330,7 +329,7 @@ public class MessagePanel extends JPanel {
 
                 setText(String.format(
                         "<html><div style='width: 100%%; padding: 5px;'><b>%s</b> (%s) %s<br>%s</div></html>",
-                        isSent ? UIConfig.YOU_LABEL : getUserName(message.getSenderId(), message.getSenderType()),
+                        isSent ? UIConfig.YOU_LABEL : UserUtil.getUserName(message.getSenderId(), message.getSenderType(),allUsers),
                         timestamp,
                         status,
                         message.getContent()
@@ -350,54 +349,8 @@ public class MessagePanel extends JPanel {
     }
 
 
-
-
-
-
-
-//// Helper methods to get user details need to put this somewhere else
-/// 
-///     // Helper methods for user info
-    private String getUserId(Object user) {
-        if (user instanceof Physician p)
-            return p.getId();
-        if (user instanceof Receptionist r)
-            return r.getId();
-        return "";
-    }
-
-    private String getUserName(Object user) {
-        if (user instanceof Physician p)
-            return p.getName();
-        if (user instanceof Receptionist r)
-            return r.getName();
-        return "";
-    }
-
-    private String getUserEmail(Object user) {
-        if (user instanceof Physician p)
-            return p.getEmail();
-        if (user instanceof Receptionist r)
-            return r.getEmail();
-        return "";
-    }
-
-    private String getUserType(Object user) {
-        if (user instanceof Physician)
-            return "physician";
-        if (user instanceof Receptionist)
-            return "receptionist";
-        return "";
-    }
-
-    private String getUserName(String id, String type) {
-        for (Object user : allUsers) {
-            if (getUserId(user).equals(id) && getUserType(user).equals(type)) {
-                return getUserName(user);
-            }
-        }
-        return id;
-    }
-
-
 }
+
+
+
+

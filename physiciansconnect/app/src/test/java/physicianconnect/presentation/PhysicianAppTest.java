@@ -3,9 +3,11 @@ package physicianconnect.presentation;
 import org.junit.jupiter.api.*;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.stub.AppointmentPersistenceStub;
 import physicianconnect.persistence.stub.PhysicianPersistenceStub;
+import physicianconnect.persistence.stub.ReceptionistPersistenceStub;
 
 import javax.swing.*;
 import java.lang.reflect.Field;
@@ -19,16 +21,22 @@ public class PhysicianAppTest {
     private PhysicianManager physicianManager;
     private AppointmentManager appointmentManager;
 
-    @BeforeEach
-    public void setup() {
-        PhysicianPersistenceStub physicianStub = new PhysicianPersistenceStub(true);
-        AppointmentPersistenceStub appointmentStub = new AppointmentPersistenceStub(true);
-        physicianManager = new PhysicianManager(physicianStub);
-        appointmentManager = new AppointmentManager(appointmentStub);
+@BeforeEach
+public void setup() {
+    PhysicianPersistenceStub physicianStub = new PhysicianPersistenceStub(true);
+    AppointmentPersistenceStub appointmentStub = new AppointmentPersistenceStub(true);
+    ReceptionistPersistenceStub receptionistStub = new ReceptionistPersistenceStub(true);
 
-        testPhysician = physicianManager.getAllPhysicians().get(0);
-        app = new PhysicianApp(testPhysician, physicianManager, appointmentManager);
-    }
+    physicianManager = new PhysicianManager(physicianStub);
+    appointmentManager = new AppointmentManager(appointmentStub);
+    ReceptionistManager receptionistManager = new ReceptionistManager(receptionistStub);
+
+    testPhysician = physicianManager.getAllPhysicians().get(0);
+
+    Runnable logoutCallback = () -> {};
+
+    app = new PhysicianApp(testPhysician, physicianManager, appointmentManager, receptionistManager, logoutCallback);
+}
 
     @Test
     public void testAppointmentsAreLoaded() throws Exception {

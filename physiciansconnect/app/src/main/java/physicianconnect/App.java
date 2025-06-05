@@ -16,6 +16,6 @@ public class App {
 
         AppController controller = new AppController(physicianManager, appointmentManager, receptionistManager);
         controller.showLoginScreen();
-        controller.showLoginScreen(); 
+        controller.showLoginScreen(); //second one to test messaging/ receptionist - physician appointment updates
     }
 }

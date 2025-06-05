@@ -4,19 +4,22 @@ import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReceptionistManager;
+import physicianconnect.logic.MessageService;
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.controller.MessageController;
-import physicianconnect.logic.MessageService;
+import physicianconnect.logic.controller.ReceptionistController;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
+import physicianconnect.presentation.config.UIConfig;
+import physicianconnect.presentation.config.UITheme;
+import physicianconnect.presentation.util.ProfileImageUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,49 +32,51 @@ public class ReceptionistApp {
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
     private final ReceptionistManager receptionistManager;
+    private final ReceptionistController receptionistController;
     private final Runnable logoutCallback;
     private final MessageService messageService;
-    private final AvailabilityService availabilityService;
-    private final AppointmentController appointmentController;
     private final MessageController messageController;
+    private final AppointmentController appointmentController;
+    private final AvailabilityService availabilityService;
+
     private JFrame frame;
     private JComboBox<Object> physicianCombo;
     private DefaultTableModel appointmentTableModel;
     private JTable appointmentTable;
+    private TableRowSorter<DefaultTableModel> appointmentTableSorter;
+    private JTextField appointmentSearchField;
     private DailyAvailabilityPanel dailyPanel;
     private WeeklyAvailabilityPanel weeklyPanel;
+    private AllPhysiciansDailyPanel allPhysiciansDailyPanel;
     private LocalDate selectedDate;
     private LocalDate weekStart;
     private JLabel dayLabel;
     private JLabel weekLabel;
-    private Timer dateTimeTimer;
-    private String currentPhysicianId;
     private JPanel dailyContainer;
     private JPanel weeklyContainer;
     private JPanel dayNav;
     private JPanel weekNav;
     private MessageButton messageButton;
-    private JTextField appointmentSearchField;
-    private TableRowSorter<DefaultTableModel> appointmentTableSorter;
-    private AllPhysiciansDailyPanel allPhysiciansDailyPanel;
+    private Timer dateTimeTimer;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
+                           AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
         this.receptionistManager = receptionistManager;
         this.logoutCallback = logoutCallback;
+        this.receptionistController = new ReceptionistController(receptionistManager);
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
-        this.appointmentController = new AppointmentController(appointmentManager);
         this.messageController = new MessageController(messageService);
+        this.appointmentController = new AppointmentController(appointmentManager);
         this.availabilityService = new AvailabilityService(
                 (physicianconnect.persistence.sqlite.AppointmentDB) PersistenceFactory.getAppointmentPersistence());
         initializeUI();
     }
 
     private void initializeUI() {
-        frame = new JFrame("Receptionist Dashboard");
+        frame = new JFrame(UIConfig.RECEPTIONIST_DASHBOARD_TITLE + " - " + loggedIn.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1200, 800);
         frame.setLocationRelativeTo(null);
@@ -79,26 +84,36 @@ public class ReceptionistApp {
 
         // Top Panel
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
-        topPanel.setBackground(new Color(245, 247, 250));
+        topPanel.setBackground(UITheme.BACKGROUND_COLOR);
         topPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Welcome
-        JLabel welcome = new JLabel("Welcome, " + loggedIn.getName());
-        welcome.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        welcome.setForeground(new Color(34, 40, 49));
+        JLabel welcome = new JLabel(UIConfig.WELCOME_PREFIX + loggedIn.getName());
+        welcome.setFont(UITheme.HEADER_FONT);
+        welcome.setForeground(UITheme.TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
+
+        // Profile photo button (optional, if you want to add for receptionists)
+        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
+        JButton profilePicButton = new JButton(profileIcon);
+        profilePicButton.setToolTipText(UIConfig.PROFILE_BUTTON_TEXT);
+        profilePicButton.setPreferredSize(new Dimension(40, 40));
+        profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
+        profilePicButton.setContentAreaFilled(false);
+        profilePicButton.setFocusPainted(false);
+        profilePicButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // profilePicButton.addActionListener(e -> openProfileDialog()); // Implement if you have ReceptionistProfilePanel
 
         // Physician dropdown
         List<Physician> physicians = physicianManager.getAllPhysicians();
         physicianCombo = new JComboBox<>();
-        physicianCombo.addItem("ALL PHYSICIANS");
+        physicianCombo.addItem(UIConfig.ALL_PHYSICIANS_LABEL);
         for (Physician p : physicians)
             physicianCombo.addItem(p);
 
         // Date/Time Label
         JLabel dateTimeLabel = new JLabel();
-        dateTimeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        dateTimeLabel.setForeground(new Color(34, 40, 49));
+        dateTimeLabel.setFont(UITheme.LABEL_FONT);
+        dateTimeLabel.setForeground(UITheme.TEXT_COLOR);
         dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
         dateTimeTimer = new Timer(1000, e -> {
@@ -114,10 +129,11 @@ public class ReceptionistApp {
         // Right-aligned panel for physician dropdown, date/time, and message button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setOpaque(false);
-        rightPanel.add(new JLabel("Physician:"));
+        rightPanel.add(new JLabel(UIConfig.PHYSICIAN_LABEL));
         rightPanel.add(physicianCombo);
         rightPanel.add(dateTimeLabel);
         rightPanel.add(messageButton);
+        rightPanel.add(profilePicButton);
 
         topPanel.add(rightPanel, BorderLayout.EAST);
 
@@ -125,27 +141,27 @@ public class ReceptionistApp {
 
         // Appointments Panel
         JPanel appointmentsPanel = new JPanel(new BorderLayout(10, 10));
-        appointmentsPanel.setBackground(new Color(245, 247, 250));
+        appointmentsPanel.setBackground(UITheme.BACKGROUND_COLOR);
         appointmentsPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
-        JLabel appointmentsTitle = new JLabel("Upcoming Appointments");
-        appointmentsTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        appointmentsTitle.setForeground(new Color(34, 40, 49));
+        JLabel appointmentsTitle = new JLabel(UIConfig.APPOINTMENTS_TITLE);
+        appointmentsTitle.setFont(UITheme.HEADER_FONT);
+        appointmentsTitle.setForeground(UITheme.TEXT_COLOR);
         appointmentsPanel.add(appointmentsTitle, BorderLayout.NORTH);
 
         // Add search bar under the title
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
-        searchPanel.setBackground(new Color(245, 247, 250));
-        JLabel searchLabel = new JLabel("Search Patient: ");
-        searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        searchPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        JLabel searchLabel = new JLabel(UIConfig.SEARCH_PATIENT_LABEL);
+        searchLabel.setFont(UITheme.LABEL_FONT);
         appointmentSearchField = new JTextField();
-        appointmentSearchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        appointmentSearchField.putClientProperty("JTextField.placeholderText", "Type patient name...");
+        appointmentSearchField.setFont(UITheme.LABEL_FONT);
+        appointmentSearchField.putClientProperty("JTextField.placeholderText", UIConfig.SEARCH_PATIENT_PLACEHOLDER);
         searchPanel.add(searchLabel, BorderLayout.WEST);
         searchPanel.add(appointmentSearchField, BorderLayout.CENTER);
         appointmentsPanel.add(searchPanel, BorderLayout.BEFORE_FIRST_LINE);
 
         // Table for appointments
-        String[] columns = { "Patient Name", "Physician", "Date", "Time" };
+        String[] columns = { UIConfig.PATIENT_LABEL, UIConfig.PHYSICIAN_LABEL, UIConfig.DATE_LABEL, UIConfig.TIME_LABEL };
         appointmentTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -153,9 +169,9 @@ public class ReceptionistApp {
             }
         };
         appointmentTable = new JTable(appointmentTableModel);
-        appointmentTable.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        appointmentTable.setFont(UITheme.LABEL_FONT);
         appointmentTable.setRowHeight(28);
-        appointmentTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 15));
+        appointmentTable.getTableHeader().setFont(UITheme.HEADER_FONT);
         appointmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         appointmentTable.setAutoCreateRowSorter(true);
 
@@ -163,47 +179,39 @@ public class ReceptionistApp {
         appointmentTable.setRowSorter(appointmentTableSorter);
 
         appointmentSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
-
-            public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
-
-            public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                filterAppointments();
-            }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
         });
 
         JScrollPane appointmentScroll = new JScrollPane(appointmentTable);
         appointmentScroll.setPreferredSize(new Dimension(600, 300));
-        appointmentScroll.setBorder(BorderFactory.createLineBorder(new Color(33, 150, 243), 1));
+        appointmentScroll.setBorder(BorderFactory.createLineBorder(UITheme.PRIMARY_COLOR, 1));
         appointmentsPanel.add(appointmentScroll, BorderLayout.CENTER);
 
         // Calendar Panels
         selectedDate = LocalDate.now();
-        weekStart = LocalDate.now().with(java.time.DayOfWeek.MONDAY);
+        weekStart = selectedDate.with(java.time.DayOfWeek.MONDAY);
 
         dailyPanel = new DailyAvailabilityPanel(
-                currentPhysicianId,
+                null, // will be set in updateCalendarPanels
                 availabilityService,
                 appointmentController,
                 selectedDate,
                 () -> weeklyPanel.loadWeek(selectedDate.with(java.time.DayOfWeek.MONDAY)));
         weeklyPanel = new WeeklyAvailabilityPanel(
-                currentPhysicianId,
+                null, // will be set in updateCalendarPanels
                 availabilityService,
                 appointmentController,
                 weekStart,
                 () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
 
         // Navigation for calendar
-        JButton prevDayBtn = new JButton("← Prev Day");
-        JButton nextDayBtn = new JButton("Next Day →");
-        dayLabel = new JLabel("Show Date: " + selectedDate);
-        dayLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        dayLabel.setForeground(new Color(34, 40, 49));
+        JButton prevDayBtn = new JButton(UIConfig.PREV_DAY_BUTTON_TEXT);
+        JButton nextDayBtn = new JButton(UIConfig.NEXT_DAY_BUTTON_TEXT);
+        dayLabel = new JLabel(UIConfig.LABEL_SHOW_DATE + selectedDate);
+        dayLabel.setFont(UITheme.LABEL_FONT);
+        dayLabel.setForeground(UITheme.TEXT_COLOR);
 
         prevDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
@@ -215,21 +223,21 @@ public class ReceptionistApp {
         });
 
         dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        dayNav.setBackground(new Color(245, 247, 250));
+        dayNav.setBackground(UITheme.BACKGROUND_COLOR);
         dayNav.add(prevDayBtn);
         dayNav.add(dayLabel);
         dayNav.add(nextDayBtn);
 
         dailyContainer = new JPanel(new BorderLayout());
-        dailyContainer.setBackground(new Color(245, 247, 250));
+        dailyContainer.setBackground(UITheme.BACKGROUND_COLOR);
         dailyContainer.add(dayNav, BorderLayout.NORTH);
         dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
 
-        JButton prevWeekBtn = new JButton("← Prev Week");
-        JButton nextWeekBtn = new JButton("Next Week →");
-        weekLabel = new JLabel("Week of: " + weekStart);
-        weekLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        weekLabel.setForeground(new Color(34, 40, 49));
+        JButton prevWeekBtn = new JButton(UIConfig.PREV_WEEK_BUTTON_TEXT);
+        JButton nextWeekBtn = new JButton(UIConfig.NEXT_WEEK_BUTTON_TEXT);
+        weekLabel = new JLabel(UIConfig.LABEL_WEEK_OF + weekStart);
+        weekLabel.setFont(UITheme.LABEL_FONT);
+        weekLabel.setForeground(UITheme.TEXT_COLOR);
 
         prevWeekBtn.addActionListener(e -> {
             weekStart = weekStart.minusWeeks(1);
@@ -241,20 +249,20 @@ public class ReceptionistApp {
         });
 
         weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        weekNav.setBackground(new Color(245, 247, 250));
+        weekNav.setBackground(UITheme.BACKGROUND_COLOR);
         weekNav.add(prevWeekBtn);
         weekNav.add(weekLabel);
         weekNav.add(nextWeekBtn);
 
         weeklyContainer = new JPanel(new BorderLayout());
-        weeklyContainer.setBackground(new Color(245, 247, 250));
+        weeklyContainer.setBackground(UITheme.BACKGROUND_COLOR);
         weeklyContainer.add(weekNav, BorderLayout.NORTH);
         weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
 
         JTabbedPane calendarTabs = new JTabbedPane();
-        calendarTabs.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        calendarTabs.addTab("Daily View", dailyContainer);
-        calendarTabs.addTab("Weekly View", weeklyContainer);
+        calendarTabs.setFont(UITheme.LABEL_FONT);
+        calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
+        calendarTabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
         calendarTabs.setPreferredSize(new Dimension(600, 500));
 
         JSplitPane centerSplit = new JSplitPane(
@@ -267,27 +275,12 @@ public class ReceptionistApp {
 
         // --- Bottom Button Panel ---
         JPanel buttonPanel = new JPanel(new GridLayout(1, 0, 10, 10));
-        buttonPanel.setBackground(new Color(245, 247, 250));
+        buttonPanel.setBackground(UITheme.BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        JButton addAppointmentButton = new JButton("Add Appointment");
-        JButton viewAppointmentButton = new JButton("View Appointment");
-        JButton signOutButton = new JButton("Sign Out");
-
-        addAppointmentButton.setBackground(new Color(33, 150, 243));
-        addAppointmentButton.setForeground(Color.WHITE);
-        addAppointmentButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        addAppointmentButton.setFocusPainted(false);
-
-        viewAppointmentButton.setBackground(new Color(76, 175, 80));
-        viewAppointmentButton.setForeground(Color.WHITE);
-        viewAppointmentButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        viewAppointmentButton.setFocusPainted(false);
-
-        signOutButton.setBackground(new Color(244, 67, 54));
-        signOutButton.setForeground(Color.WHITE);
-        signOutButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        signOutButton.setFocusPainted(false);
+        JButton addAppointmentButton = createStyledButton(UIConfig.ADD_APPOINTMENT_BUTTON_TEXT);
+        JButton viewAppointmentButton = createStyledButton(UIConfig.VIEW_APPOINTMENTS_BUTTON_TEXT);
+        JButton signOutButton = createStyledButton(UIConfig.LOGOUT_BUTTON_TEXT);
 
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
@@ -298,8 +291,8 @@ public class ReceptionistApp {
             Object selected = physicianCombo.getSelectedItem();
             Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
             if (selectedPhysician == null) {
-                JOptionPane.showMessageDialog(frame, "Please select a physician to add an appointment.",
-                        "No Physician Selected", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(frame, UIConfig.ERROR_NO_PHYSICIAN_SELECTED,
+                        UIConfig.ERROR_DIALOG_TITLE, JOptionPane.WARNING_MESSAGE);
                 return;
             }
             AddAppointmentDialog dlg = new AddAppointmentDialog(
@@ -308,14 +301,13 @@ public class ReceptionistApp {
                     selectedPhysician.getId(),
                     this::updateAppointments);
             dlg.setVisible(true);
-            dlg.setVisible(true);
         });
 
         viewAppointmentButton.addActionListener(e -> {
             int selectedRow = appointmentTable.getSelectedRow();
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(frame, "Please select an appointment to view.", "No Selection",
-                        JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, UIConfig.ERROR_NO_APPOINTMENT_SELECTED,
+                        UIConfig.ERROR_DIALOG_TITLE, JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             int modelRow = appointmentTable.convertRowIndexToModel(selectedRow);
@@ -331,9 +323,9 @@ public class ReceptionistApp {
             Appointment selectedAppt = null;
             for (Appointment a : allAppointments) {
                 Physician p = physicianManager.getPhysicianById(a.getPhysicianId());
-                String pName = (p != null) ? p.getName() : "Unknown";
-                String date = a.getDateTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
-                String time = a.getDateTime().format(DateTimeFormatter.ofPattern("hh:mm a"));
+                String pName = (p != null) ? p.getName() : UIConfig.UNKNOWN_PHYSICIAN_LABEL;
+                String date = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.DATE_FORMAT));
+                String time = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT));
                 if (a.getPatientName().equals(patientName) && pName.equals(physicianName)
                         && date.equals(dateStr) && time.equals(timeStr)) {
                     selectedAppt = a;
@@ -341,8 +333,8 @@ public class ReceptionistApp {
                 }
             }
             if (selectedAppt == null) {
-                JOptionPane.showMessageDialog(frame, "Could not find the selected appointment.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, UIConfig.ERROR_APPOINTMENT_NOT_FOUND,
+                        UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
                 return;
             }
             ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
@@ -350,7 +342,6 @@ public class ReceptionistApp {
                     appointmentController,
                     selectedAppt,
                     this::updateAppointments);
-            viewDlg.setVisible(true);
             viewDlg.setVisible(true);
         });
 
@@ -394,9 +385,9 @@ public class ReceptionistApp {
                 .collect(Collectors.toList());
         for (Appointment a : filtered) {
             Physician p = physicianManager.getPhysicianById(a.getPhysicianId());
-            String physicianName = (p != null) ? p.getName() : "Unknown";
-            String date = a.getDateTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
-            String time = a.getDateTime().format(DateTimeFormatter.ofPattern("hh:mm a"));
+            String physicianName = (p != null) ? p.getName() : UIConfig.UNKNOWN_PHYSICIAN_LABEL;
+            String date = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.DATE_FORMAT));
+            String time = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT));
             appointmentTableModel.addRow(new Object[] {
                     a.getPatientName(),
                     physicianName,
@@ -417,9 +408,9 @@ public class ReceptionistApp {
 
     private void updateCalendarPanels() {
         Object selected = physicianCombo.getSelectedItem();
-        boolean allPhysiciansSelected = selected instanceof String && "ALL PHYSICIANS".equals(selected);
+        boolean allPhysiciansSelected = selected instanceof String && UIConfig.ALL_PHYSICIANS_LABEL.equals(selected);
         Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
-        currentPhysicianId = (selectedPhysician != null) ? selectedPhysician.getId() : null;
+        String currentPhysicianId = (selectedPhysician != null) ? selectedPhysician.getId() : null;
 
         // Remove old panels
         dailyContainer.removeAll();
@@ -450,7 +441,7 @@ public class ReceptionistApp {
                         updateCalendarPanels();
                     });
             if (calendarTabs != null) {
-                calendarTabs.addTab("Daily View", allPhysiciansDailyPanel);
+                calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, allPhysiciansDailyPanel);
             }
         } else {
             // Show daily and weekly for a specific physician
@@ -474,14 +465,14 @@ public class ReceptionistApp {
             weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
 
             if (calendarTabs != null) {
-                calendarTabs.addTab("Daily View", dailyContainer);
-                calendarTabs.addTab("Weekly View", weeklyContainer);
+                calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
+                calendarTabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
             }
         }
 
         // Update labels
-        dayLabel.setText("Show Date: " + selectedDate);
-        weekLabel.setText("Week of: " + weekStart);
+        dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
+        weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
 
         // Refresh UI
         if (calendarTabs != null) {
@@ -491,7 +482,7 @@ public class ReceptionistApp {
     }
 
     private void showMessageDialog() {
-        JDialog dialog = new JDialog(frame, "Messages", true);
+        JDialog dialog = new JDialog(frame, UIConfig.MESSAGES_DIALOG_TITLE, true);
 
         // Combine physicians and receptionists into one list
         List<Object> allUsers = new java.util.ArrayList<>();
@@ -509,5 +500,18 @@ public class ReceptionistApp {
     private void refreshMessageCount() {
         int unreadCount = messageService.getUnreadMessageCount(loggedIn.getId(), "receptionist");
         messageButton.updateNotificationCount(unreadCount);
+    }
+
+    private JButton createStyledButton(String txt) {
+        JButton b = new JButton(txt);
+        b.setFont(UITheme.BUTTON_FONT);
+        b.setForeground(UITheme.BACKGROUND_COLOR);
+        b.setBackground(UITheme.PRIMARY_COLOR);
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.setOpaque(true);
+        UITheme.applyHoverEffect(b);
+        return b;
     }
 }
