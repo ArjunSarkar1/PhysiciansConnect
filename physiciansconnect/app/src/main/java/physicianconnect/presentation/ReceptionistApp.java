@@ -1,14 +1,18 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.AvailabilityService;
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.logic.MessageService;
 import physicianconnect.logic.controller.AppointmentController;
+import physicianconnect.logic.controller.BillingController;
 import physicianconnect.logic.controller.MessageController;
 import physicianconnect.logic.controller.ReceptionistController;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.InvoiceManager;
+import physicianconnect.logic.manager.PaymentManager;
+import physicianconnect.logic.manager.PhysicianManager;
+import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.objects.Appointment;
+import physicianconnect.objects.Payment;
 import physicianconnect.objects.Physician;
 import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
@@ -32,11 +36,14 @@ public class ReceptionistApp {
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
     private final ReceptionistManager receptionistManager;
-    private final ReceptionistController receptionistController;
+    private final InvoiceManager invoiceManager;
+    private final PaymentManager paymentManager;
     private final Runnable logoutCallback;
     private final MessageService messageService;
     private final MessageController messageController;
     private final AppointmentController appointmentController;
+    private final ReceptionistController receptionistController;
+    private final BillingController billingController;
     private final AvailabilityService availabilityService;
 
     private JFrame frame;
@@ -70,6 +77,9 @@ public class ReceptionistApp {
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         this.messageController = new MessageController(messageService);
         this.appointmentController = new AppointmentController(appointmentManager);
+        this.invoiceManager = new InvoiceManager(PersistenceFactory.getInvoicePersistence());
+        this.paymentManager = new PaymentManager(PersistenceFactory.getPaymentPersistence());
+        this.billingController = new BillingController(invoiceManager, paymentManager);
         this.availabilityService = new AvailabilityService(
                 (physicianconnect.persistence.sqlite.AppointmentDB) PersistenceFactory.getAppointmentPersistence());
         initializeUI();
@@ -281,9 +291,11 @@ public class ReceptionistApp {
         JButton addAppointmentButton = createStyledButton(UIConfig.ADD_APPOINTMENT_BUTTON_TEXT);
         JButton viewAppointmentButton = createStyledButton(UIConfig.VIEW_APPOINTMENTS_BUTTON_TEXT);
         JButton signOutButton = createStyledButton(UIConfig.LOGOUT_BUTTON_TEXT);
+        JButton billingBtn = createStyledButton(UIConfig.BILLING_BUTTON_TEXT);
 
         buttonPanel.add(addAppointmentButton);
         buttonPanel.add(viewAppointmentButton);
+        buttonPanel.add(billingBtn);
         buttonPanel.add(signOutButton);
 
         // Add listeners for buttons
@@ -343,6 +355,15 @@ public class ReceptionistApp {
                     selectedAppt,
                     this::updateAppointments);
             viewDlg.setVisible(true);
+        });
+
+        billingBtn.addActionListener(e -> {
+            BillingPanel billingPanel = new BillingPanel(billingController);
+            JDialog billingDialog = new JDialog(frame, UIConfig.BILLING_DIALOG_TITLE, true);
+            billingDialog.setContentPane(billingPanel);
+            billingDialog.setSize(800, 600);
+            billingDialog.setLocationRelativeTo(frame);
+            billingDialog.setVisible(true);
         });
 
         signOutButton.addActionListener(e -> {

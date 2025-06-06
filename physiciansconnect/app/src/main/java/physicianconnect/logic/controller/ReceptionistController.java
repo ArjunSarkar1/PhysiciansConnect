@@ -1,7 +1,7 @@
 package physicianconnect.logic.controller;
 
-import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.logic.exceptions.InvalidCredentialException;
+import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.logic.validation.ReceptionistValidator;
 import physicianconnect.objects.Receptionist;
 

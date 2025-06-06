@@ -1,9 +1,9 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.logic.controller.PrescriptionController;
 import physicianconnect.logic.exceptions.InvalidPrescriptionException;
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Medication;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;

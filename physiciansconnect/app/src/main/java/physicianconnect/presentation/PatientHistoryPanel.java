@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.controller.PatientHistoryController;
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.presentation.config.UITheme;
 

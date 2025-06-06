@@ -13,10 +13,10 @@ import java.time.ZoneId;
 
 import org.junit.jupiter.api.*;
 
-import physicianconnect.logic.AppointmentManager;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
-import physicianconnect.logic.PhysicianManager;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.persistence.sqlite.PhysicianDB;
 import physicianconnect.persistence.sqlite.SchemaInitializer;

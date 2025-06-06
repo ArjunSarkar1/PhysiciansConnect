@@ -3,8 +3,8 @@ package physicianconnect.logic.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.exceptions.InvalidAppointmentException;
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
 
 /**

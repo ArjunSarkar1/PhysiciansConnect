@@ -1,8 +1,8 @@
 package physicianconnect;
 
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReceptionistManager;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.PhysicianManager;
+import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.presentation.LoginScreen;
 import physicianconnect.presentation.PhysicianApp;
 import physicianconnect.presentation.ReceptionistApp;

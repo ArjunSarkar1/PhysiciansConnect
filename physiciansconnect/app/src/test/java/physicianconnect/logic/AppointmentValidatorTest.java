@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import physicianconnect.logic.exceptions.InvalidAppointmentException;
+import physicianconnect.logic.validation.AppointmentValidator;
 import physicianconnect.objects.Appointment;
 
 public class AppointmentValidatorTest {

@@ -25,6 +25,7 @@ public final class UIConfig {
     public static final String BUTTON_CLOSE = "Close";
     public static final String REGISTER_BUTTON_TEXT = "Register";
     public static final String PROFILE_BUTTON_TEXT = "Profile";
+    public static final String BILLING_BUTTON_TEXT = "Billing & Invoicing";
 
     // ───── Login Screen Text ─────
     public static final String WELCOME_MESSAGE = "WELCOME TO";
@@ -46,6 +47,7 @@ public final class UIConfig {
     public static final String MESSAGES_DIALOG_TITLE = "Messages";
     public static final String CONFIRM_DIALOG_TITLE = "Confirm Deletion";
     public static final String PROFILE_DIALOG_TITLE = "Profile Settings";
+    public static final String BILLING_DIALOG_TITLE = "Billing & Invoicing";
 
     // ─────────── Field Labels & Sections ───────────
     public static final String PATIENT_NAME_LABEL = "Patient Name: ";

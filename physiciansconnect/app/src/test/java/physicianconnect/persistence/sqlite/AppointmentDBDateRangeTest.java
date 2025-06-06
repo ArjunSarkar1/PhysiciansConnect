@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.objects.Physician;
 
 public class AppointmentDBDateRangeTest {

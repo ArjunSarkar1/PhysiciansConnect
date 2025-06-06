@@ -1,8 +1,8 @@
 package physicianconnect.logic.controller;
 
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.ReferralManager;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Prescription;
 import physicianconnect.objects.Referral;

@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package physicianconnect.logic.manager;
 
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.interfaces.PhysicianPersistence;

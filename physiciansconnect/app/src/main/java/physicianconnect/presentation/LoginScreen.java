@@ -1,14 +1,14 @@
 package physicianconnect.presentation;
 
 import physicianconnect.AppController;
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReceptionistManager;
 import physicianconnect.objects.Physician;
 import physicianconnect.objects.Receptionist;
 import physicianconnect.logic.controller.PhysicianController;
 import physicianconnect.logic.controller.ReceptionistController;
 import physicianconnect.logic.exceptions.InvalidCredentialException;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.PhysicianManager;
+import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import java.nio.file.Path;

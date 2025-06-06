@@ -17,11 +17,13 @@ public class PersistenceFactory {
     private static ReferralPersistence referralPersistence;
     private static MessageRepository messageRepository;
     private static ReceptionistPersistence receptionistPersistence;
+    private static InvoicePersistence invoicePersistence;
+    private static PaymentPersistence paymentPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
         if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null
                 || prescriptionPersistence != null || referralPersistence != null || messageRepository != null
-                || receptionistPersistence != null)
+                || receptionistPersistence != null || invoicePersistence != null || paymentPersistence != null)
             return;
 
         switch (type) {
@@ -40,7 +42,9 @@ public class PersistenceFactory {
                                 "database_seeds/seed_medications.sql",
                                 "database_seeds/seed_prescriptions.sql",
                                 "database_seeds/seed_referrals.sql",
-                                "database_seeds/seed_receptionists.sql"));
+                                "database_seeds/seed_receptionists.sql",
+                                "database_seeds/seed_invoices.sql",
+                                "database_seeds/seed_payments.sql"));
                     }
 
                     physicianPersistence = new PhysicianDB(conn);
@@ -50,6 +54,8 @@ public class PersistenceFactory {
                     referralPersistence = new ReferralDB(conn);
                     messageRepository = new MessageDB(conn);
                     receptionistPersistence = new ReceptionistDB(conn);
+                    invoicePersistence = new InvoiceDB(conn);
+                    paymentPersistence = new PaymentDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -75,6 +81,8 @@ public class PersistenceFactory {
         referralPersistence = StubFactory.createReferralPersistence();
         messageRepository = new InMemoryMessageRepository();
         receptionistPersistence = StubFactory.createReceptionistPersistence();
+        invoicePersistence = StubFactory.createInvoicePersistence();
+        paymentPersistence = StubFactory.createPaymentPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -109,6 +117,14 @@ public class PersistenceFactory {
         return receptionistPersistence;
     }
 
+    public static InvoicePersistence getInvoicePersistence() {
+        return invoicePersistence;
+    }
+
+    public static PaymentPersistence getPaymentPersistence() {
+        return paymentPersistence;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
@@ -118,6 +134,8 @@ public class PersistenceFactory {
         referralPersistence = null;
         messageRepository = null;
         receptionistPersistence = null;
+        invoicePersistence = null;
+        paymentPersistence = null;
     }
 
     private static void injectTestUserForGrader() {

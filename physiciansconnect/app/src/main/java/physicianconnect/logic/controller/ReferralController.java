@@ -1,7 +1,7 @@
 package physicianconnect.logic.controller;
 
 import physicianconnect.logic.exceptions.InvalidReferralException;
-import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.logic.validation.ReferralValidator;
 import physicianconnect.objects.Referral;
 

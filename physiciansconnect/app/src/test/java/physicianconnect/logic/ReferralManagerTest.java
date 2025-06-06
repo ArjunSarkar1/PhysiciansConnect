@@ -1,6 +1,8 @@
 package physicianconnect.logic;
 
 import org.junit.jupiter.api.*;
+
+import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.Referral;
 import physicianconnect.persistence.stub.ReferralPersistenceStub;
 

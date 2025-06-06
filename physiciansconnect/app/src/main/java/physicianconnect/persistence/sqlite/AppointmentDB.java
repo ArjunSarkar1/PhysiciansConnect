@@ -20,7 +20,7 @@ public class AppointmentDB implements AppointmentPersistence {
     @Override
     public List<Appointment> getAppointmentsForPhysician(String physicianId) {
         List<Appointment> list = new ArrayList<>();
-        String sql = "SELECT patient_name, datetime, notes " +
+        String sql = "SELECT id, patient_name, datetime, notes " +
                 "FROM appointments " +
                 "WHERE physician_id = ?";
 
@@ -28,11 +28,12 @@ public class AppointmentDB implements AppointmentPersistence {
             stmt.setString(1, physicianId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String patient    = rs.getString("patient_name");
-                String dateTime   = rs.getString("datetime");
-                String notes      = rs.getString("notes");
-                // Note: Assuming your Appointment constructor is (physicianId, patientName, LocalDateTime, notes)
+                int id = rs.getInt("id");
+                String patient = rs.getString("patient_name");
+                String dateTime = rs.getString("datetime");
+                String notes = rs.getString("notes");
                 list.add(new Appointment(
+                        id,
                         physicianId,
                         patient,
                         LocalDateTime.parse(dateTime),

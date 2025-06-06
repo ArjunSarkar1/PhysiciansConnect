@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package physicianconnect.logic.manager;
 
 import physicianconnect.objects.Referral;
 import physicianconnect.persistence.interfaces.ReferralPersistence;

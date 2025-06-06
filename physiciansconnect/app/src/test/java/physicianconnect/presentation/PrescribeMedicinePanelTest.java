@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.controller.PrescriptionController;
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.stub.MedicationPersistenceStub;
 import physicianconnect.persistence.stub.PrescriptionPersistenceStub;

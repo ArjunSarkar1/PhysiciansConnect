@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 
+import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.PersistenceType;

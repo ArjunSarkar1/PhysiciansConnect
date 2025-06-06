@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
+import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;

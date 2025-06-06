@@ -1,6 +1,6 @@
 package physicianconnect.presentation;
 
-import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.Referral;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;

@@ -1,4 +1,4 @@
-package physicianconnect.logic;
+package physicianconnect.logic.validation;
 
 import physicianconnect.objects.Appointment;
 import physicianconnect.logic.exceptions.*;

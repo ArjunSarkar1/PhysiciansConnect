@@ -1,9 +1,10 @@
 package physicianconnect.presentation;
 
 import org.junit.jupiter.api.*;
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReceptionistManager;
+
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.PhysicianManager;
+import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.stub.AppointmentPersistenceStub;
 import physicianconnect.persistence.stub.PhysicianPersistenceStub;

@@ -2,9 +2,9 @@ package physicianconnect.logic.integration;
 
 import org.junit.jupiter.api.*;
 
-import physicianconnect.logic.AppointmentManager;
-import physicianconnect.logic.PhysicianManager;
-import physicianconnect.logic.ReferralManager;
+import physicianconnect.logic.manager.AppointmentManager;
+import physicianconnect.logic.manager.PhysicianManager;
+import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.*;
 import physicianconnect.persistence.*;
 import physicianconnect.persistence.interfaces.MedicationPersistence;

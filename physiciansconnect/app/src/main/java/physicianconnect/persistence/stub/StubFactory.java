@@ -15,7 +15,7 @@ public class StubFactory {
     public static MedicationPersistence createMedicationPersistence() {
         return new MedicationPersistenceStub(true); // seeded
     }
-    
+
     public static PrescriptionPersistence createPrescriptionPersistence() {
         return new PrescriptionPersistenceStub(true); // seeded
     }
@@ -26,5 +26,13 @@ public class StubFactory {
 
     public static ReceptionistPersistence createReceptionistPersistence() {
         return new ReceptionistPersistenceStub(true); // seeded
+    }
+
+    public static InvoicePersistence createInvoicePersistence() {
+        return new InvoicePersistenceStub(true); // seeded
+    }
+
+    public static PaymentPersistence createPaymentPersistence() {
+        return new PaymentPersistenceStub(true); // seeded
     }
 }

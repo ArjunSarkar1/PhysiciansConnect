@@ -1,7 +1,7 @@
 package physicianconnect.presentation;
 
 import physicianconnect.logic.controller.AppointmentController;
-import physicianconnect.logic.PhysicianManager;
+import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.objects.Physician;
 
