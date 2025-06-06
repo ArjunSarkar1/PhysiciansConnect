@@ -154,29 +154,42 @@ All images used in the physiciansconnect/app/src/main/java/physicianconnect/src 
 s
 
 ### Profile Photo Handling
-In PhysicianConnect, each physician can upload a profile photo, which is displayed throughout the application (e.g., in the dashboard and profile management screen). This feature is implemented with local file storage due to the constraints of a desktop-based class project.
+**PhysicianConnect** supports profile photos for both **physicians** and **receptionists**, which are displayed in areas like the dashboard and profile screens. Given this is a desktop-based project, photo management is handled entirely through **local file storage**.
 
 How It Works (In This Project)
 
 File Naming:
-Each physician’s photo is saved with their user ID as the filename. For example, a physician with ID 1 will have a profile photo saved as: src/main/java/physicianconnect/src/profile_photos/1.png
+Profile photos are saved using a **prefix and user ID** format:
+- **Physicians**: `p_<id>.png`  
+- **Receptionists**: `r_<id>.png`
 
-Saving:
-When a photo is uploaded through the UI, it’s resized to fit a standard dimension (maximum 200x200 pixels), then saved to the local profile_photos folder.
+Example:
+- Physician with ID `123` → `p_123.png`
+- Receptionist with ID `456` → `r_456.png`
 
-Loading:
-The app uses the logged-in user's ID to load the appropriate image file during runtime. If no photo exists, a placeholder image is generated and displayed.
+All photos are stored in: src/main/resources/profile_photos/
 
-Access Control:
-Since this is a standalone desktop app running entirely on the local machine, all profile images are stored locally and are not secured by any authentication system.
+Saving
+- When a user uploads a new photo, it is **resized** to fit a maximum of **200×200 pixels**.
+- The resized image is saved to the `profile_photos` folder with the appropriate filename (e.g., `p_123.png`).
+
+Loading
+- On login or when the profile view is opened, the app checks for the appropriate photo file.
+- If the file exists, it is loaded and displayed.
+- If not, a **placeholder image** (gray box with “No Photo” text) is shown instead.
+
+Access Control
+- Since this is a **standalone desktop app**, images are stored locally.
+- No authentication or access control is applied to file storage — it assumes trusted local use.
+
 
 In a Real-World Web-Based Application
 If this system were deployed on a real server:
 
-Photos would be stored on a secure server or cloud storage, not in local folders.
-Authentication and file access control would ensure that users can only access their own images.
-Images would likely be served over HTTPS and may be protected with access tokens or session-based permissions.
-Images would be uploaded via HTTP endpoints and stored with unique paths or database references, not raw filenames.
+- Photos would be stored on a secure server or cloud storage, not in local folders.
+- Authentication and file access control would ensure that users can only access their own images.
+- Images would likely be served over HTTPS and may be protected with access tokens or session-based permissions.
+- Images would be uploaded via HTTP endpoints and stored with unique paths or database references, not raw filenames.
 
 So why did we use Local Storage?
 Because this application is a desktop-based project designed for offline use and classroom demonstration, we opted for: 

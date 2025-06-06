@@ -58,14 +58,19 @@ public class ReceptionistApp {
     private JPanel weekNav;
     private MessageButton messageButton;
     private Timer dateTimeTimer;
+    private JButton profilePicButton;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
-                           AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
+            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
         this.receptionistManager = receptionistManager;
-        this.logoutCallback = logoutCallback;
+        this.logoutCallback = () -> {
+            frame.dispose(); // Dispose the UI window
+            if (logoutCallback != null)
+                logoutCallback.run();
+        };
         this.receptionistController = new ReceptionistController(receptionistManager);
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         this.messageController = new MessageController(messageService);
@@ -93,15 +98,15 @@ public class ReceptionistApp {
         topPanel.add(welcome, BorderLayout.WEST);
 
         // Profile photo button (optional, if you want to add for receptionists)
-        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
-        JButton profilePicButton = new JButton(profileIcon);
+        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId(), false);
+        profilePicButton = new JButton(profileIcon);
         profilePicButton.setToolTipText(UIConfig.PROFILE_BUTTON_TEXT);
         profilePicButton.setPreferredSize(new Dimension(40, 40));
         profilePicButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
         profilePicButton.setContentAreaFilled(false);
         profilePicButton.setFocusPainted(false);
         profilePicButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        // profilePicButton.addActionListener(e -> openProfileDialog()); // Implement if you have ReceptionistProfilePanel
+        profilePicButton.addActionListener(e -> openProfileDialog());
 
         // Physician dropdown
         List<Physician> physicians = physicianManager.getAllPhysicians();
@@ -161,7 +166,8 @@ public class ReceptionistApp {
         appointmentsPanel.add(searchPanel, BorderLayout.BEFORE_FIRST_LINE);
 
         // Table for appointments
-        String[] columns = { UIConfig.PATIENT_LABEL, UIConfig.PHYSICIAN_LABEL, UIConfig.DATE_LABEL, UIConfig.TIME_LABEL };
+        String[] columns = { UIConfig.PATIENT_LABEL, UIConfig.PHYSICIAN_LABEL, UIConfig.DATE_LABEL,
+                UIConfig.TIME_LABEL };
         appointmentTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -179,9 +185,17 @@ public class ReceptionistApp {
         appointmentTable.setRowSorter(appointmentTableSorter);
 
         appointmentSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterAppointments(); }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterAppointments();
+            }
         });
 
         JScrollPane appointmentScroll = new JScrollPane(appointmentTable);
@@ -514,4 +528,45 @@ public class ReceptionistApp {
         UITheme.applyHoverEffect(b);
         return b;
     }
+
+    private void openProfileDialog() {
+        JDialog dlg = new JDialog(frame, UIConfig.PROFILE_DIALOG_TITLE, true);
+
+        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(
+                loggedIn,
+                receptionistManager,
+                () -> {
+                    dlg.dispose(); // Close dialog on logout
+                    if (logoutCallback != null)
+                        logoutCallback.run();
+                },
+                () -> {
+                    // Fetch updated receptionist info
+                    Receptionist refreshed = receptionistManager.getReceptionistById(loggedIn.getId());
+                    if (refreshed != null) {
+                        // Update frame title and welcome text
+                        frame.setTitle(UIConfig.RECEPTIONIST_DASHBOARD_TITLE + " - " + refreshed.getName());
+                        for (Component comp : frame.getContentPane().getComponents()) {
+                            if (comp instanceof JPanel topPanel) {
+                                for (Component c : topPanel.getComponents()) {
+                                    if (c instanceof JLabel label
+                                            && label.getText().startsWith(UIConfig.WELCOME_PREFIX)) {
+                                        label.setText(UIConfig.WELCOME_PREFIX + refreshed.getName());
+                                    }
+                                }
+                            }
+                        }
+
+                        // Update profile icon
+                        ImageIcon updatedIcon = ProfileImageUtil.getProfileIcon(refreshed.getId(), false);
+                        profilePicButton.setIcon(updatedIcon);
+                    }
+                });
+
+        dlg.setContentPane(panel);
+        dlg.pack();
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
+    }
+
 }

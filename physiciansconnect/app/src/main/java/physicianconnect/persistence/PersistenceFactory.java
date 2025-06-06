@@ -121,13 +121,20 @@ public class PersistenceFactory {
     }
 
     private static void injectTestUserForGrader() {
-        String testEmail = "test@email.com";
+        String testEmail = "testP@email.com";
         String testId = "0";
         String testName = "Dr. Stephen Vincent Strange";
         String testPassword = "test123";
 
+        String receptionistId = "0";
+        String receptionistEmail = "testR@email.com";
+        String receptionistName = "Mrs. Christine Palmer";
+
         boolean testUserExists = physicianPersistence.getAllPhysicians().stream()
                 .anyMatch(p -> p.getEmail().equalsIgnoreCase(testEmail));
+
+        boolean receptionistExists = receptionistPersistence.getAllReceptionists().stream()
+                .anyMatch(r -> r.getEmail().equalsIgnoreCase(receptionistEmail));
 
         if (!testUserExists) {
             physicianPersistence.addPhysician(
@@ -143,6 +150,13 @@ public class PersistenceFactory {
                         testId, "Wanda Maximoff", LocalDateTime.of(2025, 6, 3, 11, 0)));
             }
         }
+
+        if (!receptionistExists) {
+            receptionistPersistence.addReceptionist(
+                    new physicianconnect.objects.Receptionist(receptionistId, receptionistName, receptionistEmail,
+                            testPassword));
+        }
+
     }
 
 }

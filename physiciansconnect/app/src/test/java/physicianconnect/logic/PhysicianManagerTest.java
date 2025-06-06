@@ -99,18 +99,85 @@ public class PhysicianManagerTest {
     @Test
     public void testUpdatePhysicianNotificationSettings() {
         Physician p = new Physician("2", "Dr. Notify", "notify@clinic.com", "123");
-        p.setNotifyAppointment(false);
-        p.setNotifyBilling(true);
-        p.setNotifyMessages(false);
         manager.addPhysician(p);
 
-        p.setNotifyAppointment(true);
-        p.setNotifyMessages(true);
-        manager.updatePhysician(p);
+        manager.validateAndUpdatePhysician(
+                p,
+                "Dr. Notify",
+                "", // specialty
+                "", // office hours
+                "(204) 123-4567", // valid phone format
+                "", // address
+                true,
+                true,
+                true);
 
         Physician updated = manager.getPhysicianById("2");
         assertTrue(updated.isNotifyAppointment());
-        assertTrue(updated.isNotifyMessages());
         assertTrue(updated.isNotifyBilling());
+        assertTrue(updated.isNotifyMessages());
     }
+
+    @Test
+    public void testValidateAndUpdatePhysicianSuccess() {
+        Physician p = new Physician("v1", "Dr. Original", "original@clinic.com", "pass");
+        manager.addPhysician(p);
+
+        manager.validateAndUpdatePhysician(
+                p,
+                "Dr. Updated",
+                "Cardiology",
+                "9-5",
+                "(204) 555-1234",
+                "123 Main St",
+                true,
+                true,
+                false);
+
+        Physician updated = manager.getPhysicianById("v1");
+        assertEquals("Dr. Updated", updated.getName());
+        assertEquals("Cardiology", updated.getSpecialty());
+        assertEquals("9-5", updated.getOfficeHours());
+        assertEquals("(204) 555-1234", updated.getPhone());
+        assertEquals("123 Main St", updated.getOfficeAddress());
+        assertTrue(updated.isNotifyAppointment());
+        assertTrue(updated.isNotifyBilling());
+        assertFalse(updated.isNotifyMessages());
+    }
+
+    @Test
+    public void testValidateAndUpdatePhysicianFailsOnBlankName() {
+        Physician p = new Physician("v2", "Dr. Temp", "temp@clinic.com", "pass");
+        manager.addPhysician(p);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            manager.validateAndUpdatePhysician(p, "   ", "Spec", "Hours", "(204) 123-4567", "Addr", true, true, true);
+        });
+
+        assertEquals("Name cannot be empty.", ex.getMessage());
+    }
+
+    @Test
+    public void testValidateAndUpdatePhysicianFailsOnInvalidPhone() {
+        Physician p = new Physician("v3", "Dr. Temp", "temp@clinic.com", "pass");
+        manager.addPhysician(p);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            manager.validateAndUpdatePhysician(p, "Dr. Temp", "Spec", "Hours", "invalid-phone", "Addr", true, true,
+                    true);
+        });
+
+        assertEquals("Phone must match (204) 123-4567 format.", ex.getMessage());
+    }
+
+    @Test
+    public void testValidateAndUpdatePhysicianFailsOnNullPhysician() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            manager.validateAndUpdatePhysician(null, "Dr. Null", "Spec", "Hours", "(204) 111-2222", "Addr", true, false,
+                    true);
+        });
+
+        assertEquals("Physician cannot be null.", ex.getMessage());
+    }
+
 }

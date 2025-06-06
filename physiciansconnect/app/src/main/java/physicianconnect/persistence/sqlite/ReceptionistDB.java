@@ -18,13 +18,13 @@ public class ReceptionistDB implements ReceptionistPersistence {
     private void createTable() {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("""
-                CREATE TABLE IF NOT EXISTS receptionists (
-                    id TEXT PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    email TEXT NOT NULL,
-                    password TEXT NOT NULL
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS receptionists (
+                            id TEXT PRIMARY KEY,
+                            name TEXT NOT NULL,
+                            email TEXT NOT NULL,
+                            password TEXT NOT NULL
+                        )
+                    """);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create receptionists table", e);
         }
@@ -41,8 +41,7 @@ public class ReceptionistDB implements ReceptionistPersistence {
                         rs.getString("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getString("password")
-                );
+                        rs.getString("password"));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find receptionist by id", e);
@@ -61,8 +60,7 @@ public class ReceptionistDB implements ReceptionistPersistence {
                         rs.getString("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getString("password")
-                );
+                        rs.getString("password"));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find receptionist by email", e);
@@ -89,18 +87,32 @@ public class ReceptionistDB implements ReceptionistPersistence {
         List<Receptionist> list = new ArrayList<>();
         String sql = "SELECT id, name, email, password FROM receptionists";
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 list.add(new Receptionist(
                         rs.getString("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getString("password")
-                ));
+                        rs.getString("password")));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch receptionists", e);
         }
         return list;
     }
+
+    @Override
+    public void updateReceptionist(Receptionist receptionist) {
+        String sql = "UPDATE receptionists SET name = ?, email = ?, password = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, receptionist.getName());
+            stmt.setString(2, receptionist.getEmail());
+            stmt.setString(3, receptionist.getPassword());
+            stmt.setString(4, receptionist.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update receptionist", e);
+        }
+    }
+
 }

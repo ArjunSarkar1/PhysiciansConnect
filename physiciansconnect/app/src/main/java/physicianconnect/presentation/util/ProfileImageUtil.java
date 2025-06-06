@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class ProfileImageUtil {
-    public static ImageIcon getProfileIcon(String physicianId) {
-        File photoFile = new File("src/main/resources/profile_photos", physicianId + ".png");
+    public static ImageIcon getProfileIcon(String id, boolean isPhysician) {
+        String prefix = isPhysician ? "p_" : "r_";
+        File photoFile = new File("src/main/resources/profile_photos", prefix + id + ".png");
+
         if (photoFile.exists()) {
             ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
             Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
@@ -18,9 +20,10 @@ public class ProfileImageUtil {
             g2.setColor(Color.LIGHT_GRAY);
             g2.fillRect(0, 0, 40, 40);
             g2.setColor(Color.DARK_GRAY);
-            g2.drawString("👤", 10, 25);
+            g2.drawString("👤", 10, 25); // Or just draw initials/text
             g2.dispose();
             return new ImageIcon(placeholder);
         }
     }
+
 }

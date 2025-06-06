@@ -25,7 +25,9 @@ public class IsolationIntegrationTest {
         PhysicianManager manager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());
         manager.addPhysician(new Physician("iso", "Dr. Iso", "iso@iso.com", "iso"));
         assertNotNull(manager.getPhysicianById("iso"));
+
         // After reset, this physician should not exist
+        manager.deleteAll();
         PersistenceFactory.reset();
         PersistenceFactory.initialize(PersistenceType.TEST, true);
         manager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());

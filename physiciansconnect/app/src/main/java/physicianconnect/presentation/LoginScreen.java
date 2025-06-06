@@ -66,9 +66,21 @@ public class LoginScreen extends JFrame {
                 JPasswordField passField = new JPasswordField(20);
                 passField.setName("passwordField");
 
-                JLabel testInfo = new JLabel(UIConfig.TEST_LOGIN_INFO);
-                testInfo.setFont(UITheme.LABEL_FONT);
-                testInfo.setForeground(UITheme.TEXT_COLOR);
+                JLabel physicianHeader = new JLabel(UIConfig.PHYSICIAN_LOGIN_HEADER);
+                physicianHeader.setFont(UITheme.LABEL_FONT);
+                physicianHeader.setForeground(UITheme.TEXT_COLOR);
+
+                JLabel physicianCreds = new JLabel(UIConfig.PHYSICIAN_LOGIN_INFO);
+                physicianCreds.setFont(UITheme.LABEL_FONT.deriveFont(Font.ITALIC));
+                physicianCreds.setForeground(Color.GRAY);
+
+                JLabel receptionistHeader = new JLabel(UIConfig.RECEPTIONIST_LOGIN_HEADER);
+                receptionistHeader.setFont(UITheme.LABEL_FONT);
+                receptionistHeader.setForeground(UITheme.TEXT_COLOR);
+
+                JLabel receptionistCreds = new JLabel(UIConfig.RECEPTIONIST_LOGIN_INFO);
+                receptionistCreds.setFont(UITheme.LABEL_FONT.deriveFont(Font.ITALIC));
+                receptionistCreds.setForeground(Color.GRAY);
 
                 JButton loginBtn = new JButton(UIConfig.LOGIN_BUTTON_TEXT);
                 loginBtn.setName("loginBtn");
@@ -90,11 +102,21 @@ public class LoginScreen extends JFrame {
                 createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 UITheme.applyHoverEffect(createBtn);
 
+                JPanel testInfoPanel = new JPanel();
+                testInfoPanel.setLayout(new BoxLayout(testInfoPanel, BoxLayout.Y_AXIS));
+                testInfoPanel.setBackground(rightPanel.getBackground()); // match bg
+
+                testInfoPanel.add(physicianHeader);
+                testInfoPanel.add(physicianCreds);
+                testInfoPanel.add(Box.createVerticalStrut(8)); // spacing
+                testInfoPanel.add(receptionistHeader);
+                testInfoPanel.add(receptionistCreds);
+
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 gbc.gridwidth = 2;
                 gbc.anchor = GridBagConstraints.CENTER;
-                formPanel.add(testInfo, gbc);
+                formPanel.add(testInfoPanel, gbc);
 
                 gbc.gridy++;
                 gbc.gridwidth = 1;
@@ -176,13 +198,13 @@ public class LoginScreen extends JFrame {
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 2;
-                        dialog.add(new JLabel(UIConfig.EMAIL_LABEL), regGbc);
+                        dialog.add(new JLabel(UIConfig.USER_EMAIL_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(regEmailField, regGbc);
 
                         regGbc.gridx = 0;
                         regGbc.gridy = 3;
-                        dialog.add(new JLabel(UIConfig.PASSWORD_LABEL), regGbc);
+                        dialog.add(new JLabel(UIConfig.USER_PASSWORD_LABEL), regGbc);
                         regGbc.gridx = 1;
                         dialog.add(passwordField, regGbc);
 
