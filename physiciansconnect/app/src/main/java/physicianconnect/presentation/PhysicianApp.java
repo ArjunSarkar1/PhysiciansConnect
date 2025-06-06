@@ -13,14 +13,8 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -40,7 +34,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
-
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.MessageService;
 import physicianconnect.logic.controller.AppointmentController;
@@ -102,7 +95,10 @@ public class PhysicianApp {
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
         this.receptionistManager = receptionistManager;
-        this.logoutCallback = logoutCallback;
+        this.logoutCallback = () -> {
+            frame.dispose(); // Dispose main UI frame
+            logoutCallback.run(); // Then run the actual logout logic (e.g. showLoginScreen)
+        };
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         this.messageController = new MessageController(messageService);
         this.appointmentController = new AppointmentController(appointmentManager);
@@ -131,7 +127,7 @@ public class PhysicianApp {
         welcome.setForeground(UITheme.TEXT_COLOR);
         topPanel.add(welcome, BorderLayout.WEST);
 
-        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
+        ImageIcon profileIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId(), true);
         profilePicButton = new JButton(profileIcon);
         profilePicButton.setToolTipText(UIConfig.PROFILE_BUTTON_TEXT);
         profilePicButton.setPreferredSize(new Dimension(40, 40));
@@ -483,16 +479,31 @@ public class PhysicianApp {
 
     private void openProfileDialog() {
         JDialog dlg = new JDialog(frame, UIConfig.PROFILE_DIALOG_TITLE, true);
-        ProfilePanel profilePanel = new ProfilePanel(
+        PhysicianProfilePanel profilePanel = new PhysicianProfilePanel(
                 loggedIn,
                 physicianManager,
                 appointmentManager,
-                null, // or appController if needed
+                null, // appController not used here
                 () -> {
-                    // Refresh icon in dashboard
-                    ImageIcon updatedIcon = ProfileImageUtil.getProfileIcon(loggedIn.getId());
-                    profilePicButton.setIcon(updatedIcon);
-                });
+                    Physician refreshed = physicianManager.getPhysicianById(loggedIn.getId());
+                    if (refreshed != null) {
+                        frame.setTitle(UIConfig.APP_TITLE + " - " + refreshed.getName());
+                        for (Component comp : frame.getContentPane().getComponents()) {
+                            if (comp instanceof JPanel topPanel) {
+                                for (Component c : topPanel.getComponents()) {
+                                    if (c instanceof JLabel label
+                                            && label.getText().startsWith(UIConfig.WELCOME_PREFIX)) {
+                                        label.setText(UIConfig.WELCOME_PREFIX + refreshed.getName());
+                                    }
+                                }
+                            }
+                        }
+                        ImageIcon updatedIcon = ProfileImageUtil.getProfileIcon(refreshed.getId(), true);
+                        profilePicButton.setIcon(updatedIcon);
+                    }
+                },
+                logoutCallback // <-- pass the real logout logic
+        );
         dlg.setContentPane(profilePanel);
         dlg.pack();
         dlg.setLocationRelativeTo(frame);

@@ -2,7 +2,7 @@ package physicianconnect.objects;
 
 public class Receptionist {
     private final String id;
-    private final String name;
+    private String name;
     private final String email;
     private final String password; // hashed in production
 
@@ -13,9 +13,27 @@ public class Receptionist {
         this.password = password;
     }
 
-    public String getId() { return id; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
-    public String getUserType() { return "receptionist"; }
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUserType() {
+        return "receptionist";
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

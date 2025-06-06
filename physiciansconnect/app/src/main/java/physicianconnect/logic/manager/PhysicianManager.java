@@ -64,7 +64,33 @@ public class PhysicianManager {
         return null;
     }
 
-    public void updatePhysician(Physician physician) {
+    public void validateAndUpdatePhysician(
+            Physician physician,
+            String name,
+            String specialty,
+            String officeHours,
+            String phone,
+            String address,
+            boolean notifyAppointments,
+            boolean notifyBilling,
+            boolean notifyMessages) {
+        if (physician == null)
+            throw new IllegalArgumentException("Physician cannot be null.");
+
+        physician.setName(name);
+        physician.setSpecialty(specialty);
+        physician.setOfficeHours(officeHours);
+        physician.setPhone(phone);
+        physician.setOfficeAddress(address);
+        physician.setNotifyAppointment(notifyAppointments);
+        physician.setNotifyBilling(notifyBilling);
+        physician.setNotifyMessages(notifyMessages);
+
+        validateBasicInfo(physician);
+        updatePhysician(physician);
+    }
+
+    private void updatePhysician(Physician physician) {
         if (physician == null || physician.getId() == null)
             throw new IllegalArgumentException("Physician or ID cannot be null.");
 
@@ -99,7 +125,7 @@ public class PhysicianManager {
 
             Path outputDir = Paths.get("src/main/resources/profile_photos").toAbsolutePath();
             Files.createDirectories(outputDir);
-            File outputFile = outputDir.resolve(physicianId + ".png").toFile();
+            File outputFile = outputDir.resolve("p_" + physicianId + ".png").toFile();
             ImageIO.write(resized, "png", outputFile);
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload profile photo", e);

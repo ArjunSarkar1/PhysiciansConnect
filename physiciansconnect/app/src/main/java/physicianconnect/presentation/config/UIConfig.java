@@ -26,15 +26,19 @@ public final class UIConfig {
     public static final String REGISTER_BUTTON_TEXT = "Register";
     public static final String PROFILE_BUTTON_TEXT = "Profile";
     public static final String BILLING_BUTTON_TEXT = "Billing & Invoicing";
+        public static final String CHANGE_PHOTO_BUTTON_TEXT = "Change Photo";
+    public static final String EDIT_BUTTON_TEXT = "Edit";
+    public static final String NO_PHOTO_PLACEHOLDER_TEXT = "No Photo";
 
     // ───── Login Screen Text ─────
     public static final String WELCOME_MESSAGE = "WELCOME TO";
     public static final String APP_NAME = "PhysicianConnect";
-    public static final String TEST_LOGIN_INFO = "Test login: test@email.com / test123";
+    public static final String PHYSICIAN_LOGIN_HEADER = "Physician login (email/password):";
+    public static final String PHYSICIAN_LOGIN_INFO = "testP@email.com / test123";
+    public static final String RECEPTIONIST_LOGIN_HEADER = "Receptionist login (email/password):";
+    public static final String RECEPTIONIST_LOGIN_INFO = "testR@email.com / test123";
     public static final String ACCOUNT_TYPE_LABEL = "Account Type:";
     public static final String NAME_LABEL = "Name:";
-    public static final String EMAIL_LABEL = "Email:";
-    public static final String PASSWORD_LABEL = "Password:";
     public static final String CONFIRM_PASSWORD_LABEL = "Confirm Password:";
 
     // ─────────── Dialog Titles ───────────
@@ -73,6 +77,13 @@ public final class UIConfig {
     public static final String DETAILS_LABEL = "Details: ";
     public static final String TYPE_LABEL = "Type: ";
     public static final String APPOINTMENT_NOTES_LABEL = "Appointment Notes: ";
+    public static final String SPECIALTY_LABEL = "Specialty:";
+    public static final String OFFICE_HOURS_LABEL = "Office Hours:";
+    public static final String PHONE_LABEL = "Phone Number:";
+    public static final String ADDRESS_LABEL = "Office Address:";
+    public static final String NOTIFICATION_PREFS_LABEL = "Notification Preferences:";
+    public static final String NOTIFY_APPOINTMENTS = "Appointments";
+    public static final String NOTIFY_BILLING = "Billing";
 
     // ─────────── Error Messages ───────────
     public static final String ERROR_DIALOG_TITLE = "Error";
@@ -99,6 +110,8 @@ public final class UIConfig {
     public static final String ERROR_REQUIRED_FIELD_REFERRAL = "Patient and type are required.";
     public static final String ERROR_DELETING_APPOINTMENT = "Error deleting appointment: ";
     public static final String ERROR_UPDATING_NOTES = "Error updating notes: ";
+    public static final String VALIDATION_ERROR_TITLE = "Validation Error";
+    public static final String PHOTO_UPLOAD_FAILED_MSG = "Failed to upload photo: ";
 
     // ─────────── Success Messages ───────────
     public static final String SUCCESS_DIALOG_TITLE = "Success";
@@ -106,6 +119,7 @@ public final class UIConfig {
     public static final String SUCCESS_APPOINTMENT_ADDED = "Appointment added successfully!";
     public static final String SUCCESS_PRESCRIPTION_ADDED = "Prescription added for {patient}: {med}";
     public static final String SUCCESS_REFERRAL_CREATED = "Referral created for {patient}.";
+    public static final String PROFILE_UPDATED_MESSAGE = "Profile updated successfully.";
 
     // ─────────── Messages ───────────
     // When a free slot is clicked: dynamic replacement for date/time

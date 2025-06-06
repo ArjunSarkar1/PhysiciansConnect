@@ -59,6 +59,14 @@ public class ReceptionistPersistenceStub implements ReceptionistPersistence {
         receptionists.clear();
     }
 
+    @Override
+    public void updateReceptionist(Receptionist receptionist) {
+        if (receptionist == null || receptionist.getId() == null || !receptionists.containsKey(receptionist.getId())) {
+            throw new IllegalArgumentException("Receptionist not found.");
+        }
+        receptionists.put(receptionist.getId(), receptionist);
+    }
+
     public void close() {
         receptionists = null;
     }

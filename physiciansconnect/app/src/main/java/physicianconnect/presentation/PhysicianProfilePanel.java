@@ -4,6 +4,7 @@ import physicianconnect.AppController;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.objects.Physician;
+import physicianconnect.presentation.config.UIConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.awt.image.BufferedImage;
 
-public class ProfilePanel extends JPanel {
+public class PhysicianProfilePanel extends JPanel {
     private final AppController appController;
     private final JTextField nameField;
     private final JTextField emailField;
@@ -32,15 +33,18 @@ public class ProfilePanel extends JPanel {
     private final JButton changePhotoButton;
     private final int MAX_PHOTO_SIZE = 200;
     private final Runnable onProfileUpdated;
+    private final Runnable logoutCallback;
 
     private static final String PHOTO_DIR = new File("src/main/resources/profile_photos")
             .getAbsolutePath();
 
-    public ProfilePanel(Physician physician, PhysicianManager physicianManager, AppointmentManager appointmentManager,
-            AppController appController, Runnable onProfileUpdated) {
+    public PhysicianProfilePanel(Physician physician, PhysicianManager physicianManager,
+            AppointmentManager appointmentManager,
+            AppController appController, Runnable onProfileUpdated, Runnable logoutCallback) {
 
         this.appController = appController;
         this.onProfileUpdated = onProfileUpdated;
+        this.logoutCallback = logoutCallback;
 
         setLayout(new BorderLayout(10, 10));
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
@@ -52,16 +56,23 @@ public class ProfilePanel extends JPanel {
 
         loadProfilePhoto(physician.getId());
 
-        changePhotoButton = new JButton("Change Photo");
+        changePhotoButton = new JButton(UIConfig.CHANGE_PHOTO_BUTTON_TEXT);
         changePhotoButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
-            File photoDir = new File(PHOTO_DIR);
-            if (!photoDir.exists()) {
-                photoDir.mkdirs();
-            }
             chooser.setCurrentDirectory(new File(PHOTO_DIR));
             chooser.setAcceptAllFileFilterUsed(false);
-            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PNG Images", "png"));
+            chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory()
+                            || (f.getName().toLowerCase().endsWith(".png") && f.getName().startsWith("p_"));
+                }
+
+                @Override
+                public String getDescription() {
+                    return "Physician PNG Images (p_*.png)";
+                }
+            });
 
             int result = chooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
@@ -70,7 +81,7 @@ public class ProfilePanel extends JPanel {
                     physicianManager.uploadProfilePhoto(physician.getId(), in);
                     loadProfilePhoto(physician.getId());
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this, "Failed to upload photo: " + ex.getMessage(), "Error",
+                    JOptionPane.showMessageDialog(this, UIConfig.PHOTO_UPLOAD_FAILED_MSG + ex.getMessage(), "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -90,24 +101,24 @@ public class ProfilePanel extends JPanel {
         phoneField = new JTextField(physician.getPhone());
         addressField = new JTextField(physician.getOfficeAddress());
 
-        notifyAppointments = new JCheckBox("Appointments", physician.isNotifyAppointment());
-        notifyBilling = new JCheckBox("Billing", physician.isNotifyBilling());
-        notifyMessages = new JCheckBox("Messages", physician.isNotifyMessages());
+        notifyAppointments = new JCheckBox(UIConfig.NOTIFY_APPOINTMENTS, physician.isNotifyAppointment());
+        notifyBilling = new JCheckBox(UIConfig.NOTIFY_BILLING, physician.isNotifyBilling());
+        notifyMessages = new JCheckBox(UIConfig.MESSAGES_DIALOG_TITLE, physician.isNotifyMessages());
 
         // Add labels and fields
-        formPanel.add(new JLabel("Name:"));
+        formPanel.add(new JLabel(UIConfig.NAME_LABEL));
         formPanel.add(nameField);
-        formPanel.add(new JLabel("Email (Contact Info):"));
+        formPanel.add(new JLabel(UIConfig.USER_EMAIL_LABEL));
         formPanel.add(emailField);
-        formPanel.add(new JLabel("Specialty:"));
+        formPanel.add(new JLabel(UIConfig.SPECIALTY_LABEL));
         formPanel.add(specialtyField);
-        formPanel.add(new JLabel("Office Hours:"));
+        formPanel.add(new JLabel(UIConfig.OFFICE_HOURS_LABEL));
         formPanel.add(officeHoursField);
-        formPanel.add(new JLabel("Phone Number:"));
+        formPanel.add(new JLabel(UIConfig.PHONE_LABEL));
         formPanel.add(phoneField);
-        formPanel.add(new JLabel("Office Address:"));
+        formPanel.add(new JLabel(UIConfig.ADDRESS_LABEL));
         formPanel.add(addressField);
-        formPanel.add(new JLabel("Notification Preferences:"));
+        formPanel.add(new JLabel(UIConfig.NOTIFICATION_PREFS_LABEL));
 
         JPanel checkboxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         checkboxPanel.add(notifyAppointments);
@@ -123,10 +134,10 @@ public class ProfilePanel extends JPanel {
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
-        editButton = new JButton("Edit");
-        saveButton = new JButton("Save");
-        cancelButton = new JButton("Cancel Changes");
-        signOutButton = new JButton("Sign Out");
+        editButton = new JButton(UIConfig.EDIT_BUTTON_TEXT);
+        saveButton = new JButton(UIConfig.SAVE_BUTTON_TEXT);
+        cancelButton = new JButton(UIConfig.CANCEL_BUTTON_TEXT);
+        signOutButton = new JButton(UIConfig.LOGOUT_BUTTON_TEXT);
 
         buttonPanel.add(editButton);
         buttonPanel.add(saveButton);
@@ -148,29 +159,27 @@ public class ProfilePanel extends JPanel {
         // Save action
         saveButton.addActionListener(e -> {
             try {
-                physician.setName(nameField.getText());
-                physician.setSpecialty(specialtyField.getText());
-                physician.setOfficeHours(officeHoursField.getText());
-                physician.setPhone(phoneField.getText());
-                physician.setOfficeAddress(addressField.getText());
-
-                physician.setNotifyAppointment(notifyAppointments.isSelected());
-                physician.setNotifyBilling(notifyBilling.isSelected());
-                physician.setNotifyMessages(notifyMessages.isSelected());
-
-                // Validate before saving
-                physicianManager.validateBasicInfo(physician);
-                physicianManager.updatePhysician(physician);
+                physicianManager.validateAndUpdatePhysician(
+                        physician,
+                        nameField.getText(),
+                        specialtyField.getText(),
+                        officeHoursField.getText(),
+                        phoneField.getText(),
+                        addressField.getText(),
+                        notifyAppointments.isSelected(),
+                        notifyBilling.isSelected(),
+                        notifyMessages.isSelected());
 
                 // Notify parent that profile was updated
                 if (onProfileUpdated != null) {
                     onProfileUpdated.run();
                 }
 
-                JOptionPane.showMessageDialog(this, "Profile updated successfully.");
+                JOptionPane.showMessageDialog(this, UIConfig.PROFILE_UPDATED_MESSAGE);
                 setEditable(false);
             } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.VALIDATION_ERROR_TITLE,
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -194,14 +203,8 @@ public class ProfilePanel extends JPanel {
                 topWindow.dispose(); // closes the Profile dialog
             }
 
-            // Dispose ALL windows (in case main app is still open)
-            for (Window w : Window.getWindows()) {
-                w.dispose();
-            }
-
-            // Launch login again
-            if (appController != null) {
-                appController.showLoginScreen();
+            if (logoutCallback != null) {
+                logoutCallback.run(); // triggers logout logic from PhysicianApp
             }
         });
 
@@ -231,7 +234,7 @@ public class ProfilePanel extends JPanel {
     }
 
     private void loadProfilePhoto(String physicianId) {
-        File photoFile = new File(PHOTO_DIR, physicianId + ".png");
+        File photoFile = new File(PHOTO_DIR, "p_" + physicianId + ".png");
         if (photoFile.exists()) {
             ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
             Image img = icon.getImage().getScaledInstance(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, Image.SCALE_SMOOTH);
@@ -242,7 +245,7 @@ public class ProfilePanel extends JPanel {
             g2.setColor(Color.LIGHT_GRAY);
             g2.fillRect(0, 0, MAX_PHOTO_SIZE, MAX_PHOTO_SIZE);
             g2.setColor(Color.DARK_GRAY);
-            g2.drawString("No Photo", 50, 100);
+            g2.drawString(UIConfig.NO_PHOTO_PLACEHOLDER_TEXT, 50, 100);
             g2.dispose();
             photoLabel.setIcon(new ImageIcon(placeholder));
         }
