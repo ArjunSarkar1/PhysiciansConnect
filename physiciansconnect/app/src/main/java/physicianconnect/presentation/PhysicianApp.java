@@ -7,19 +7,15 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -88,6 +84,9 @@ public class PhysicianApp {
 
     private MessageButton messageButton;
     private Timer messageRefreshTimer;
+    private NotificationPanel notificationPanel;
+    private NotificationBanner notificationBanner;
+    private JDialog notificationDialog;
 
     private final Runnable logoutCallback;
 
@@ -95,7 +94,7 @@ public class PhysicianApp {
     /* Constructor */
     /*------------------------------------------------------------------*/
     public PhysicianApp(Physician loggedIn, PhysicianManager physicianManager, AppointmentManager appointmentManager,
-            ReceptionistManager receptionistManager, Runnable logoutCallback) {
+            ReceptionistManager receptionistManager, AppointmentController appointmentController, Runnable logoutCallback) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
@@ -103,8 +102,25 @@ public class PhysicianApp {
         this.logoutCallback = logoutCallback;
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         this.messageController = new MessageController(messageService);
-        this.appointmentController = new AppointmentController(appointmentManager);
+        this.appointmentController = appointmentController;
         this.referralManager = new ReferralManager(PersistenceFactory.getReferralPersistence());
+
+        // Initialize notification panel
+        this.notificationPanel = new NotificationPanel(
+            PersistenceFactory.getNotificationPersistence(),
+            loggedIn.getId(),
+            "physician"
+        );
+        this.notificationDialog = new JDialog(frame, "Notifications", false);
+        this.notificationDialog.setContentPane(notificationPanel);
+        this.notificationDialog.pack();
+        this.notificationDialog.setLocationRelativeTo(frame);
+
+        // Register appointment callbacks
+        appointmentController.setOnAppointmentCreated(this::onAppointmentCreated);
+        appointmentController.setOnAppointmentUpdated(this::onAppointmentUpdated);
+        appointmentController.setOnAppointmentDeleted(this::onAppointmentDeleted);
+
         initializeUI();
     }
 
@@ -112,12 +128,27 @@ public class PhysicianApp {
     /* UI setup */
     /*------------------------------------------------------------------*/
     private void initializeUI() {
-        frame = new JFrame(UIConfig.APP_TITLE + " - " + loggedIn.getName());
+        frame = new JFrame("Physician Connect - " + loggedIn.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1200, 800);
         frame.setLocationRelativeTo(null);
         frame.getContentPane().setBackground(UITheme.BACKGROUND_COLOR);
         frame.setLayout(new BorderLayout(10, 10));
+
+        // Initialize notification panel if not already initialized
+        if (notificationPanel == null) {
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "physician"
+            );
+        }
+
+        // Load any existing notifications
+        notificationPanel.loadNotifications();
+
+        // Create notification banner
+        notificationBanner = new NotificationBanner(frame);
 
         /*---------------- Top panel (welcome + notifications) ---------*/
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
@@ -142,9 +173,14 @@ public class PhysicianApp {
         messageButton = new MessageButton();
         messageButton.setOnAction(e -> showMessageDialog());
 
+        // Add notification button
+        JButton notificationButton = createStyledButton("Alerts");
+        notificationButton.addActionListener(e -> showNotificationPanel());
+
         // Right-side panel for profile and message buttons
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightButtonPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        rightButtonPanel.add(notificationButton);
         rightButtonPanel.add(messageButton);
         rightButtonPanel.add(profilePicButton);
 
@@ -389,9 +425,41 @@ public class PhysicianApp {
 
     /*------------------------------------------------------------------*/
     private void refreshAppointments() {
+        // Clear existing appointments
         appointmentListModel.clear();
-        appointmentManager.getAppointmentsForPhysician(loggedIn.getId())
-                .forEach(appointmentListModel::addElement);
+        
+        // Get appointments for the current physician
+        List<Appointment> appointments = appointmentManager.getAppointmentsForPhysician(loggedIn.getId());
+        
+        // Add appointments to the table
+        for (Appointment apt : appointments) {
+            appointmentListModel.addElement(apt);
+        }
+    }
+
+    private void showNotificationPanel() {
+        if (notificationDialog == null) {
+            notificationDialog = new JDialog(frame, "Notifications", false);
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "physician"
+            );
+            notificationDialog.setContentPane(notificationPanel);
+            notificationDialog.pack();
+            notificationDialog.setLocationRelativeTo(frame);
+        }
+        notificationDialog.setVisible(true);
+    }
+
+    private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
+        // Only show banner if the frame is visible (user is logged in)
+        if (frame != null && frame.isVisible()) {
+            if (notificationBanner == null) {
+                notificationBanner = new NotificationBanner(frame);
+            }
+            notificationBanner.show(message, onClick);
+        }
     }
 
     private void showMessageDialog() {
@@ -413,15 +481,102 @@ public class PhysicianApp {
     private void refreshMessageCount() {
         int unreadCount = messageService.getUnreadMessageCount(loggedIn.getId(), "physician");
         messageButton.updateNotificationCount(unreadCount);
+        
+        // Show banner for new messages
+        if (unreadCount > 0) {
+            showNotificationBanner("New message received", e -> showMessageDialog());
+            if (notificationPanel != null) {
+                notificationPanel.addNotification("New message received", "Message");
+            }
+        }
+    }
+
+    private void notifyAppointmentChange(String message, String type) {
+        // Always add to notification panel for persistence
+        if (notificationPanel == null) {
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "physician"
+            );
+        }
+        notificationPanel.addNotification(message, type);
+
+        // Only show banner if user is logged in
+        if (frame != null && frame.isVisible()) {
+            showNotificationBanner(message, e -> {
+                // Refresh the calendar views
+                if (dailyPanel != null) {
+                    dailyPanel.revalidate();
+                    dailyPanel.repaint();
+                }
+                if (weeklyPanel != null) {
+                    weeklyPanel.revalidate();
+                    weeklyPanel.repaint();
+                }
+                refreshAppointments();
+            });
+        }
+    }
+
+    public void onAppointmentCreated(Appointment appointment) {
+        if (appointment.getPhysicianId().equals(loggedIn.getId())) {
+            String message = String.format("New appointment scheduled with %s.", 
+                appointment.getPatientName());
+            
+            // Add to notification panel for persistence
+            if (notificationPanel == null) {
+                notificationPanel = new NotificationPanel(
+                    PersistenceFactory.getNotificationPersistence(),
+                    loggedIn.getId(),
+                    "physician"
+                );
+            }
+            notificationPanel.addNotification(message, "New Appointment!");
+            
+            // Only show banner if user is logged in
+            if (frame != null && frame.isVisible()) {
+                showNotificationBanner(message, e -> {
+                    // Refresh the calendar views and appointments list
+                    if (dailyPanel != null) {
+                        dailyPanel.revalidate();
+                        dailyPanel.repaint();
+                    }
+                    if (weeklyPanel != null) {
+                        weeklyPanel.revalidate();
+                        weeklyPanel.repaint();
+                    }
+                    refreshAppointments();
+                });
+            }
+        }
+    }
+
+    public void onAppointmentUpdated(Appointment appointment) {
+        if (appointment.getPhysicianId().equals(loggedIn.getId())) {
+            String message = String.format("Appointment with %s has been updated.", 
+                appointment.getPatientName());
+            notifyAppointmentChange(message, "Appointment Update!");
+        }
+    }
+
+    public void onAppointmentDeleted(Appointment appointment) {
+        if (appointment.getPhysicianId().equals(loggedIn.getId())) {
+            String message = String.format("Appointment with %s has been cancelled.", 
+                appointment.getPatientName());
+            notifyAppointmentChange(message, "Appointment Cancellation!");
+        }
     }
 
     /*------------------------------------------------------------------*/
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
+            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, 
+            AppointmentController appointmentController, Runnable logoutCallback) {
         try {
             SwingUtilities.invokeLater(() -> {
-                new PhysicianApp(loggedIn, physicianManager, appointmentManager, receptionistManager, logoutCallback);
+                new PhysicianApp(loggedIn, physicianManager, appointmentManager, receptionistManager, 
+                    appointmentController, logoutCallback);
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -460,7 +615,10 @@ public class PhysicianApp {
                 PersistenceFactory.getMedicationPersistence(),
                 prescriptionController,
                 loggedIn.getId(),
-                null));
+                null,
+                notificationPanel,
+                notificationBanner,
+                frame));
         dlg.pack();
         dlg.setLocationRelativeTo(frame);
         dlg.setVisible(true);
@@ -473,7 +631,12 @@ public class PhysicianApp {
 
         JDialog dlg = new JDialog(frame, UIConfig.REFERRAL_DIALOG_TITLE, true);
         dlg.setContentPane(new ReferralPanel(
-                referralManager, loggedIn.getId(), patientNames));
+                referralManager, 
+                loggedIn.getId(), 
+                patientNames,
+                notificationPanel,
+                notificationBanner,
+                frame));
         dlg.pack();
         dlg.setLocationRelativeTo(frame);
         dlg.setVisible(true);

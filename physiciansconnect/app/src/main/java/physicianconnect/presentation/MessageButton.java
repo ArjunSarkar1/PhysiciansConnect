@@ -22,7 +22,7 @@ public class MessageButton extends JPanel {
         setOpaque(false);
 
         // Create message button
-        messageButton = new JButton("Messages 💬");
+        messageButton = new JButton("Messages");
         messageButton.setFont(UITheme.BUTTON_FONT);
         messageButton.setBackground(UITheme.PRIMARY_COLOR);
         messageButton.setForeground(Color.WHITE);

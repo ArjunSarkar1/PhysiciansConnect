@@ -1,6 +1,8 @@
 package physicianconnect.persistence;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,9 +22,10 @@ public class PersistenceFactory {
     private static ReferralPersistence referralPersistence;
     private static MessageRepository messageRepository;
     private static ReceptionistPersistence receptionistPersistence; 
+    private static NotificationPersistence notificationPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null || receptionistPersistence != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null || messageRepository != null || receptionistPersistence != null || notificationPersistence != null)
             return;
 
         switch (type) {
@@ -53,6 +56,7 @@ public class PersistenceFactory {
                     referralPersistence = new ReferralDB(conn);
                     messageRepository = new MessageDB(conn);
                     receptionistPersistence = new ReceptionistDB(conn);
+                    notificationPersistence = new NotificationDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -78,6 +82,7 @@ public class PersistenceFactory {
         referralPersistence = StubFactory.createReferralPersistence();
         messageRepository = new InMemoryMessageRepository();
         receptionistPersistence = StubFactory.createReceptionistPersistence();
+        notificationPersistence = StubFactory.createNotificationPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -112,6 +117,19 @@ public class PersistenceFactory {
         return receptionistPersistence;
     }
 
+    public static NotificationPersistence getNotificationPersistence() {
+        if (notificationPersistence == null) {
+            try {
+                Connection conn = ConnectionManager.get();
+                notificationPersistence = new NotificationDB(conn);
+            } catch (Exception e) {
+                e.printStackTrace();
+                notificationPersistence = StubFactory.createNotificationPersistence();
+            }
+        }
+        return notificationPersistence;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
@@ -121,6 +139,7 @@ public class PersistenceFactory {
         referralPersistence = null;
         messageRepository = null;
         receptionistPersistence = null;
+        notificationPersistence = null;
     }
 
     private static void injectTestUserForGrader() {

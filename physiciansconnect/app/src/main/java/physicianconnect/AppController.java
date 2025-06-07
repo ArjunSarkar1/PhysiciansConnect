@@ -3,6 +3,7 @@ package physicianconnect;
 import physicianconnect.logic.AppointmentManager;
 import physicianconnect.logic.PhysicianManager;
 import physicianconnect.logic.ReceptionistManager;
+import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.presentation.LoginScreen;
 import physicianconnect.presentation.PhysicianApp;
 import physicianconnect.presentation.ReceptionistApp;
@@ -13,11 +14,13 @@ public class AppController {
     private final PhysicianManager physicianManager;
     private final AppointmentManager appointmentManager;
     private final ReceptionistManager receptionistManager;
+    private final AppointmentController appointmentController;
 
     public AppController(PhysicianManager physicianManager, AppointmentManager appointmentManager, ReceptionistManager receptionistManager) {
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
         this.receptionistManager = receptionistManager;
+        this.appointmentController = new AppointmentController(appointmentManager);
     }
 
     public void showLoginScreen() {
@@ -35,6 +38,7 @@ public class AppController {
                 physicianManager,
                 appointmentManager,
                 receptionistManager,
+                appointmentController,
                 this::showLoginScreen
         ));
     }
@@ -45,6 +49,7 @@ public class AppController {
                 physicianManager,
                 appointmentManager,
                 receptionistManager,
+                appointmentController,
                 this::showLoginScreen
         ));
     }
