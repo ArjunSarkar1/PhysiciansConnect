@@ -55,6 +55,8 @@ import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.ProfileImageUtil;
+import physicianconnect.persistence.NotificationPersistence;
+import physicianconnect.objects.Notification;
 
 /**
  * Main window for a logged-in physician.
@@ -564,18 +566,21 @@ public class PhysicianApp {
 
             // Notify all receptionists about the new appointment
             List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            NotificationPersistence notificationPersistence = PersistenceFactory.getNotificationPersistence();
             for (Receptionist receptionist : receptionists) {
                 String receptionistMessage = String.format("New appointment scheduled for %s with %s.", 
                     appointment.getPatientName(),
                     loggedIn.getName());
                 
-                // Create a new notification panel for the receptionist to store the notification
-                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
-                    PersistenceFactory.getNotificationPersistence(),
+                // Add notification directly to persistence
+                Notification notification = new Notification(
+                    receptionistMessage,
+                    "New Appointment!",
+                    LocalDateTime.now(),
                     receptionist.getId(),
                     "receptionist"
                 );
-                receptionistNotificationPanel.addNotification(receptionistMessage, "New Appointment!");
+                notificationPersistence.addNotification(notification);
             }
         }
     }
@@ -588,18 +593,21 @@ public class PhysicianApp {
 
             // Notify all receptionists about the appointment update
             List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            NotificationPersistence notificationPersistence = PersistenceFactory.getNotificationPersistence();
             for (Receptionist receptionist : receptionists) {
                 String receptionistMessage = String.format("Appointment for %s with %s has been updated.", 
                     appointment.getPatientName(),
                     loggedIn.getName());
                 
-                // Create a new notification panel for the receptionist to store the notification
-                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
-                    PersistenceFactory.getNotificationPersistence(),
+                // Add notification directly to persistence
+                Notification notification = new Notification(
+                    receptionistMessage,
+                    "Appointment Update!",
+                    LocalDateTime.now(),
                     receptionist.getId(),
                     "receptionist"
                 );
-                receptionistNotificationPanel.addNotification(receptionistMessage, "Appointment Update!");
+                notificationPersistence.addNotification(notification);
             }
         }
     }
@@ -612,18 +620,21 @@ public class PhysicianApp {
 
             // Notify all receptionists about the appointment cancellation
             List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            NotificationPersistence notificationPersistence = PersistenceFactory.getNotificationPersistence();
             for (Receptionist receptionist : receptionists) {
                 String receptionistMessage = String.format("Appointment for %s with %s has been cancelled.", 
                     appointment.getPatientName(),
                     loggedIn.getName());
                 
-                // Create a new notification panel for the receptionist to store the notification
-                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
-                    PersistenceFactory.getNotificationPersistence(),
+                // Add notification directly to persistence
+                Notification notification = new Notification(
+                    receptionistMessage,
+                    "Appointment Cancellation!",
+                    LocalDateTime.now(),
                     receptionist.getId(),
                     "receptionist"
                 );
-                receptionistNotificationPanel.addNotification(receptionistMessage, "Appointment Cancellation!");
+                notificationPersistence.addNotification(notification);
             }
         }
     }
