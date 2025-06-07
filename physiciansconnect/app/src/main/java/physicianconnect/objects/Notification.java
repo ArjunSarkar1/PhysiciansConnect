@@ -8,6 +8,7 @@ public class Notification {
     private final LocalDateTime timestamp;
     private final String userId;
     private final String userType;
+    private boolean read;
 
     public Notification(String message, String type, LocalDateTime timestamp, String userId, String userType) {
         this.message = message;
@@ -15,6 +16,7 @@ public class Notification {
         this.timestamp = timestamp;
         this.userId = userId;
         this.userType = userType;
+        this.read = false;
     }
 
     public String getMessage() {
@@ -31,5 +33,11 @@ public class Notification {
     }
     public String getUserType() {
         return userType;
+    }
+    public boolean isRead() {
+        return read;
+    }
+    public void markAsRead() {
+        this.read = true;
     }
 } 

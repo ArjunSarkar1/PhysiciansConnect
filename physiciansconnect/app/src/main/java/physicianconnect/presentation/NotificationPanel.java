@@ -21,11 +21,15 @@ public class NotificationPanel extends JPanel {
     private final NotificationPersistence notificationPersistence;
     private final String userId;
     private final String userType;
+    private final List<Notification> unreadNotifications;
+    private LocalDateTime lastViewedTime;
 
     public NotificationPanel(NotificationPersistence notificationPersistence, String userId, String userType) {
         this.notificationPersistence = notificationPersistence;
         this.userId = userId;
         this.userType = userType;
+        this.unreadNotifications = new ArrayList<>();
+        this.lastViewedTime = LocalDateTime.now();
         
         setLayout(new BorderLayout(10, 10));
         setBackground(UITheme.BACKGROUND_COLOR);
@@ -58,9 +62,14 @@ public class NotificationPanel extends JPanel {
      */
     public void loadNotifications() {
         notificationListModel.clear();
+        unreadNotifications.clear();
         List<Notification> storedNotifications = notificationPersistence.getNotificationsForUser(userId, userType);
         for (Notification notification : storedNotifications) {
             notificationListModel.addElement(notification);
+            // Only add to unread if it's newer than last viewed time
+            if (!notification.isRead() && notification.getTimestamp().isAfter(lastViewedTime)) {
+                unreadNotifications.add(notification);
+            }
         }
     }
 
@@ -73,10 +82,26 @@ public class NotificationPanel extends JPanel {
         // Add to the beginning of the list
         notificationListModel.add(0, notification);
         
+        // Always add to unread notifications for new notifications
+        unreadNotifications.add(notification);
+        
         // Keep only the most recent notifications
         while (notificationListModel.size() > MAX_NOTIFICATIONS) {
             notificationListModel.remove(notificationListModel.size() - 1);
         }
+    }
+
+    public int getUnreadNotificationCount() {
+        // Return the actual count of unread notifications
+        return unreadNotifications.size();
+    }
+
+    public void markAllAsRead() {
+        lastViewedTime = LocalDateTime.now();
+        for (Notification notification : unreadNotifications) {
+            notification.markAsRead();
+        }
+        unreadNotifications.clear();
     }
 
     private class NotificationCellRenderer extends DefaultListCellRenderer {

@@ -88,6 +88,8 @@ public class PhysicianApp {
     private NotificationPanel notificationPanel;
     private NotificationBanner notificationBanner;
     private JDialog notificationDialog;
+    private NotificationButton notificationButton;
+    private Timer notificationRefreshTimer;
 
     private final Runnable logoutCallback;
 
@@ -175,8 +177,8 @@ public class PhysicianApp {
         messageButton.setOnAction(e -> showMessageDialog());
 
         // Add notification button
-        JButton notificationButton = createStyledButton("Alerts");
-        notificationButton.addActionListener(e -> showNotificationPanel());
+        notificationButton = new NotificationButton();
+        notificationButton.setOnAction(e -> showNotificationPanel());
 
         // Right-side panel for profile and message buttons
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -199,6 +201,10 @@ public class PhysicianApp {
 
         messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
         messageRefreshTimer.start();
+
+        // Add notification refresh timer
+        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
+        notificationRefreshTimer.start();
 
         frame.add(topPanel, BorderLayout.NORTH);
 
@@ -451,6 +457,9 @@ public class PhysicianApp {
             notificationDialog.setLocationRelativeTo(frame);
         }
         notificationDialog.setVisible(true);
+        // Mark all notifications as read when panel is opened
+        notificationPanel.markAllAsRead();
+        notificationButton.updateNotificationCount(0);
     }
 
     private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
@@ -502,6 +511,8 @@ public class PhysicianApp {
             );
         }
         notificationPanel.addNotification(message, type);
+        // Update notification count immediately
+        notificationButton.updateNotificationCount(notificationPanel.getUnreadNotificationCount());
 
         // Only show banner if user is logged in
         if (frame != null && frame.isVisible()) {
@@ -617,7 +628,12 @@ public class PhysicianApp {
         }
     }
 
-    /*------------------------------------------------------------------*/
+    private void refreshNotificationCount() {
+        if (notificationPanel != null) {
+            int count = notificationPanel.getUnreadNotificationCount();
+            notificationButton.updateNotificationCount(count);
+        }
+    }
 
     public static void launchSingleUser(Physician loggedIn, PhysicianManager physicianManager,
             AppointmentManager appointmentManager, ReceptionistManager receptionistManager, 

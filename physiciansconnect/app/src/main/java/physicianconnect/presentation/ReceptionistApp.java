@@ -63,6 +63,8 @@ public class ReceptionistApp {
     private NotificationPanel notificationPanel;
     private NotificationBanner notificationBanner;
     private JDialog notificationDialog;
+    private NotificationButton notificationButton;
+    private Timer notificationRefreshTimer;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
                            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, 
@@ -150,8 +152,8 @@ public class ReceptionistApp {
         messageButton.setOnAction(e -> showMessageDialog());
 
         // Add notification button
-        JButton notificationButton = createStyledButton("Alerts");
-        notificationButton.addActionListener(e -> showNotificationPanel());
+        notificationButton = new NotificationButton();
+        notificationButton.setOnAction(e -> showNotificationPanel());
 
         // Right-aligned panel for physician dropdown, date/time, and message button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -393,6 +395,13 @@ public class ReceptionistApp {
 
         appointmentManager.addChangeListener(this::updateAppointments);
 
+        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
+        messageRefreshTimer.start();
+
+        // Add notification refresh timer
+        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
+        notificationRefreshTimer.start();
+
         frame.setVisible(true);
     }
 
@@ -461,6 +470,9 @@ public class ReceptionistApp {
             notificationDialog.setLocationRelativeTo(frame);
         }
         notificationDialog.setVisible(true);
+        // Mark all notifications as read when panel is opened
+        notificationPanel.markAllAsRead();
+        notificationButton.updateNotificationCount(0);
     }
 
     private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
@@ -502,6 +514,13 @@ public class ReceptionistApp {
         }
     }
 
+    private void refreshNotificationCount() {
+        if (notificationPanel != null) {
+            int count = notificationPanel.getUnreadNotificationCount();
+            notificationButton.updateNotificationCount(count);
+        }
+    }
+
     private void notifyAppointmentChange(String message, String type) {
         // Always add to notification panel for persistence
         if (notificationPanel == null) {
@@ -512,6 +531,8 @@ public class ReceptionistApp {
             );
         }
         notificationPanel.addNotification(message, type);
+        // Update notification count immediately
+        notificationButton.updateNotificationCount(notificationPanel.getUnreadNotificationCount());
 
         // Only show banner if user is logged in
         if (frame != null && frame.isVisible()) {
