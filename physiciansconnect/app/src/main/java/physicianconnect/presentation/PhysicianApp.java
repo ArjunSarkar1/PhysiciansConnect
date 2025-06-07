@@ -49,6 +49,7 @@ import physicianconnect.logic.controller.PatientHistoryController;
 import physicianconnect.logic.controller.PrescriptionController;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
+import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.sqlite.AppointmentDB;
 import physicianconnect.presentation.config.UIConfig;
@@ -549,6 +550,22 @@ public class PhysicianApp {
                     refreshAppointments();
                 });
             }
+
+            // Notify all receptionists about the new appointment
+            List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            for (Receptionist receptionist : receptionists) {
+                String receptionistMessage = String.format("New appointment scheduled for %s with %s.", 
+                    appointment.getPatientName(),
+                    loggedIn.getName());
+                
+                // Create a new notification panel for the receptionist to store the notification
+                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
+                    PersistenceFactory.getNotificationPersistence(),
+                    receptionist.getId(),
+                    "receptionist"
+                );
+                receptionistNotificationPanel.addNotification(receptionistMessage, "New Appointment!");
+            }
         }
     }
 
@@ -557,6 +574,22 @@ public class PhysicianApp {
             String message = String.format("Appointment with %s has been updated.", 
                 appointment.getPatientName());
             notifyAppointmentChange(message, "Appointment Update!");
+
+            // Notify all receptionists about the appointment update
+            List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            for (Receptionist receptionist : receptionists) {
+                String receptionistMessage = String.format("Appointment for %s with %s has been updated.", 
+                    appointment.getPatientName(),
+                    loggedIn.getName());
+                
+                // Create a new notification panel for the receptionist to store the notification
+                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
+                    PersistenceFactory.getNotificationPersistence(),
+                    receptionist.getId(),
+                    "receptionist"
+                );
+                receptionistNotificationPanel.addNotification(receptionistMessage, "Appointment Update!");
+            }
         }
     }
 
@@ -565,6 +598,22 @@ public class PhysicianApp {
             String message = String.format("Appointment with %s has been cancelled.", 
                 appointment.getPatientName());
             notifyAppointmentChange(message, "Appointment Cancellation!");
+
+            // Notify all receptionists about the appointment cancellation
+            List<Receptionist> receptionists = receptionistManager.getAllReceptionists();
+            for (Receptionist receptionist : receptionists) {
+                String receptionistMessage = String.format("Appointment for %s with %s has been cancelled.", 
+                    appointment.getPatientName(),
+                    loggedIn.getName());
+                
+                // Create a new notification panel for the receptionist to store the notification
+                NotificationPanel receptionistNotificationPanel = new NotificationPanel(
+                    PersistenceFactory.getNotificationPersistence(),
+                    receptionist.getId(),
+                    "receptionist"
+                );
+                receptionistNotificationPanel.addNotification(receptionistMessage, "Appointment Cancellation!");
+            }
         }
     }
 
