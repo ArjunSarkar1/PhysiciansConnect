@@ -19,6 +19,7 @@ import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.presentation.AddAppointmentDialog;
 import physicianconnect.presentation.AllPhysiciansDailyPanel;
+import physicianconnect.presentation.receptionist.BillingPanel;
 import physicianconnect.presentation.DailyAvailabilityPanel;
 import physicianconnect.presentation.MessageButton;
 import physicianconnect.presentation.MessagePanel;
@@ -232,7 +233,7 @@ public class ReceptionistApp {
         revenueSummaryPanel.setBackground(UITheme.BACKGROUND_COLOR);
         revenueSummaryPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
 
-        JButton revenueHeader = new JButton("Revenue Summary ▼");
+        JButton revenueHeader = new JButton(UIConfig.REVENUE_SUMMARY_HEADER + " " + UIConfig.REVENUE_SUMMARY_EXPANDED);
         revenueHeader.setFont(UITheme.LABEL_FONT);
         revenueHeader.setFocusPainted(false);
         revenueHeader.setContentAreaFilled(false);
@@ -247,7 +248,8 @@ public class ReceptionistApp {
         revenueHeader.addActionListener(e -> {
             revenueSummaryCollapsed = !revenueSummaryCollapsed;
             revenueSummaryContent.setVisible(!revenueSummaryCollapsed);
-            revenueHeader.setText("Revenue Summary " + (revenueSummaryCollapsed ? "►" : "▼"));
+            revenueHeader.setText(UIConfig.REVENUE_SUMMARY_HEADER + " " +
+                (revenueSummaryCollapsed ? UIConfig.REVENUE_SUMMARY_COLLAPSED : UIConfig.REVENUE_SUMMARY_EXPANDED));
             revenueSummaryPanel.revalidate();
         });
 
@@ -282,11 +284,13 @@ public class ReceptionistApp {
 
         prevDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
-            updateCalendarPanels();
+            dailyPanel.loadSlotsForDate(selectedDate);
+            dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
         });
         nextDayBtn.addActionListener(e -> {
             selectedDate = selectedDate.plusDays(1);
-            updateCalendarPanels();
+            dailyPanel.loadSlotsForDate(selectedDate);
+            dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
         });
 
         dayNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -308,11 +312,13 @@ public class ReceptionistApp {
 
         prevWeekBtn.addActionListener(e -> {
             weekStart = weekStart.minusWeeks(1);
-            updateCalendarPanels();
+            weeklyPanel.loadWeek(weekStart);
+            weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
         });
         nextWeekBtn.addActionListener(e -> {
             weekStart = weekStart.plusWeeks(1);
-            updateCalendarPanels();
+            weeklyPanel.loadWeek(weekStart);
+            weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
         });
 
         weekNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));

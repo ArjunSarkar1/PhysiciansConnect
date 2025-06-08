@@ -168,6 +168,10 @@ public final class UIConfig {
     public static final String ERROR_NO_PHYSICIAN_SELECTED = "Please select a physician to add an appointment.";
     public static final String DATE_FORMAT = "MMM dd, yyyy";
     public static final String TIME_FORMAT = "hh:mm a";
+    
+    public static final String REVENUE_SUMMARY_HEADER = "Revenue Summary";
+public static final String REVENUE_SUMMARY_COLLAPSED = "►";
+public static final String REVENUE_SUMMARY_EXPANDED = "▼";
 
 
     // ─────────── Billoing stuff to be sorted ───────────
