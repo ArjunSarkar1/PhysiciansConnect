@@ -65,6 +65,7 @@ public class ReceptionistApp {
     private JDialog notificationDialog;
     private NotificationButton notificationButton;
     private Timer notificationRefreshTimer;
+    private int lastNotifiedUnreadMessageCount = 0;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
                            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, 
@@ -505,13 +506,29 @@ public class ReceptionistApp {
         int unreadCount = messageService.getUnreadMessageCount(loggedIn.getId(), "receptionist");
         messageButton.updateNotificationCount(unreadCount);
         
-        // Show banner for new messages
-        if (unreadCount > 0) {
-            showNotificationBanner("New message received", e -> showMessageDialog());
-            if (notificationPanel != null) {
-                notificationPanel.addNotification("New message received", "Message");
+        // Only show banner for new unread messages
+        if (unreadCount > lastNotifiedUnreadMessageCount) {
+            // Find the latest unread message
+            List<physicianconnect.objects.Message> unreadMessages = messageService.getUnreadMessagesForUser(loggedIn.getId(), "receptionist");
+            if (!unreadMessages.isEmpty()) {
+                physicianconnect.objects.Message latest = unreadMessages.get(unreadMessages.size() - 1);
+                String senderType = latest.getSenderType();
+                String senderName = "";
+                
+                if (senderType.equals("physician")) {
+                    senderName = physicianManager.getPhysicianById(latest.getSenderId()).getName();
+                } else if (senderType.equals("receptionist")) {
+                    senderName = receptionistManager.getReceptionistById(latest.getSenderId()).getName();
+                }
+                
+                String notificationMsg = "New message received from " + senderName + " (" + senderType + ")";
+                showNotificationBanner(notificationMsg, e -> showMessageDialog());
+                if (notificationPanel != null) {
+                    notificationPanel.addNotification(notificationMsg, "Message");
+                }
             }
         }
+        lastNotifiedUnreadMessageCount = unreadCount;
     }
 
     private void refreshNotificationCount() {

@@ -116,8 +116,9 @@ public class MessagePanel extends JPanel {
                         .filter(m -> m.getSenderId().equals(UserUtil.getUserId(value))
                                 && m.getSenderType().equals(UserUtil.getUserType(value)))
                         .collect(Collectors.toList());
-                String unreadText = !unreadMessages.isEmpty() ? " (" + unreadMessages.size() + " unread)" : "";
-                setText(name + " (" + email + ")" + unreadText);
+                String unreadText = !unreadMessages.isEmpty() ? 
+                    String.format(" (<span style='color: red;'>%d unread</span>)", unreadMessages.size()) : "";
+                setText("<html>" + name + " (" + email + ")" + unreadText + "</html>");
                 return this;
             }
         });
