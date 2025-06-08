@@ -34,6 +34,10 @@ public class BillingPanel extends JPanel {
     private final TableRowSorter<DefaultTableModel> sorter;
     private final JTextField searchField;
 
+    // For keeping the invoice dialog open and refreshing content
+    private JDialog invoiceDialog;
+    private JPanel invoiceContentPanel;
+
     public BillingPanel(BillingController billingController, AppointmentController appointmentController) {
         this.billingController = billingController;
         this.appointmentController = appointmentController;
@@ -127,7 +131,7 @@ public class BillingPanel extends JPanel {
                         .filter(inv -> inv.getPatientName().equals(patientName))
                         .findFirst().orElse(null);
                 if (invoice != null)
-                    showInvoiceDetail(invoice);
+                    showInvoiceDetail(invoice, billingController.getPaymentsByInvoice(invoice.getId()));
             }
         });
 
@@ -386,7 +390,17 @@ public class BillingPanel extends JPanel {
         return null;
     }
 
-    private void showInvoiceDetail(Invoice invoice) {
+    // --- Dialog-based invoice detail with refreshable content ---
+    private void showInvoiceDetail(Invoice invoice, List<Payment> payments) {
+        if (invoiceDialog == null) {
+            invoiceDialog = new JDialog(SwingUtilities.getWindowAncestor(this), UIConfig.INVOICE_DETAILS_DIALOG_TITLE,
+                    Dialog.ModalityType.APPLICATION_MODAL);
+            invoiceContentPanel = new JPanel(new BorderLayout());
+            invoiceDialog.setContentPane(invoiceContentPanel);
+            invoiceDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        }
+        invoiceContentPanel.removeAll();
+
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(UITheme.BACKGROUND_COLOR);
@@ -438,7 +452,6 @@ public class BillingPanel extends JPanel {
         infoPanel.add(servicesPanel);
 
         // Payment History
-        List<Payment> payments = billingController.getPaymentsByInvoice(invoice.getId());
         if (payments != null && !payments.isEmpty()) {
             JLabel paymentsLabel = new JLabel("Payments:");
             paymentsLabel.setFont(UITheme.LABEL_FONT.deriveFont(Font.BOLD));
@@ -539,6 +552,7 @@ public class BillingPanel extends JPanel {
             if (confirm == JOptionPane.YES_OPTION) {
                 billingController.deleteInvoice(invoice.getId());
                 refreshInvoices();
+                invoiceDialog.dispose();
             }
         });
         btnPanel.add(deleteBtn);
@@ -551,13 +565,20 @@ public class BillingPanel extends JPanel {
         exportBtn.addActionListener(e -> InvoiceExportUtil.exportInvoice(this, invoice, finalApptDateTime, payments));
         btnPanel.add(exportBtn);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(UITheme.BACKGROUND_COLOR);
-        mainPanel.add(infoPanel, BorderLayout.CENTER);
-        mainPanel.add(btnPanel, BorderLayout.SOUTH);
+        JScrollPane scrollPane = new JScrollPane(infoPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // smoother scrolling
+        invoiceContentPanel.add(scrollPane, BorderLayout.CENTER);
+        invoiceContentPanel.add(btnPanel, BorderLayout.SOUTH);
 
-        JOptionPane.showMessageDialog(this, mainPanel, UIConfig.INVOICE_DETAILS_DIALOG_TITLE,
-                JOptionPane.PLAIN_MESSAGE);
+        invoiceContentPanel.revalidate();
+        invoiceContentPanel.repaint();
+
+        if (!invoiceDialog.isVisible()) {
+            invoiceDialog.pack();
+            invoiceDialog.setLocationRelativeTo(this);
+            invoiceDialog.setVisible(true);
+        }
         refreshInvoices();
     }
 
@@ -574,9 +595,6 @@ public class BillingPanel extends JPanel {
         panel.add(new JLabel(UIConfig.PAYMENT_METHOD_LABEL));
         panel.add(methodBox);
 
-        // Find the parent dialog (if any)
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-
         int result = JOptionPane.showConfirmDialog(this, panel, UIConfig.RECORD_PAYMENT_DIALOG_TITLE,
                 JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
@@ -586,17 +604,15 @@ public class BillingPanel extends JPanel {
                 BillingValidator.validatePaymentAmount(amount, invoice.getBalance());
                 billingController.recordPayment(invoice.getId(), amount, method);
                 refreshInvoices();
-                // Close the parent dialog if it's a JDialog (the invoice details dialog)
-                if (parentWindow instanceof JDialog) {
-                    parentWindow.dispose();
-                }
-                // Show the updated invoice details
-                showInvoiceDetail(invoice);
+                // Fetch updated invoice and payments
+                Invoice updatedInvoice = billingController.getInvoiceById(invoice.getId());
+                List<Payment> updatedPayments = billingController.getPaymentsByInvoice(invoice.getId());
+                // Show updated details in the same dialog (refresh content)
+                showInvoiceDetail(updatedInvoice, updatedPayments);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.ERROR_DIALOG_TITLE,
                         JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-
 }

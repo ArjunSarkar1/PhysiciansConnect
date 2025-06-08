@@ -58,6 +58,10 @@ public class BillingController {
     return invoiceManager.getAllInvoices();
 }
 
+public Invoice getInvoiceById(String id) {
+    return invoiceManager.getInvoiceById(id);
+}
+
 public void deleteInvoice(String id) {
     invoiceManager.deleteInvoice(id);
 }
