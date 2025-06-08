@@ -77,4 +77,8 @@ public class AppointmentController {
     public List<Appointment> getAppointmentsForPhysician(String physicianId) {
         return appointmentManager.getAppointmentsForPhysician(physicianId);
     }
+
+    public List<Appointment> getAllAppointments() {
+    return appointmentManager.getAllAppointments();
+}
 }

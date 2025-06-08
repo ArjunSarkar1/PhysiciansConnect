@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.physician;
 
 import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.Referral;

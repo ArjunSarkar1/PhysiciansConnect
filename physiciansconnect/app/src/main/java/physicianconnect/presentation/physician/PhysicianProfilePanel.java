@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.physician;
 
 import physicianconnect.AppController;
 import physicianconnect.logic.manager.AppointmentManager;

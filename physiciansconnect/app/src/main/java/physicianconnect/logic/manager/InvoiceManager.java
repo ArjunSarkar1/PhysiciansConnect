@@ -14,4 +14,7 @@ public class InvoiceManager {
     public List<Invoice> getInvoicesByMonth(int year, int month) { return invoiceDB.getInvoicesByMonth(year, month); }
     public List<Invoice> getAllInvoices() { return invoiceDB.getAllInvoices(); }
     public void updateInvoice(Invoice invoice) { invoiceDB.updateInvoice(invoice); }
+    public void deleteInvoice(String id) {
+    invoiceDB.deleteInvoiceById(id);
+}
 }

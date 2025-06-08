@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.physician;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,6 +48,12 @@ import physicianconnect.objects.Appointment;
 import physicianconnect.objects.Physician;
 import physicianconnect.persistence.PersistenceFactory;
 import physicianconnect.persistence.sqlite.AppointmentDB;
+import physicianconnect.presentation.AddAppointmentDialog;
+import physicianconnect.presentation.DailyAvailabilityPanel;
+import physicianconnect.presentation.MessageButton;
+import physicianconnect.presentation.MessagePanel;
+import physicianconnect.presentation.ViewAppointmentDialog;
+import physicianconnect.presentation.WeeklyAvailabilityPanel;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.ProfileImageUtil;

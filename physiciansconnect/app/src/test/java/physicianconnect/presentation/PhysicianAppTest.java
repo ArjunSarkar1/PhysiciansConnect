@@ -9,6 +9,7 @@ import physicianconnect.objects.Physician;
 import physicianconnect.persistence.stub.AppointmentPersistenceStub;
 import physicianconnect.persistence.stub.PhysicianPersistenceStub;
 import physicianconnect.persistence.stub.ReceptionistPersistenceStub;
+import physicianconnect.presentation.physician.PhysicianApp;
 
 import javax.swing.*;
 import java.lang.reflect.Field;

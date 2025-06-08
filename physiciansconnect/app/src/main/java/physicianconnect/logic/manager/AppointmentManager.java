@@ -114,4 +114,8 @@ public class AppointmentManager {
         }
         return true;
     }
+
+    public List<Appointment> getAllAppointments() {
+    return appointmentDB.getAllAppointments();
+}
 }

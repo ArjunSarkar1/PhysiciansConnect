@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.receptionist;
 
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.MessageService;
@@ -12,13 +12,22 @@ import physicianconnect.logic.manager.PaymentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.objects.Appointment;
+import physicianconnect.objects.Invoice;
 import physicianconnect.objects.Payment;
 import physicianconnect.objects.Physician;
 import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
+import physicianconnect.presentation.AddAppointmentDialog;
+import physicianconnect.presentation.AllPhysiciansDailyPanel;
+import physicianconnect.presentation.DailyAvailabilityPanel;
+import physicianconnect.presentation.MessageButton;
+import physicianconnect.presentation.MessagePanel;
+import physicianconnect.presentation.ViewAppointmentDialog;
+import physicianconnect.presentation.WeeklyAvailabilityPanel;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.ProfileImageUtil;
+import physicianconnect.presentation.util.RevenueSummaryUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -66,6 +75,11 @@ public class ReceptionistApp {
     private MessageButton messageButton;
     private Timer dateTimeTimer;
     private JButton profilePicButton;
+
+    // Revenue summary fields
+    private JPanel revenueSummaryPanel;
+    private JPanel revenueSummaryContent;
+    private boolean revenueSummaryCollapsed = false;
 
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
             AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
@@ -212,6 +226,35 @@ public class ReceptionistApp {
         appointmentScroll.setPreferredSize(new Dimension(600, 300));
         appointmentScroll.setBorder(BorderFactory.createLineBorder(UITheme.PRIMARY_COLOR, 1));
         appointmentsPanel.add(appointmentScroll, BorderLayout.CENTER);
+
+        // --- Revenue Summary Panel (collapsible) ---
+        revenueSummaryPanel = new JPanel(new BorderLayout());
+        revenueSummaryPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        revenueSummaryPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+
+        JButton revenueHeader = new JButton("Revenue Summary ▼");
+        revenueHeader.setFont(UITheme.LABEL_FONT);
+        revenueHeader.setFocusPainted(false);
+        revenueHeader.setContentAreaFilled(false);
+        revenueHeader.setBorderPainted(false);
+        revenueHeader.setHorizontalAlignment(SwingConstants.LEFT);
+
+        revenueSummaryContent = new JPanel(new BorderLayout());
+        revenueSummaryContent.setBackground(UITheme.BACKGROUND_COLOR);
+
+        updateRevenueSummary();
+
+        revenueHeader.addActionListener(e -> {
+            revenueSummaryCollapsed = !revenueSummaryCollapsed;
+            revenueSummaryContent.setVisible(!revenueSummaryCollapsed);
+            revenueHeader.setText("Revenue Summary " + (revenueSummaryCollapsed ? "►" : "▼"));
+            revenueSummaryPanel.revalidate();
+        });
+
+        revenueSummaryPanel.add(revenueHeader, BorderLayout.NORTH);
+        revenueSummaryPanel.add(revenueSummaryContent, BorderLayout.CENTER);
+
+        appointmentsPanel.add(revenueSummaryPanel, BorderLayout.SOUTH);
 
         // Calendar Panels
         selectedDate = LocalDate.now();
@@ -372,12 +415,14 @@ public class ReceptionistApp {
         });
 
         billingBtn.addActionListener(e -> {
-            BillingPanel billingPanel = new BillingPanel(billingController);
+            BillingPanel billingPanel = new BillingPanel(billingController, appointmentController);
             JDialog billingDialog = new JDialog(frame, UIConfig.BILLING_DIALOG_TITLE, true);
             billingDialog.setContentPane(billingPanel);
             billingDialog.setSize(800, 600);
             billingDialog.setLocationRelativeTo(frame);
             billingDialog.setVisible(true);
+            // Refresh revenue summary after billing dialog closes
+            updateRevenueSummary();
         });
 
         signOutButton.addActionListener(e -> {
@@ -516,6 +561,16 @@ public class ReceptionistApp {
         }
     }
 
+    private void updateRevenueSummary() {
+        revenueSummaryContent.removeAll();
+        List<Invoice> invoices = billingController.getAllInvoices();
+        JPanel summary = RevenueSummaryUtil.createSummaryPanel(invoices);
+        revenueSummaryContent.add(summary, BorderLayout.CENTER);
+        revenueSummaryContent.setVisible(!revenueSummaryCollapsed);
+        revenueSummaryContent.revalidate();
+        revenueSummaryContent.repaint();
+    }
+
     private void showMessageDialog() {
         JDialog dialog = new JDialog(frame, UIConfig.MESSAGES_DIALOG_TITLE, true);
 
@@ -589,5 +644,4 @@ public class ReceptionistApp {
         dlg.setLocationRelativeTo(frame);
         dlg.setVisible(true);
     }
-
 }

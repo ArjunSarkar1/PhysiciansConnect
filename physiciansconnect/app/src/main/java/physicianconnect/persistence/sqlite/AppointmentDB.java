@@ -37,8 +37,7 @@ public class AppointmentDB implements AppointmentPersistence {
                         physicianId,
                         patient,
                         LocalDateTime.parse(dateTime),
-                        notes
-                ));
+                        notes));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load appointments", e);
@@ -49,14 +48,14 @@ public class AppointmentDB implements AppointmentPersistence {
 
     // ─── New method: fetch by date range ─────────────────────────────────────────
     /**
-     * Returns all appointments for 'physicianId' whose datetime is >= start AND < end.
+     * Returns all appointments for 'physicianId' whose datetime is >= start AND <
+     * end.
      */
     @Override
     public List<Appointment> getAppointmentsForPhysicianInRange(
             String physicianId,
             LocalDateTime start,
-            LocalDateTime end
-    ) {
+            LocalDateTime end) {
         List<Appointment> list = new ArrayList<>();
         String sql = "SELECT patient_name, datetime, notes " +
                 "FROM appointments " +
@@ -67,21 +66,21 @@ public class AppointmentDB implements AppointmentPersistence {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, physicianId);
-            // We assume your 'datetime' column is stored as a TEXT in ISO-8601 format (e.g. "2025-06-01T09:00")
-            stmt.setString(2, start.toString());  // "2025-06-01T09:00"
-            stmt.setString(3, end.toString());    // "2025-06-01T17:00"
+            // We assume your 'datetime' column is stored as a TEXT in ISO-8601 format (e.g.
+            // "2025-06-01T09:00")
+            stmt.setString(2, start.toString()); // "2025-06-01T09:00"
+            stmt.setString(3, end.toString()); // "2025-06-01T17:00"
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                String patient  = rs.getString("patient_name");
+                String patient = rs.getString("patient_name");
                 String dateTime = rs.getString("datetime");
-                String notes    = rs.getString("notes");
+                String notes = rs.getString("notes");
                 list.add(new Appointment(
                         physicianId,
                         patient,
                         LocalDateTime.parse(dateTime),
-                        notes
-                ));
+                        notes));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load appointments in range", e);
@@ -147,5 +146,25 @@ public class AppointmentDB implements AppointmentPersistence {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete all appointments", e);
         }
+    }
+
+    @Override
+    public List<Appointment> getAllAppointments() {
+        List<Appointment> list = new ArrayList<>();
+        String sql = "SELECT id, physician_id, patient_name, datetime, notes FROM appointments";
+        try (Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String physicianId = rs.getString("physician_id");
+                String patient = rs.getString("patient_name");
+                String dateTime = rs.getString("datetime");
+                String notes = rs.getString("notes");
+                list.add(new Appointment(id, physicianId, patient, LocalDateTime.parse(dateTime), notes));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load appointments", e);
+        }
+        return list;
     }
 }

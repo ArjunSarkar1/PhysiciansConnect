@@ -5,7 +5,10 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+
+import javafx.scene.Cursor;
 
 public final class UITheme {
     // ─────────── Color Palette ───────────
@@ -43,6 +46,7 @@ public final class UITheme {
             }
         });
     }
+
 
     // Prevent instantiation
     private UITheme() { }

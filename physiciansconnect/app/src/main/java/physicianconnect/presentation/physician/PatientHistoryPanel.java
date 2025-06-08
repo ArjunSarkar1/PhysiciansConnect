@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.physician;
 
 import java.awt.BorderLayout;
 import java.util.Set;

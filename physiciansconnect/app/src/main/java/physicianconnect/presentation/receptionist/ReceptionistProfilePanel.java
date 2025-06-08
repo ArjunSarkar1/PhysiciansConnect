@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.receptionist;
 
 import physicianconnect.objects.Receptionist;
 import physicianconnect.presentation.config.UIConfig;

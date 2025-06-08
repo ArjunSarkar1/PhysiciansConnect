@@ -12,4 +12,5 @@ public class BillingValidator {
     public static void validateInvoiceServices(List<ServiceItem> services) throws InvalidBillingException {
         if (services == null || services.isEmpty()) throw new InvalidBillingException("At least one service is required.");
     }
+
 }

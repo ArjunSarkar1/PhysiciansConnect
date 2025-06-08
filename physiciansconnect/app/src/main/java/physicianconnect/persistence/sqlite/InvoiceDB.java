@@ -130,4 +130,15 @@ private Invoice fromResultSet(ResultSet rs) throws SQLException {
         }
         return list;
     }
+
+    @Override
+public void deleteInvoiceById(String id) {
+    String sql = "DELETE FROM invoices WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setString(1, id);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        throw new RuntimeException("Failed to delete invoice", e);
+    }
+}
 }

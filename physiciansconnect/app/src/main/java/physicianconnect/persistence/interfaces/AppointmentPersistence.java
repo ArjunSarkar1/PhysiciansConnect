@@ -18,6 +18,8 @@ public interface AppointmentPersistence {
 
     void deleteAllAppointments();
 
+    List<Appointment> getAllAppointments();
+
     /**
      * Fetch all appointments for a given physician whose datetime is ≥ start AND < end.
      */

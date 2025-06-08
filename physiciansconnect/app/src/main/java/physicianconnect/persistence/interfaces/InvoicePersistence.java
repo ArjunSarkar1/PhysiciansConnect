@@ -9,4 +9,5 @@ public interface InvoicePersistence {
     List<Invoice> getInvoicesByMonth(int year, int month);
     List<Invoice> getAllInvoices();
     void updateInvoice(Invoice invoice);
+    void deleteInvoiceById(String id);
 }

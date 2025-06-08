@@ -4,8 +4,8 @@ import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReceptionistManager;
 import physicianconnect.presentation.LoginScreen;
-import physicianconnect.presentation.PhysicianApp;
-import physicianconnect.presentation.ReceptionistApp;
+import physicianconnect.presentation.physician.PhysicianApp;
+import physicianconnect.presentation.receptionist.ReceptionistApp;
 
 import javax.swing.*;
 

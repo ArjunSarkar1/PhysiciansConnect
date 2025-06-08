@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.presentation.physician;
 
 import physicianconnect.persistence.interfaces.MedicationPersistence;
 import physicianconnect.logic.controller.PrescriptionController;

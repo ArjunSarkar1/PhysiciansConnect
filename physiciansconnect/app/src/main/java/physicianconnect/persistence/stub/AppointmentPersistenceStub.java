@@ -30,16 +30,16 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
 
     @Override
     public void addAppointment(Appointment appointment) {
-            appointments.add(appointment);
-        }
+        appointments.add(appointment);
+    }
 
     @Override
     public void updateAppointment(Appointment appointment) {
         for (int i = 0; i < appointments.size(); i++) {
             Appointment existing = appointments.get(i);
             if (existing.getPhysicianId().equals(appointment.getPhysicianId()) &&
-                existing.getPatientName().equals(appointment.getPatientName()) &&
-                existing.getDateTime().equals(appointment.getDateTime())) {
+                    existing.getPatientName().equals(appointment.getPatientName()) &&
+                    existing.getDateTime().equals(appointment.getDateTime())) {
                 appointments.set(i, appointment);
                 break;
             }
@@ -48,11 +48,9 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
 
     @Override
     public void deleteAppointment(Appointment appointment) {
-        appointments.removeIf(a -> 
-            a.getPhysicianId().equals(appointment.getPhysicianId()) &&
-            a.getPatientName().equals(appointment.getPatientName()) &&
-            a.getDateTime().equals(appointment.getDateTime())
-        );
+        appointments.removeIf(a -> a.getPhysicianId().equals(appointment.getPhysicianId()) &&
+                a.getPatientName().equals(appointment.getPatientName()) &&
+                a.getDateTime().equals(appointment.getDateTime()));
     }
 
     @Override
@@ -64,8 +62,7 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
     public List<Appointment> getAppointmentsForPhysicianInRange(
             String physicianId,
             LocalDateTime start,
-            LocalDateTime end
-    ) {
+            LocalDateTime end) {
         List<Appointment> result = new ArrayList<>();
         for (Appointment appt : appointments) {
             if (appt.getPhysicianId().equals(physicianId)) {
@@ -77,6 +74,11 @@ public class AppointmentPersistenceStub implements AppointmentPersistence {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<Appointment> getAllAppointments() {
+        return new ArrayList<>(appointments);
     }
 
     public void close() {

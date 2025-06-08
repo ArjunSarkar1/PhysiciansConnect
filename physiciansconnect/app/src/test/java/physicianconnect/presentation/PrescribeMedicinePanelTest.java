@@ -14,6 +14,7 @@ import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
 import physicianconnect.persistence.stub.MedicationPersistenceStub;
 import physicianconnect.persistence.stub.PrescriptionPersistenceStub;
+import physicianconnect.presentation.physician.PrescribeMedicinePanel;
 
 class PrescribeMedicinePanelTest {
 

@@ -57,4 +57,8 @@ public class BillingController {
     public List<Invoice> getAllInvoices() {
     return invoiceManager.getAllInvoices();
 }
+
+public void deleteInvoice(String id) {
+    invoiceManager.deleteInvoice(id);
+}
 }

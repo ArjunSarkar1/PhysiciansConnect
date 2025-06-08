@@ -169,6 +169,41 @@ public final class UIConfig {
     public static final String DATE_FORMAT = "MMM dd, yyyy";
     public static final String TIME_FORMAT = "hh:mm a";
 
+
+    // ─────────── Billoing stuff to be sorted ───────────
+    public static final String NEW_INVOICE_BUTTON_TEXT = "New Invoice";
+public static final String REVENUE_SUMMARY_BUTTON_TEXT = "Revenue Summary";
+public static final String TOTAL_LABEL = "Total";
+public static final String BALANCE_LABEL = "Balance";
+public static final String STATUS_LABEL = "Status";
+public static final String APPOINTMENT_LABEL = "Appointment: ";
+public static final String SERVICES_LABEL = "Services:";
+public static final String INSURANCE_TYPE_LABEL = "Insurance Type:";
+public static final String INSURANCE_ADJUSTMENT_LABEL = "Insurance Adjustment:";
+public static final String SELECT_SERVICES_BUTTON_TEXT = "Select Services";
+public static final String NO_SERVICES_SELECTED_LABEL = "No services selected";
+public static final String SERVICES_SELECTED_LABEL = "services selected";
+public static final String SELECT_SERVICES_DIALOG_TITLE = "Select Services";
+public static final String ERROR_NO_SERVICES_SELECTED = "Please select at least one service.";
+public static final String ERROR_NO_INSURANCE_SELECTED = "Please select an insurance type.";
+public static final String ERROR_DUPLICATE_INVOICE = "An invoice already exists for this appointment.";
+public static final String ERROR_INVALID_AMOUNT = "Invalid amount for ";
+public static final String RECORD_PAYMENT_BUTTON_TEXT = "Record Payment";
+public static final String DELETE_INVOICE_BUTTON_TEXT = "Delete Invoice";
+public static final String CONFIRM_DELETE_INVOICE = "Delete this invoice?";
+public static final String INVOICE_DETAILS_DIALOG_TITLE = "Invoice Details";
+public static final String AMOUNT_LABEL = "Amount:";
+public static final String PAYMENT_METHOD_LABEL = "Payment Method:";
+public static final String RECORD_PAYMENT_DIALOG_TITLE = "Record Payment";
+public static final String REVENUE_SUMMARY_FORMAT = "Total Billed: $%.2f\nTotal Paid: $%.2f\nOutstanding: $%.2f";
+public static final String REVENUE_SUMMARY_TITLE = "Revenue Summary";
+public static final String REVENUE_SUMMARY_DIALOG_TITLE = "Revenue Summary";
+public static final String TOTAL_BILLED_LABEL = "Billed";
+public static final String TOTAL_PAID_LABEL = "Paid";
+public static final String OUTSTANDING_LABEL = "Outstanding";
+public static final String CREATED_LABEL = "Created: ";
+    public static final String NEW_INVOICE_DIALOG_TITLE = "Create New Invoice";
+
     // Prevent instantiation
     private UIConfig() {
     }
