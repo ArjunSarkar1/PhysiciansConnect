@@ -2,10 +2,13 @@ package physicianconnect.logic.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.ArrayList;
 
 import physicianconnect.logic.exceptions.InvalidAppointmentException;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Appointment;
+import physicianconnect.presentation.physician.PhysicianApp;
 
 /**
  * Controller for Appointment use‐cases.
@@ -13,9 +16,57 @@ import physicianconnect.objects.Appointment;
  */
 public class AppointmentController {
     private final AppointmentManager appointmentManager;
+    private final List<Consumer<Appointment>> onAppointmentCreatedCallbacks = new ArrayList<>();
+    private final List<Consumer<Appointment>> onAppointmentUpdatedCallbacks = new ArrayList<>();
+    private final List<Consumer<Appointment>> onAppointmentDeletedCallbacks = new ArrayList<>();
 
     public AppointmentController(AppointmentManager appointmentManager) {
         this.appointmentManager = appointmentManager;
+    }
+
+    public void setOnAppointmentCreated(Consumer<Appointment> callback) {
+        this.onAppointmentCreatedCallbacks.add(callback);
+    }
+
+    public void setOnAppointmentUpdated(Consumer<Appointment> callback) {
+        this.onAppointmentUpdatedCallbacks.add(callback);
+    }
+
+    public void setOnAppointmentDeleted(Consumer<Appointment> callback) {
+        this.onAppointmentDeletedCallbacks.add(callback);
+    }
+
+    private void notifyAppointmentCreated(Appointment appointment) {
+        for (Consumer<Appointment> callback : onAppointmentCreatedCallbacks) {
+            try {
+                callback.accept(appointment);
+            } catch (Exception e) {
+                // Log error but continue notifying other callbacks
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void notifyAppointmentUpdated(Appointment appointment) {
+        for (Consumer<Appointment> callback : onAppointmentUpdatedCallbacks) {
+            try {
+                callback.accept(appointment);
+            } catch (Exception e) {
+                // Log error but continue notifying other callbacks
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void notifyAppointmentDeleted(Appointment appointment) {
+        for (Consumer<Appointment> callback : onAppointmentDeletedCallbacks) {
+            try {
+                callback.accept(appointment);
+            } catch (Exception e) {
+                // Log error but continue notifying other callbacks
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -40,6 +91,7 @@ public class AppointmentController {
         }
         // Delegate to manager, which will validate + persist
         appointmentManager.addAppointment(appt);
+        notifyAppointmentCreated(appt);
     }
 
     /**
@@ -47,16 +99,17 @@ public class AppointmentController {
      *
      * @param appt     the Appointment object to modify
      * @param newNotes the new notes string
-     * @throws InvalidAppointmentException if manager’s validation fails
+     * @throws InvalidAppointmentException if manager's validation fails
      */
     public void updateAppointmentNotes(
             Appointment appt,
             String newNotes
     ) throws InvalidAppointmentException {
-        // Update the in‐memory object
+        // Update the in-memory object
         appt.setNotes(newNotes == null ? "" : newNotes.trim());
         // Delegate to manager, which validates slot availability and persists
         appointmentManager.updateAppointment(appt);
+        notifyAppointmentUpdated(appt);
     }
 
     /**
@@ -66,12 +119,13 @@ public class AppointmentController {
      */
     public void deleteAppointment(Appointment appt) {
         appointmentManager.deleteAppointment(appt);
+        notifyAppointmentDeleted(appt);
     }
 
     /**
      * Fetch all appointments for a given physician.
      *
-     * @param physicianId the physician’s ID
+     * @param physicianId the physician's ID
      * @return an unmodifiable List of Appointment objects
      */
     public List<Appointment> getAppointmentsForPhysician(String physicianId) {

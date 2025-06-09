@@ -35,7 +35,7 @@ import physicianconnect.presentation.config.UITheme;
  *  • A 3-arg constructor  (parent, controller, physicianId)
  *  • A 4-arg constructor  (parent, controller, physicianId, onSuccessCallback)
  */
-public class AddAppointmentDialog extends JDialog {
+public class AddAppointmentPanel extends JDialog {
 
     /*------------------------------------------------------------------*/
     /* Fields                                                           */
@@ -52,13 +52,13 @@ public class AddAppointmentDialog extends JDialog {
     /*------------------------------------------------------------------*/
     /* Constructors                                                     */
     /*------------------------------------------------------------------*/
-    public AddAppointmentDialog(JFrame parent,
+    public AddAppointmentPanel(JFrame parent,
                                 AppointmentController appointmentController,
                                 String physicianId) {
         this(parent, appointmentController, physicianId, null);
     }
 
-    public AddAppointmentDialog(JFrame parent,
+    public AddAppointmentPanel(JFrame parent,
                                 AppointmentController appointmentController,
                                 String physicianId,
                                 Runnable onSuccessCallback) {

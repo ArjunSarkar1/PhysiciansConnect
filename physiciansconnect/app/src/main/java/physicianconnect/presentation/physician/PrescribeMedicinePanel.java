@@ -5,6 +5,8 @@ import physicianconnect.logic.controller.PrescriptionController;
 import physicianconnect.logic.exceptions.InvalidPrescriptionException;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.objects.Medication;
+import physicianconnect.presentation.NotificationBanner;
+import physicianconnect.presentation.NotificationPanel;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 
@@ -26,6 +28,9 @@ public class PrescribeMedicinePanel extends JPanel {
     private final PrescriptionController prescriptionController;
     private final String physicianId;
     private final Runnable onPrescriptionAdded;
+    private final NotificationPanel notificationPanel;
+    private final NotificationBanner notificationBanner;
+    private final JFrame parentFrame;
 
     private JComboBox<String> patientCombo;
     private JComboBox<Medication> medicineCombo;
@@ -38,10 +43,16 @@ public class PrescribeMedicinePanel extends JPanel {
                                   MedicationPersistence medicationPersistence,
                                   PrescriptionController prescriptionController,
                                   String physicianId,
-                                  Runnable onPrescriptionAdded) {
+                                  Runnable onPrescriptionAdded,
+                                  NotificationPanel notificationPanel,
+                                  NotificationBanner notificationBanner,
+                                  JFrame parentFrame) {
         this.prescriptionController = prescriptionController;
         this.physicianId            = physicianId;
         this.onPrescriptionAdded    = onPrescriptionAdded;
+        this.notificationPanel       = notificationPanel;
+        this.notificationBanner      = notificationBanner;
+        this.parentFrame           = parentFrame;
 
         setLayout(new GridBagLayout());
         setBackground(UITheme.BACKGROUND_COLOR);
@@ -168,21 +179,44 @@ public class PrescribeMedicinePanel extends JPanel {
                         notes
                 );
 
+                String message = String.format("New prescription added for %s: %s", patient, med.getName());
+                
+                // Show success pop-up
                 JOptionPane.showMessageDialog(
-                        this,
-                        UIConfig.SUCCESS_PRESCRIPTION_ADDED
-                                .replace("{patient}", patient)
-                                .replace("{med}", med.getName()),
-                        UIConfig.SUCCESS_DIALOG_TITLE,
-                        JOptionPane.INFORMATION_MESSAGE
+                    this,
+                    message,
+                    UIConfig.SUCCESS_DIALOG_TITLE,
+                    JOptionPane.INFORMATION_MESSAGE
                 );
+                
+                // Show banner notification
+                if (notificationBanner != null) {
+                    notificationBanner.show(message, event -> {
+                        // Refresh the views
+                        if (onPrescriptionAdded != null) {
+                            onPrescriptionAdded.run();
+                        }
+                        // Close the dialog
+                        Window window = SwingUtilities.getWindowAncestor(this);
+                        if (window != null) {
+                            window.dispose();
+                        }
+                    });
+                }
+                
+                // Add to notification panel
+                if (notificationPanel != null) {
+                    notificationPanel.addNotification(message, "New Prescription!");
+                }
 
-                if (onPrescriptionAdded != null) {
-                    onPrescriptionAdded.run();
+                // Close the dialog
+                Window window = SwingUtilities.getWindowAncestor(this);
+                if (window != null) {
+                    window.dispose();
                 }
 
             } catch (InvalidPrescriptionException ex) {
-                // Display the validator’s message
+                // Display the validator's message
                 JOptionPane.showMessageDialog(
                         this,
                         ex.getMessage(),

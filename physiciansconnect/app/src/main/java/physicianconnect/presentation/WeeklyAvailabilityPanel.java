@@ -103,7 +103,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
                             JOptionPane.YES_NO_OPTION
                     );
                     if (choice == JOptionPane.YES_OPTION) {
-                        AddAppointmentDialog addDlg = new AddAppointmentDialog(
+                        AddAppointmentPanel addDlg = new AddAppointmentPanel(
                                 (JFrame) SwingUtilities.getWindowAncestor(WeeklyAvailabilityPanel.this),
                                 appointmentController,
                                 String.valueOf(physicianId),
@@ -131,7 +131,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
                             .orElse(null);
 
                     if (existingAppt != null) {
-                        ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
+                        ViewAppointmentPanel viewDlg = new ViewAppointmentPanel(
                                 (JFrame) SwingUtilities.getWindowAncestor(WeeklyAvailabilityPanel.this),
                                 appointmentController,
                                 existingAppt,

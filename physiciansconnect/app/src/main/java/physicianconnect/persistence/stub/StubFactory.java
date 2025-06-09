@@ -1,6 +1,10 @@
 package physicianconnect.persistence.stub;
 
 import physicianconnect.persistence.interfaces.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import physicianconnect.objects.Notification;
 
 public class StubFactory {
 
@@ -34,5 +38,30 @@ public class StubFactory {
 
     public static PaymentPersistence createPaymentPersistence() {
         return new PaymentPersistenceStub(true); // seeded
+    }
+
+    public static NotificationPersistence createNotificationPersistence() {
+        return new StubNotificationPersistence();
+    }
+
+    private static class StubNotificationPersistence implements NotificationPersistence {
+        private final List<Notification> notifications = new ArrayList<>();
+
+        @Override
+        public void addNotification(Notification notification) {
+            notifications.add(notification);
+        }
+
+        @Override
+        public List<Notification> getNotificationsForUser(String userId, String userType) {
+            return notifications.stream()
+                .filter(n -> n.getUserId().equals(userId) && n.getUserType().equals(userType))
+                .collect(Collectors.toList());
+        }
+
+        @Override
+        public void clearNotificationsForUser(String userId, String userType) {
+            notifications.removeIf(n -> n.getUserId().equals(userId) && n.getUserType().equals(userType));
+        }
     }
 }

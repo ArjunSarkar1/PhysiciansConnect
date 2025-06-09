@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
  * Dialog for viewing / editing / deleting a single appointment.
  * All persistence now goes through AppointmentController.
  */
-public class ViewAppointmentDialog extends JDialog {
+public class ViewAppointmentPanel extends JDialog {
     private final AppointmentController appointmentController;   // CHANGED
     private final Appointment appointment;
     private final Runnable    onSuccess;       // may be null
@@ -22,13 +22,13 @@ public class ViewAppointmentDialog extends JDialog {
     private JTextArea notesArea;
 
     // ──────────────────────────────────────────────────────────────────────────
-    public ViewAppointmentDialog(JFrame parent,
+    public ViewAppointmentPanel(JFrame parent,
                                  AppointmentController controller,   // CHANGED
                                  Appointment appt) {
         this(parent, controller, appt, null);
     }
 
-    public ViewAppointmentDialog(JFrame parent,
+    public ViewAppointmentPanel(JFrame parent,
                                  AppointmentController controller,   // CHANGED
                                  Appointment appt,
                                  Runnable onSuccess) {

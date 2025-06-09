@@ -2,6 +2,8 @@ package physicianconnect.presentation.physician;
 
 import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.Referral;
+import physicianconnect.presentation.NotificationBanner;
+import physicianconnect.presentation.NotificationPanel;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 
@@ -16,18 +18,26 @@ import java.util.List;
  */
 public class ReferralPanel extends JPanel {
     private final ReferralManager referralManager;
-    private final String       physicianId;
-    private JComboBox<String>  patientCombo;
-    private JTextField         typeField;
-    private JTextArea          detailsArea;
-    private JButton            createButton;
-    private JTextArea          referralListArea;
+    private final String physicianId;
+    private final List<String> patientNames;
+    private final NotificationPanel notificationPanel;
+    private final NotificationBanner notificationBanner;
+    private final JFrame parentFrame;
 
-    public ReferralPanel(ReferralManager referralManager,
-                         String physicianId,
-                         List<String> patientNames) {
+    private JComboBox<String> patientCombo;
+    private JTextField typeField;
+    private JTextArea detailsArea;
+    private JTextArea referralListArea;
+    private JButton createButton;
+
+    public ReferralPanel(ReferralManager referralManager, String physicianId, List<String> patientNames,
+                        NotificationPanel notificationPanel, NotificationBanner notificationBanner, JFrame parentFrame) {
         this.referralManager = referralManager;
-        this.physicianId     = physicianId;
+        this.physicianId = physicianId;
+        this.patientNames = patientNames;
+        this.notificationPanel = notificationPanel;
+        this.notificationBanner = notificationBanner;
+        this.parentFrame = parentFrame;
 
         setLayout(new BorderLayout(10, 10));
         setBackground(UITheme.BACKGROUND_COLOR);
@@ -144,12 +154,39 @@ public class ReferralPanel extends JPanel {
         );
         referralManager.addReferral(referral);
 
+        String message = String.format("New referral created for %s: %s", patient, type);
+        
+        // Show success pop-up
         JOptionPane.showMessageDialog(
-                this,
-                UIConfig.SUCCESS_REFERRAL_CREATED.replace("{patient}", patient),
-                UIConfig.SUCCESS_DIALOG_TITLE,
-                JOptionPane.INFORMATION_MESSAGE
+            this,
+            message,
+            UIConfig.SUCCESS_DIALOG_TITLE,
+            JOptionPane.INFORMATION_MESSAGE
         );
+        
+        // Show banner notification
+        if (notificationBanner != null) {
+            notificationBanner.show(message, event -> {
+                // Refresh the views
+                updateReferralList();
+                // Close the dialog
+                Window window = SwingUtilities.getWindowAncestor(this);
+                if (window != null) {
+                    window.dispose();
+                }
+            });
+        }
+        
+        // Add to notification panel
+        if (notificationPanel != null) {
+            notificationPanel.addNotification(message, "New Referral!");
+        }
+
+        // Close the dialog
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window != null) {
+            window.dispose();
+        }
 
         typeField.setText("");
         detailsArea.setText("");

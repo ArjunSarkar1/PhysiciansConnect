@@ -1,11 +1,14 @@
 package physicianconnect.persistence;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import physicianconnect.persistence.interfaces.*;
 import physicianconnect.persistence.sqlite.*;
+import physicianconnect.persistence.stub.NotificationPersistence;
 import physicianconnect.persistence.stub.StubFactory;
 
 public class PersistenceFactory {
@@ -19,11 +22,13 @@ public class PersistenceFactory {
     private static ReceptionistPersistence receptionistPersistence;
     private static InvoicePersistence invoicePersistence;
     private static PaymentPersistence paymentPersistence;
+    private static NotificationPersistence notificationPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
         if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null
                 || prescriptionPersistence != null || referralPersistence != null || messageRepository != null
-                || receptionistPersistence != null || invoicePersistence != null || paymentPersistence != null)
+                || receptionistPersistence != null || invoicePersistence != null || paymentPersistence != null 
+                || notificationPersistence != null)
             return;
 
         switch (type) {
@@ -56,6 +61,7 @@ public class PersistenceFactory {
                     receptionistPersistence = new ReceptionistDB(conn);
                     invoicePersistence = new InvoiceDB(conn);
                     paymentPersistence = new PaymentDB(conn);
+                    notificationPersistence = new NotificationDB(conn);
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -83,6 +89,7 @@ public class PersistenceFactory {
         receptionistPersistence = StubFactory.createReceptionistPersistence();
         invoicePersistence = StubFactory.createInvoicePersistence();
         paymentPersistence = StubFactory.createPaymentPersistence();
+        notificationPersistence = StubFactory.createNotificationPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -123,6 +130,20 @@ public class PersistenceFactory {
 
     public static PaymentPersistence getPaymentPersistence() {
         return paymentPersistence;
+
+    }
+
+    public static NotificationPersistence getNotificationPersistence() {
+        if (notificationPersistence == null) {
+            try {
+                Connection conn = ConnectionManager.get();
+                notificationPersistence = new NotificationDB(conn);
+            } catch (Exception e) {
+                e.printStackTrace();
+                notificationPersistence = StubFactory.createNotificationPersistence();
+            }
+        }
+        return notificationPersistence;
     }
 
     public static void reset() {
@@ -136,6 +157,7 @@ public class PersistenceFactory {
         receptionistPersistence = null;
         invoicePersistence = null;
         paymentPersistence = null;
+        notificationPersistence = null;
     }
 
     private static void injectTestUserForGrader() {

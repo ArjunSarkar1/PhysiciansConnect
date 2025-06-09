@@ -17,13 +17,16 @@ import physicianconnect.objects.Payment;
 import physicianconnect.objects.Physician;
 import physicianconnect.objects.Receptionist;
 import physicianconnect.persistence.PersistenceFactory;
-import physicianconnect.presentation.AddAppointmentDialog;
+import physicianconnect.presentation.AddAppointmentPanel;
 import physicianconnect.presentation.AllPhysiciansDailyPanel;
 import physicianconnect.presentation.receptionist.BillingPanel;
 import physicianconnect.presentation.DailyAvailabilityPanel;
 import physicianconnect.presentation.MessageButton;
 import physicianconnect.presentation.MessagePanel;
-import physicianconnect.presentation.ViewAppointmentDialog;
+import physicianconnect.presentation.NotificationBanner;
+import physicianconnect.presentation.NotificationButton;
+import physicianconnect.presentation.NotificationPanel;
+import physicianconnect.presentation.ViewAppointmentPanel;
 import physicianconnect.presentation.WeeklyAvailabilityPanel;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
@@ -35,6 +38,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -82,8 +86,17 @@ public class ReceptionistApp {
     private JPanel revenueSummaryContent;
     private boolean revenueSummaryCollapsed = false;
 
+    private Timer messageRefreshTimer;
+    private NotificationPanel notificationPanel;
+    private NotificationBanner notificationBanner;
+    private JDialog notificationDialog;
+    private NotificationButton notificationButton;
+    private Timer notificationRefreshTimer;
+    private int lastNotifiedUnreadMessageCount = 0;
+
     public ReceptionistApp(Receptionist loggedIn, PhysicianManager physicianManager,
-            AppointmentManager appointmentManager, ReceptionistManager receptionistManager, Runnable logoutCallback) {
+                           AppointmentManager appointmentManager, ReceptionistManager receptionistManager, 
+                           AppointmentController appointmentController, Runnable logoutCallback) {
         this.loggedIn = loggedIn;
         this.physicianManager = physicianManager;
         this.appointmentManager = appointmentManager;
@@ -96,12 +109,30 @@ public class ReceptionistApp {
         this.receptionistController = new ReceptionistController(receptionistManager);
         this.messageService = new MessageService(PersistenceFactory.getMessageRepository());
         this.messageController = new MessageController(messageService);
-        this.appointmentController = new AppointmentController(appointmentManager);
+        // FIX: Use the passed-in appointmentController, not a new one!
+        this.appointmentController = appointmentController;
         this.invoiceManager = new InvoiceManager(PersistenceFactory.getInvoicePersistence());
         this.paymentManager = new PaymentManager(PersistenceFactory.getPaymentPersistence());
         this.billingController = new BillingController(invoiceManager, paymentManager);
         this.availabilityService = new AvailabilityService(
                 (physicianconnect.persistence.sqlite.AppointmentDB) PersistenceFactory.getAppointmentPersistence());
+        
+        // Initialize notification panel
+        this.notificationPanel = new NotificationPanel(
+            PersistenceFactory.getNotificationPersistence(),
+            loggedIn.getId(),
+            "receptionist"
+        );
+        this.notificationDialog = new JDialog(frame, "Notifications", false);
+        this.notificationDialog.setContentPane(notificationPanel);
+        this.notificationDialog.pack();
+        this.notificationDialog.setLocationRelativeTo(frame);
+        
+        // Register appointment callbacks
+        appointmentController.setOnAppointmentCreated(this::onAppointmentCreated);
+        appointmentController.setOnAppointmentUpdated(this::onAppointmentUpdated);
+        appointmentController.setOnAppointmentDeleted(this::onAppointmentDeleted);
+        
         initializeUI();
     }
 
@@ -164,12 +195,17 @@ public class ReceptionistApp {
         messageButton = new MessageButton();
         messageButton.setOnAction(e -> showMessageDialog());
 
+        // Add notification button
+        notificationButton = new NotificationButton();
+        notificationButton.setOnAction(e -> showNotificationPanel());
+
         // Right-aligned panel for physician dropdown, date/time, and message button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setOpaque(false);
         rightPanel.add(new JLabel(UIConfig.PHYSICIAN_LABEL));
         rightPanel.add(physicianCombo);
         rightPanel.add(dateTimeLabel);
+        rightPanel.add(notificationButton);
         rightPanel.add(messageButton);
         rightPanel.add(profilePicButton);
 
@@ -378,7 +414,7 @@ public class ReceptionistApp {
                         UIConfig.ERROR_DIALOG_TITLE, JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            AddAppointmentDialog dlg = new AddAppointmentDialog(
+            AddAppointmentPanel dlg = new AddAppointmentPanel(
                     frame,
                     appointmentController,
                     selectedPhysician.getId(),
@@ -420,7 +456,7 @@ public class ReceptionistApp {
                         UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            ViewAppointmentDialog viewDlg = new ViewAppointmentDialog(
+            ViewAppointmentPanel viewDlg = new ViewAppointmentPanel(
                     frame,
                     appointmentController,
                     selectedAppt,
@@ -458,119 +494,154 @@ public class ReceptionistApp {
 
         appointmentManager.addChangeListener(this::updateAppointments);
 
+        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
+        messageRefreshTimer.start();
+
+        // Add notification refresh timer
+        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
+        notificationRefreshTimer.start();
+
         frame.setVisible(true);
     }
 
-    private void updateAppointments() {
-        Object selected = physicianCombo.getSelectedItem();
-        Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
-        List<Appointment> allAppointments;
-        if (selectedPhysician == null) {
-            allAppointments = physicianManager.getAllPhysicians().stream()
-                    .flatMap(p -> appointmentManager.getAppointmentsForPhysician(p.getId()).stream())
-                    .collect(Collectors.toList());
-        } else {
-            allAppointments = appointmentManager.getAppointmentsForPhysician(selectedPhysician.getId());
-        }
-        appointmentTableModel.setRowCount(0);
-        List<Appointment> filtered = allAppointments.stream()
-                .sorted((a, b) -> a.getDateTime().compareTo(b.getDateTime()))
+private void updateAppointments() {
+    Object selected = physicianCombo.getSelectedItem();
+    Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
+    List<Appointment> allAppointments;
+    if (selectedPhysician == null) {
+        allAppointments = physicianManager.getAllPhysicians().stream()
+                .flatMap(p -> appointmentManager.getAppointmentsForPhysician(p.getId()).stream())
                 .collect(Collectors.toList());
-        for (Appointment a : filtered) {
-            Physician p = physicianManager.getPhysicianById(a.getPhysicianId());
-            String physicianName = (p != null) ? p.getName() : UIConfig.UNKNOWN_PHYSICIAN_LABEL;
-            String date = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.DATE_FORMAT));
-            String time = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT));
-            appointmentTableModel.addRow(new Object[] {
-                    a.getPatientName(),
-                    physicianName,
-                    date,
-                    time
-            });
+    } else {
+        allAppointments = appointmentManager.getAppointmentsForPhysician(selectedPhysician.getId());
+    }
+    appointmentTableModel.setRowCount(0);
+    List<Appointment> filtered = allAppointments.stream()
+            .sorted((a, b) -> a.getDateTime().compareTo(b.getDateTime()))
+            .collect(Collectors.toList());
+    for (Appointment a : filtered) {
+        Physician p = physicianManager.getPhysicianById(a.getPhysicianId());
+        String physicianName = (p != null) ? p.getName() : UIConfig.UNKNOWN_PHYSICIAN_LABEL;
+        String date = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.DATE_FORMAT));
+        String time = a.getDateTime().format(DateTimeFormatter.ofPattern(UIConfig.TIME_FORMAT));
+        appointmentTableModel.addRow(new Object[] {
+                a.getPatientName(),
+                physicianName,
+                date,
+                time
+        });
+    }
+}
+
+private void filterAppointments() {
+    String text = appointmentSearchField.getText();
+    if (text.trim().length() == 0) {
+        appointmentTableSorter.setRowFilter(null);
+    } else {
+        appointmentTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0)); // 0 = Patient Name column
+    }
+}
+
+private void updateCalendarPanels() {
+    Object selected = physicianCombo.getSelectedItem();
+    boolean allPhysiciansSelected = selected instanceof String && UIConfig.ALL_PHYSICIANS_LABEL.equals(selected);
+    Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
+    String currentPhysicianId = (selectedPhysician != null) ? selectedPhysician.getId() : null;
+
+    // Remove old panels
+    dailyContainer.removeAll();
+    weeklyContainer.removeAll();
+
+    // Remove all tabs and add only the relevant ones
+    JTabbedPane calendarTabs = null;
+    for (Component comp : frame.getContentPane().getComponents()) {
+        if (comp instanceof JSplitPane split) {
+            Component right = split.getRightComponent();
+            if (right instanceof JTabbedPane tabs) {
+                calendarTabs = tabs;
+                tabs.removeAll();
+                break;
+            }
         }
     }
 
-    private void filterAppointments() {
-        String text = appointmentSearchField.getText();
-        if (text.trim().length() == 0) {
-            appointmentTableSorter.setRowFilter(null);
-        } else {
-            appointmentTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0)); // 0 = Patient Name column
-        }
-    }
-
-    private void updateCalendarPanels() {
-        Object selected = physicianCombo.getSelectedItem();
-        boolean allPhysiciansSelected = selected instanceof String && UIConfig.ALL_PHYSICIANS_LABEL.equals(selected);
-        Physician selectedPhysician = (selected instanceof Physician) ? (Physician) selected : null;
-        String currentPhysicianId = (selectedPhysician != null) ? selectedPhysician.getId() : null;
-
-        // Remove old panels
-        dailyContainer.removeAll();
-        weeklyContainer.removeAll();
-
-        // Remove all tabs and add only the relevant ones
-        JTabbedPane calendarTabs = null;
-        for (Component comp : frame.getContentPane().getComponents()) {
-            if (comp instanceof JSplitPane split) {
-                Component right = split.getRightComponent();
-                if (right instanceof JTabbedPane tabs) {
-                    calendarTabs = tabs;
-                    tabs.removeAll();
-                    break;
-                }
-            }
-        }
-
-        if (allPhysiciansSelected) {
-            // Show only daily view for all physicians
-            allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(
-                    physicianManager,
-                    appointmentController,
-                    availabilityService,
-                    selectedDate,
-                    newDate -> {
-                        selectedDate = newDate;
-                        updateCalendarPanels();
-                    });
-            if (calendarTabs != null) {
-                calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, allPhysiciansDailyPanel);
-            }
-        } else {
-            // Show daily and weekly for a specific physician
-            dailyPanel = new DailyAvailabilityPanel(
-                    currentPhysicianId,
-                    availabilityService,
-                    appointmentController,
-                    selectedDate,
-                    () -> weeklyPanel.loadWeek(selectedDate.with(java.time.DayOfWeek.MONDAY)));
-            weeklyPanel = new WeeklyAvailabilityPanel(
-                    currentPhysicianId,
-                    availabilityService,
-                    appointmentController,
-                    weekStart,
-                    () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
-
-            dailyContainer.add(dayNav, BorderLayout.NORTH);
-            dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
-
-            weeklyContainer.add(weekNav, BorderLayout.NORTH);
-            weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
-
-            if (calendarTabs != null) {
-                calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
-                calendarTabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
-            }
-        }
-
-        // Update labels
-        dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
-        weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
-
-        // Refresh UI
+    if (allPhysiciansSelected) {
+        // Show only daily view for all physicians
+        allPhysiciansDailyPanel = new AllPhysiciansDailyPanel(
+                physicianManager,
+                appointmentController,
+                availabilityService,
+                selectedDate,
+                newDate -> {
+                    selectedDate = newDate;
+                    updateCalendarPanels();
+                });
         if (calendarTabs != null) {
-            calendarTabs.revalidate();
-            calendarTabs.repaint();
+            calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, allPhysiciansDailyPanel);
+        }
+    } else {
+        // Show daily and weekly for a specific physician
+        dailyPanel = new DailyAvailabilityPanel(
+                currentPhysicianId,
+                availabilityService,
+                appointmentController,
+                selectedDate,
+                () -> weeklyPanel.loadWeek(selectedDate.with(java.time.DayOfWeek.MONDAY)));
+        weeklyPanel = new WeeklyAvailabilityPanel(
+                currentPhysicianId,
+                availabilityService,
+                appointmentController,
+                weekStart,
+                () -> dailyPanel.loadSlotsForDate(dailyPanel.getCurrentDate()));
+
+        dailyContainer.add(dayNav, BorderLayout.NORTH);
+        dailyContainer.add(new JScrollPane(dailyPanel), BorderLayout.CENTER);
+
+        weeklyContainer.add(weekNav, BorderLayout.NORTH);
+        weeklyContainer.add(new JScrollPane(weeklyPanel), BorderLayout.CENTER);
+
+        if (calendarTabs != null) {
+            calendarTabs.addTab(UIConfig.TAB_DAILY_VIEW, dailyContainer);
+            calendarTabs.addTab(UIConfig.TAB_WEEKLY_VIEW, weeklyContainer);
+        }
+    }
+
+    // Update labels
+    dayLabel.setText(UIConfig.LABEL_SHOW_DATE + selectedDate);
+    weekLabel.setText(UIConfig.LABEL_WEEK_OF + weekStart);
+
+    // Refresh UI
+    if (calendarTabs != null) {
+        calendarTabs.revalidate();
+        calendarTabs.repaint();
+    }
+}
+
+    private void showNotificationPanel() {
+        if (notificationDialog == null) {
+            notificationDialog = new JDialog(frame, "Notifications", false);
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "receptionist"
+            );
+            notificationDialog.setContentPane(notificationPanel);
+            notificationDialog.pack();
+            notificationDialog.setLocationRelativeTo(frame);
+        }
+        notificationDialog.setVisible(true);
+        // Mark all notifications as read when panel is opened
+        notificationPanel.markAllAsRead();
+        notificationButton.updateNotificationCount(0);
+    }
+
+    private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
+        // Only show banner if the frame is visible (user is logged in)
+        if (frame != null && frame.isVisible()) {
+            if (notificationBanner == null) {
+                notificationBanner = new NotificationBanner(frame);
+            }
+            notificationBanner.show(message, onClick);
         }
     }
 
@@ -603,6 +674,139 @@ public class ReceptionistApp {
     private void refreshMessageCount() {
         int unreadCount = messageService.getUnreadMessageCount(loggedIn.getId(), "receptionist");
         messageButton.updateNotificationCount(unreadCount);
+        
+        // Only show banner for new unread messages
+        if (unreadCount > lastNotifiedUnreadMessageCount) {
+            // Find the latest unread message
+            List<physicianconnect.objects.Message> unreadMessages = messageService.getUnreadMessagesForUser(loggedIn.getId(), "receptionist");
+            if (!unreadMessages.isEmpty()) {
+                physicianconnect.objects.Message latest = unreadMessages.get(unreadMessages.size() - 1);
+                String senderType = latest.getSenderType();
+                String senderName = "";
+                
+                if (senderType.equals("physician")) {
+                    senderName = physicianManager.getPhysicianById(latest.getSenderId()).getName();
+                } else if (senderType.equals("receptionist")) {
+                    senderName = receptionistManager.getReceptionistById(latest.getSenderId()).getName();
+                }
+                
+                String notificationMsg = "New message received from " + senderName + " (" + senderType + ")";
+                showNotificationBanner(notificationMsg, e -> showMessageDialog());
+                if (notificationPanel != null) {
+                    notificationPanel.addNotification(notificationMsg, "Message");
+                }
+            }
+        }
+        lastNotifiedUnreadMessageCount = unreadCount;
+    }
+
+    private void refreshNotificationCount() {
+        if (notificationPanel != null) {
+            int count = notificationPanel.getUnreadNotificationCount();
+            notificationButton.updateNotificationCount(count);
+        }
+    }
+
+    private void notifyAppointmentChange(String message, String type) {
+        // Always add to notification panel for persistence
+        if (notificationPanel == null) {
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "receptionist"
+            );
+        }
+        notificationPanel.addNotification(message, type);
+        // Update notification count immediately
+        notificationButton.updateNotificationCount(notificationPanel.getUnreadNotificationCount());
+
+        // Only show banner if user is logged in
+        if (frame != null && frame.isVisible()) {
+            showNotificationBanner(message, e -> {
+                // Refresh the calendar views
+                if (dailyPanel != null) {
+                    dailyPanel.revalidate();
+                    dailyPanel.repaint();
+                }
+                if (weeklyPanel != null) {
+                    weeklyPanel.revalidate();
+                    weeklyPanel.repaint();
+                }
+                updateAppointments();
+            });
+        }
+    }
+
+    // Add this method to handle appointment updates from the controller
+    public void onAppointmentUpdated(Appointment appointment) {
+        String physicianName = physicianManager.getPhysicianById(appointment.getPhysicianId()).getName();
+        String message = String.format("Appointment notes for %s and %s has been updated.", 
+            physicianName,
+            appointment.getPatientName());
+        notifyAppointmentChange(message, "Appointment Update!");
+        
+        // Notify the physician about the update
+        Physician physician = physicianManager.getPhysicianById(appointment.getPhysicianId());
+        if (physician != null) {
+            String physicianMessage = String.format("Appointment with %s has been updated.", 
+                appointment.getPatientName());
+            
+            // Create a new notification panel for the physician to store the notification
+            NotificationPanel physicianNotificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                physician.getId(),
+                "physician"
+            );
+            physicianNotificationPanel.addNotification(physicianMessage, "Appointment Update!");
+        }
+    }
+
+    // Add this method to handle appointment deletions from the controller
+    public void onAppointmentDeleted(Appointment appointment) {
+        String physicianName = physicianManager.getPhysicianById(appointment.getPhysicianId()).getName();
+        String message = String.format("Appointment for %s and %s has been deleted.", 
+            physicianName,
+            appointment.getPatientName());
+        notifyAppointmentChange(message, "Appointment Cancellation!");
+        
+        // Notify the physician about the deletion
+        Physician physician = physicianManager.getPhysicianById(appointment.getPhysicianId());
+        if (physician != null) {
+            String physicianMessage = String.format("Appointment with %s has been cancelled.", 
+                appointment.getPatientName());
+            
+            // Create a new notification panel for the physician to store the notification
+            NotificationPanel physicianNotificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                physician.getId(),
+                "physician"
+            );
+            physicianNotificationPanel.addNotification(physicianMessage, "Appointment Cancellation!");
+        }
+    }
+
+    // Add this method to handle new appointments from the controller
+    public void onAppointmentCreated(Appointment appointment) {
+        String physicianName = physicianManager.getPhysicianById(appointment.getPhysicianId()).getName();
+        String message = String.format("New appointment set for %s and %s.", 
+            physicianName,
+            appointment.getPatientName());
+        notifyAppointmentChange(message, "New Appointment!");
+        
+        // Notify the physician about the new appointment
+        Physician physician = physicianManager.getPhysicianById(appointment.getPhysicianId());
+        if (physician != null) {
+            String physicianMessage = String.format("New appointment scheduled with %s.", 
+                appointment.getPatientName());
+            
+            // Create a new notification panel for the physician to store the notification
+            NotificationPanel physicianNotificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                physician.getId(),
+                "physician"
+            );
+            physicianNotificationPanel.addNotification(physicianMessage, "New Appointment!");
+        }
     }
 
     private JButton createStyledButton(String txt) {
