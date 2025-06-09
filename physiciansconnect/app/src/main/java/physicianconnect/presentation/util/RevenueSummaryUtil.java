@@ -7,8 +7,29 @@ import physicianconnect.presentation.config.UITheme;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RevenueSummaryUtil {
+        public interface RevenueSummaryListener {
+        void onRevenueSummaryChanged();
+    }
+
+    private static final List<RevenueSummaryListener> listeners = new CopyOnWriteArrayList<>();
+
+    public static void addListener(RevenueSummaryListener l) {
+        listeners.add(l);
+    }
+
+    public static void removeListener(RevenueSummaryListener l) {
+        listeners.remove(l);
+    }
+
+    public static void fireRevenueSummaryChanged() {
+        for (RevenueSummaryListener l : listeners) {
+            l.onRevenueSummaryChanged();
+        }
+    }
+
     public static void showRevenueSummary(Component parent, List<Invoice> invoices) {
         double totalBilled = invoices.stream().mapToDouble(Invoice::getTotalAmount).sum();
         double totalPaid = invoices.stream().mapToDouble(inv -> inv.getTotalAmount() - inv.getBalance()).sum();

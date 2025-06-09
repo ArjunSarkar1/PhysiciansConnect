@@ -347,6 +347,7 @@ public class BillingPanel extends JPanel {
 
                 billingController.createInvoice(appointmentId, patientName, services, insuranceAdj);
                 refreshInvoices();
+                RevenueSummaryUtil.fireRevenueSummaryChanged();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.ERROR_DIALOG_TITLE,
                         JOptionPane.ERROR_MESSAGE);
@@ -552,6 +553,7 @@ public class BillingPanel extends JPanel {
             if (confirm == JOptionPane.YES_OPTION) {
                 billingController.deleteInvoice(invoice.getId());
                 refreshInvoices();
+                RevenueSummaryUtil.fireRevenueSummaryChanged();
                 invoiceDialog.dispose();
             }
         });
@@ -567,7 +569,7 @@ public class BillingPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(infoPanel);
         scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // smoother scrolling
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); 
         invoiceContentPanel.add(scrollPane, BorderLayout.CENTER);
         invoiceContentPanel.add(btnPanel, BorderLayout.SOUTH);
 
@@ -604,6 +606,7 @@ public class BillingPanel extends JPanel {
                 BillingValidator.validatePaymentAmount(amount, invoice.getBalance());
                 billingController.recordPayment(invoice.getId(), amount, method);
                 refreshInvoices();
+                RevenueSummaryUtil.fireRevenueSummaryChanged();
                 // Fetch updated invoice and payments
                 Invoice updatedInvoice = billingController.getInvoiceById(invoice.getId());
                 List<Payment> updatedPayments = billingController.getPaymentsByInvoice(invoice.getId());

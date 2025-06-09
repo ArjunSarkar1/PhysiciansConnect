@@ -112,6 +112,14 @@ public class ReceptionistApp {
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout(10, 10));
 
+        // Register for revenue summary updates
+        RevenueSummaryUtil.addListener(this::updateRevenueSummary);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                RevenueSummaryUtil.removeListener(ReceptionistApp.this::updateRevenueSummary);
+            }
+        });
+
         // Top Panel
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setBackground(UITheme.BACKGROUND_COLOR);
@@ -427,8 +435,7 @@ public class ReceptionistApp {
             billingDialog.setSize(800, 600);
             billingDialog.setLocationRelativeTo(frame);
             billingDialog.setVisible(true);
-            // Refresh revenue summary after billing dialog closes
-            updateRevenueSummary();
+            // Revenue summary will auto-update via listener
         });
 
         signOutButton.addActionListener(e -> {
