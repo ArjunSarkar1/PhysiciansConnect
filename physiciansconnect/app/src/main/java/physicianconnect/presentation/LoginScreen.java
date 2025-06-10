@@ -9,6 +9,7 @@ import physicianconnect.logic.exceptions.InvalidCredentialException;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReceptionistManager;
+import physicianconnect.logic.validation.CredentialVerification;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import java.nio.file.Path;
@@ -236,39 +237,9 @@ public class LoginScreen extends JFrame {
                                 String password = new String(passwordField.getPassword());
                                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
-                                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_REQUIRED_FIELD,
-                                                        UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_INVALID_EMAIL,
-                                                        "Error", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (password.length() < 6) {
-                                        JOptionPane.showMessageDialog(dialog,
-                                                        UIConfig.ERROR_PASSWORD_LENGTH, UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (!password.equals(confirmPassword)) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_PASSWORD_MISMATCH,
-                                                        UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (physicianManager.getPhysicianByEmail(email) != null ||
-                                                receptionistManager.getReceptionistByEmail(email) != null) {
-                                        JOptionPane.showMessageDialog(dialog,
-                                                        UIConfig.ERROR_EMAIL_EXISTS, UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
+                                CredentialVerification verification = new CredentialVerification(physicianManager, receptionistManager, dialog);
+                                if (!verification.verifySignUpData(name, email, password, confirmPassword)) {
+                                    return;
                                 }
 
                                 PhysicianController physicianController = new PhysicianController(physicianManager);
