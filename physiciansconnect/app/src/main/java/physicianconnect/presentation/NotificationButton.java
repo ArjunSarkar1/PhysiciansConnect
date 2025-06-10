@@ -12,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import physicianconnect.presentation.config.UITheme;
 
@@ -42,7 +41,7 @@ public class NotificationButton extends JPanel {
         // Create notification label
         notificationLabel = new JLabel();
         notificationLabel.setFont(UITheme.NOTIFICATION_FONT);
-        notificationLabel.setForeground(Color.WHITE);
+        notificationLabel.setForeground(UITheme.BACKGROUND_COLOR);
         notificationLabel.setBackground(UITheme.ERROR_COLOR);
         notificationLabel.setOpaque(true);
         notificationLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
@@ -72,25 +71,14 @@ public class NotificationButton extends JPanel {
     }
 
     public void updateNotificationCount(int count) {
-        SwingUtilities.invokeLater(() -> {
-            if (count > 0) {
-                notificationLabel.setText(String.valueOf(count));
-                notificationLabel.setVisible(true);
-                // Force layout update
-                notificationLabel.revalidate();
-                notificationLabel.repaint();
-                // Force parent layout update
-                getParent().revalidate();
-                getParent().repaint();
-            } else {
-                notificationLabel.setVisible(false);
-                // Force layout update
-                notificationLabel.revalidate();
-                notificationLabel.repaint();
-                // Force parent layout update
-                getParent().revalidate();
-                getParent().repaint();
-            }
-        });
+        if (count > 0) {
+            notificationLabel.setText(String.valueOf(count));
+            notificationLabel.setVisible(true);
+            // Ensure the label stays visible
+            notificationLabel.revalidate();
+            notificationLabel.repaint();
+        } else {
+            notificationLabel.setVisible(false);
+        }
     }
 } 

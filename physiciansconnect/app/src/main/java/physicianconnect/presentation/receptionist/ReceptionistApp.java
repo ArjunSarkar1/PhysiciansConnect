@@ -465,7 +465,12 @@ public class ReceptionistApp {
         });
 
         billingBtn.addActionListener(e -> {
-            BillingPanel billingPanel = new BillingPanel(billingController, appointmentController);
+            BillingPanel billingPanel = new BillingPanel(
+                billingController,
+                appointmentController,
+                notificationPanel,
+                PersistenceFactory.getNotificationPersistence()
+            );
             JDialog billingDialog = new JDialog(frame, UIConfig.BILLING_DIALOG_TITLE, true);
             billingDialog.setContentPane(billingPanel);
             billingDialog.setSize(800, 600);
@@ -620,11 +625,7 @@ private void updateCalendarPanels() {
     private void showNotificationPanel() {
         if (notificationDialog == null) {
             notificationDialog = new JDialog(frame, "Notifications", false);
-            notificationPanel = new NotificationPanel(
-                PersistenceFactory.getNotificationPersistence(),
-                loggedIn.getId(),
-                "receptionist"
-            );
+            // Don't recreate the panel, use the existing one
             notificationDialog.setContentPane(notificationPanel);
             notificationDialog.pack();
             notificationDialog.setLocationRelativeTo(frame);
@@ -702,6 +703,8 @@ private void updateCalendarPanels() {
 
     private void refreshNotificationCount() {
         if (notificationPanel != null) {
+            // Reload notifications to get the latest state
+            notificationPanel.loadNotifications();
             int count = notificationPanel.getUnreadNotificationCount();
             notificationButton.updateNotificationCount(count);
         }

@@ -40,7 +40,4 @@ public class Notification {
     public void markAsRead() {
         this.read = true;
     }
-    public void setRead(boolean read) {
-        this.read = read;
-    }
 } 
