@@ -2,6 +2,7 @@ package physicianconnect.presentation;
 
 import org.junit.jupiter.api.*;
 
+import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReceptionistManager;
@@ -23,22 +24,32 @@ public class PhysicianAppTest {
     private PhysicianManager physicianManager;
     private AppointmentManager appointmentManager;
 
-@BeforeEach
-public void setup() {
-    PhysicianPersistenceStub physicianStub = new PhysicianPersistenceStub(true);
-    AppointmentPersistenceStub appointmentStub = new AppointmentPersistenceStub(true);
-    ReceptionistPersistenceStub receptionistStub = new ReceptionistPersistenceStub(true);
+    @BeforeEach
+    public void setup() {
+        PhysicianPersistenceStub physicianStub = new PhysicianPersistenceStub(true);
+        AppointmentPersistenceStub appointmentStub = new AppointmentPersistenceStub(true);
+        ReceptionistPersistenceStub receptionistStub = new ReceptionistPersistenceStub(true);
 
-    physicianManager = new PhysicianManager(physicianStub);
-    appointmentManager = new AppointmentManager(appointmentStub);
-    ReceptionistManager receptionistManager = new ReceptionistManager(receptionistStub);
+        physicianManager = new PhysicianManager(physicianStub);
+        appointmentManager = new AppointmentManager(appointmentStub);
+        ReceptionistManager receptionistManager = new ReceptionistManager(receptionistStub);
 
-    testPhysician = physicianManager.getAllPhysicians().get(0);
+        testPhysician = physicianManager.getAllPhysicians().get(0);
 
-    Runnable logoutCallback = () -> {};
+        Runnable logoutCallback = () -> {
+        };
 
-    app = new PhysicianApp(testPhysician, physicianManager, appointmentManager, receptionistManager, logoutCallback);
-}
+        // Minimal mock AppointmentController
+        AppointmentController appointmentController = new AppointmentController(appointmentManager);
+
+        app = new PhysicianApp(
+                testPhysician,
+                physicianManager,
+                appointmentManager,
+                receptionistManager,
+                appointmentController,
+                logoutCallback);
+    }
 
     @Test
     public void testAppointmentsAreLoaded() throws Exception {

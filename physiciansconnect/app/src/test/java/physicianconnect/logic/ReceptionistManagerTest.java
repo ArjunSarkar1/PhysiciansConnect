@@ -95,7 +95,7 @@ public class ReceptionistManagerTest {
         Receptionist r = new Receptionist("rTest", "Original", "test@r.com", "pw");
         manager.addReceptionist(r);
 
-        manager.validateAndUpdateReceptionist(r, "Updated Name");
+        manager.validateAndUpdateReceptionist(r, "Updated Name", true, true, false);
 
         Receptionist updated = manager.getReceptionistById("rTest");
         assertEquals("Updated Name", updated.getName());

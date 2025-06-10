@@ -18,6 +18,10 @@ public class ReceptionistProfilePanel extends JPanel {
     private final JButton editButton;
     private final JButton saveButton;
     private final JButton cancelButton;
+    private final JCheckBox notifyAppointments;
+    private final JCheckBox notifyBilling;
+    private final JCheckBox notifyMessages;
+
     private final Runnable logoutCallback;
     private final Runnable onProfileUpdated;
 
@@ -80,6 +84,22 @@ public class ReceptionistProfilePanel extends JPanel {
         gbc.gridx = 1;
         formPanel.add(emailField, gbc);
 
+        JLabel notifyLabel = new JLabel(UIConfig.NOTIFICATION_PREFS_LABEL);
+        notifyAppointments = new JCheckBox(UIConfig.NOTIFY_APPOINTMENTS, receptionist.isNotifyAppointment());
+        notifyBilling = new JCheckBox(UIConfig.NOTIFY_BILLING, receptionist.isNotifyBilling());
+        notifyMessages = new JCheckBox(UIConfig.MESSAGES_DIALOG_TITLE, receptionist.isNotifyMessages());
+
+        JPanel checkboxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        checkboxPanel.add(notifyAppointments);
+        checkboxPanel.add(notifyBilling);
+        checkboxPanel.add(notifyMessages);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(notifyLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(checkboxPanel, gbc);
+
         JPanel paddedFormPanel = new JPanel(new BorderLayout());
         paddedFormPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         paddedFormPanel.add(formPanel, BorderLayout.CENTER);
@@ -109,10 +129,19 @@ public class ReceptionistProfilePanel extends JPanel {
         cancelButton.addActionListener(e -> {
             nameField.setText(receptionist.getName());
             setEditable(false);
+            notifyAppointments.setSelected(receptionist.isNotifyAppointment());
+            notifyBilling.setSelected(receptionist.isNotifyBilling());
+            notifyMessages.setSelected(receptionist.isNotifyMessages());
+
         });
         saveButton.addActionListener(e -> {
             try {
-                receptionistManager.validateAndUpdateReceptionist(receptionist, nameField.getText().trim());
+                receptionistManager.validateAndUpdateReceptionist(
+                        receptionist,
+                        nameField.getText().trim(),
+                        notifyAppointments.isSelected(),
+                        notifyBilling.isSelected(),
+                        notifyMessages.isSelected());
 
                 if (onProfileUpdated != null) {
                     onProfileUpdated.run();
@@ -146,6 +175,9 @@ public class ReceptionistProfilePanel extends JPanel {
         cancelButton.setVisible(editable);
         editButton.setVisible(!editable);
         signOutButton.setVisible(!editable);
+        notifyAppointments.setEnabled(editable);
+        notifyBilling.setEnabled(editable);
+        notifyMessages.setEnabled(editable);
     }
 
     private void chooseAndUploadPhoto() {

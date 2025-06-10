@@ -69,7 +69,10 @@ public class SchemaInitializer {
                                 + "id TEXT PRIMARY KEY, "
                                 + "name TEXT NOT NULL, "
                                 + "email TEXT NOT NULL, "
-                                + "password TEXT NOT NULL"
+                                + "password TEXT NOT NULL,"
+                                + "notifyAppointment BOOLEAN DEFAULT TRUE,"
+                                + "notifyBilling BOOLEAN DEFAULT TRUE,"
+                                + "notifyMessages BOOLEAN DEFAULT TRUE"
                                 + ");";
 
                 String createInvoicesTable = "CREATE TABLE IF NOT EXISTS invoices ("

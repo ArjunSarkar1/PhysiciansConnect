@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,20 +31,41 @@ class PrescribeMedicinePanelTest {
             }
         };
 
-        MedicationPersistenceStub    medStub  = new MedicationPersistenceStub(true);
-        PrescriptionPersistenceStub  presStub = new PrescriptionPersistenceStub(false);
-        PrescriptionController       presCtrl = new PrescriptionController(presStub);
+        MedicationPersistenceStub medStub = new MedicationPersistenceStub(true);
+        PrescriptionPersistenceStub presStub = new PrescriptionPersistenceStub(false);
+        PrescriptionController presCtrl = new PrescriptionController(presStub);
 
-        // Use controller-based constructor
-        panel = new PrescribeMedicinePanel(am, medStub, presCtrl, "doc1", null);
+        NotificationPanel dummyNotificationPanel = new NotificationPanel(null, "doc1", "physician") {
+            @Override
+            public void addNotification(String msg, String type) {
+            }
+        };
+
+        NotificationBanner dummyBanner = new NotificationBanner(null) {
+            @Override
+            public void show(String message, java.awt.event.ActionListener onClick) {
+            }
+        };
+
+        JFrame dummyFrame = new JFrame();
+
+        panel = new PrescribeMedicinePanel(
+                am,
+                medStub,
+                presCtrl,
+                "doc1",
+                null,
+                dummyNotificationPanel,
+                dummyBanner,
+                dummyFrame);
     }
 
     @Test
     void panelInitializesWithPatientsAndMedicines() {
-        JComboBox<?> patientCombo  = (JComboBox<?>) getPrivateField(panel, "patientCombo");
+        JComboBox<?> patientCombo = (JComboBox<?>) getPrivateField(panel, "patientCombo");
         JComboBox<?> medicineCombo = (JComboBox<?>) getPrivateField(panel, "medicineCombo");
 
-        assertTrue(patientCombo.getItemCount()  > 0, "Should have at least one patient");
+        assertTrue(patientCombo.getItemCount() > 0, "Should have at least one patient");
         assertTrue(medicineCombo.getItemCount() > 0, "Should have at least one medicine");
     }
 
