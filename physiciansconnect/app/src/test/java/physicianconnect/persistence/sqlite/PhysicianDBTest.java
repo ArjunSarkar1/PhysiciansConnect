@@ -1,13 +1,13 @@
 package physicianconnect.persistence.sqlite;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import physicianconnect.objects.Physician;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.List;
 
-import org.junit.jupiter.api.*;
-
-import physicianconnect.objects.Physician;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PhysicianDBTest {
 
@@ -60,5 +60,88 @@ public class PhysicianDBTest {
 
         db.deletePhysicianById("delme");
         assertNull(db.getPhysicianById("delme"));
+    }
+
+    @Test
+    public void testDeleteAllPhysicians() {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        db.addPhysician(new Physician("2", "B", "b@b.com", "pw"));
+        db.deleteAllPhysicians();
+        assertTrue(db.getAllPhysicians().isEmpty());
+    }
+
+    @Test
+    public void testGetAllPhysicians() {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        db.addPhysician(new Physician("2", "B", "b@b.com", "pw"));
+        assertEquals(2, db.getAllPhysicians().size());
+    }
+
+    @Test
+    public void testAddPhysicianNullIdThrows() {
+        Physician p = new Physician(null, "A", "a@a.com", "pw");
+        assertThrows(IllegalArgumentException.class, () -> db.addPhysician(p));
+    }
+
+    @Test
+    public void testAddPhysicianBlankIdThrows() {
+        Physician p = new Physician("   ", "A", "a@a.com", "pw");
+        assertThrows(IllegalArgumentException.class, () -> db.addPhysician(p));
+    }
+
+    @Test
+    public void testGetPhysicianByIdNotFound() {
+        assertNull(db.getPhysicianById("notfound"));
+    }
+
+    // --- Catch/exception coverage ---
+
+    @Test
+    public void testAddPhysicianCatchesSQLException() throws Exception {
+        Physician p = new Physician("x", "A", "a@a.com", "pw");
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.addPhysician(p));
+        assertTrue(ex.getMessage().contains("Failed to add physician"));
+    }
+
+    @Test
+    public void testGetAllPhysiciansCatchesSQLException() throws Exception {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getAllPhysicians());
+        assertTrue(ex.getMessage().contains("Failed to fetch physicians"));
+    }
+
+    @Test
+    public void testGetPhysicianByIdCatchesSQLException() throws Exception {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getPhysicianById("1"));
+        assertTrue(ex.getMessage().contains("Failed to find physician"));
+    }
+
+    @Test
+    public void testDeletePhysicianByIdCatchesSQLException() throws Exception {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deletePhysicianById("1"));
+        assertTrue(ex.getMessage().contains("Failed to delete physician"));
+    }
+
+    @Test
+    public void testDeleteAllPhysiciansCatchesSQLException() throws Exception {
+        db.addPhysician(new Physician("1", "A", "a@a.com", "pw"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteAllPhysicians());
+        assertTrue(ex.getMessage().contains("Failed to delete all physicians"));
+    }
+
+    @Test
+    public void testUpdatePhysicianCatchesSQLException() throws Exception {
+        Physician p = new Physician("1", "A", "a@a.com", "pw");
+        db.addPhysician(p);
+        conn.close();
+        // updatePhysician prints stack trace, does not throw
+        assertDoesNotThrow(() -> db.updatePhysician(p));
     }
 }

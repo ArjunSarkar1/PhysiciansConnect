@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.objects.Notification;
-import physicianconnect.persistence.stub.NotificationPersistence;
+import physicianconnect.persistence.interfaces.NotificationPersistence;
 
 public class NotificationPanel extends JPanel {
     private final DefaultListModel<Notification> notificationListModel;

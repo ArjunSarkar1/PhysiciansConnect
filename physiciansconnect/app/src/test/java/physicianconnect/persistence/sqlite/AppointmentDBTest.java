@@ -76,4 +76,33 @@ public class AppointmentDBTest {
         Appointment a = new Appointment(null, null, null);
         assertThrows(RuntimeException.class, () -> db.addAppointment(a));
     }
+
+    @Test
+    public void testGetAllAppointmentsReturnsAll() {
+        db.addAppointment(new Appointment("doc1", "A", LocalDateTime.now().plusMinutes(5)));
+        db.addAppointment(new Appointment("doc2", "B", LocalDateTime.now().plusMinutes(10)));
+        List<Appointment> all = db.getAllAppointments();
+        assertEquals(2, all.size());
+        assertTrue(all.stream().anyMatch(a -> a.getPatientName().equals("A")));
+        assertTrue(all.stream().anyMatch(a -> a.getPatientName().equals("B")));
+    }
+
+    @Test
+    public void testGetAllAppointmentsCatchesSQLException() throws Exception {
+        conn.close();
+        assertThrows(RuntimeException.class, () -> db.getAllAppointments());
+    }
+
+    @Test
+    public void testDeleteAllAppointmentsCatchesSQLException() throws Exception {
+        conn.close();
+        assertThrows(RuntimeException.class, () -> db.deleteAllAppointments());
+    }
+
+    @Test
+    public void testDeleteAppointmentCatchesSQLException() throws Exception {
+        conn.close();
+        Appointment a = new Appointment("doc1", "Bruce Banner", LocalDateTime.now().plusMinutes(5));
+        assertThrows(RuntimeException.class, () -> db.deleteAppointment(a));
+    }
 }

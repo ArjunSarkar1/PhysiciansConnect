@@ -90,4 +90,37 @@ public class PrescriptionDBTest {
         Prescription p = new Prescription(0, null, null, null, null, null, null, null, null);
         assertThrows(RuntimeException.class, () -> db.addPrescription(p));
     }
+
+    @Test
+    public void testGetPrescriptionsForPatientCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getPrescriptionsForPatient("Bruce Banner"));
+        assertTrue(ex.getMessage().contains("Failed to fetch prescriptions for patient"));
+    }
+
+    @Test
+    public void testGetAllPrescriptionsCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getAllPrescriptions());
+        assertTrue(ex.getMessage().contains("Failed to fetch all prescriptions"));
+    }
+
+    @Test
+    public void testDeletePrescriptionByIdCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
+        int id = db.getAllPrescriptions().get(0).getId();
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deletePrescriptionById(id));
+        assertTrue(ex.getMessage().contains("Failed to delete prescription"));
+    }
+
+    @Test
+    public void testDeleteAllPrescriptionsCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteAllPrescriptions());
+        assertTrue(ex.getMessage().contains("Failed to delete all prescriptions"));
+    }
 }

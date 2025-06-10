@@ -22,7 +22,9 @@ public class MedicationDBTest {
 
     @AfterEach
     public void cleanup() throws Exception {
-        conn.close();
+        if (conn != null && !conn.isClosed()) {
+            conn.close();
+        }
     }
 
     @Test
@@ -70,5 +72,40 @@ public class MedicationDBTest {
         List<Medication> empty = db.getAllMedications();
         assertNotNull(empty);
         assertTrue(empty.isEmpty());
+    }
+
+    // --- Catch/exception coverage ---
+
+    @Test
+    public void testAddMedicationCatchesSQLException() throws Exception {
+        conn.close();
+        Medication med = new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food");
+        Exception ex = assertThrows(RuntimeException.class, () -> db.addMedication(med));
+        assertTrue(ex.getMessage().contains("Failed to add medication"));
+    }
+
+    @Test
+    public void testGetAllMedicationsCatchesSQLException() throws Exception {
+        db.addMedication(new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getAllMedications());
+        assertTrue(ex.getMessage().contains("Failed to load medications"));
+    }
+
+    @Test
+    public void testDeleteMedicationCatchesSQLException() throws Exception {
+        Medication med = new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food");
+        db.addMedication(med);
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteMedication(med));
+        assertTrue(ex.getMessage().contains("Failed to delete medication"));
+    }
+
+    @Test
+    public void testDeleteAllMedicationsCatchesSQLException() throws Exception {
+        db.addMedication(new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteAllMedications());
+        assertTrue(ex.getMessage().contains("Failed to delete all medications"));
     }
 }
