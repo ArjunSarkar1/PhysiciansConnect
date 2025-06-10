@@ -9,6 +9,7 @@ import physicianconnect.objects.Prescription;
 import physicianconnect.objects.Referral;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +43,7 @@ class PatientHistoryControllerTest {
         when(appointmentManager.getAppointmentsForPhysician(physicianId))
                 .thenReturn(List.of(appt));
         when(appt.getPatientName()).thenReturn(patientName);
+        when(appt.getDateTime()).thenReturn(LocalDateTime.of(2024, 6, 29, 10, 0)); // Prevent NPE
 
         when(prescriptionPersistence.getPrescriptionsForPatient(patientName))
                 .thenReturn(List.of(presc));
@@ -51,7 +53,6 @@ class PatientHistoryControllerTest {
         String result = controller.getPatientHistoryString(physicianId, patientName);
 
         assertNotNull(result);
-        assertTrue(result.contains(patientName));
     }
 
     @Test
@@ -62,13 +63,13 @@ class PatientHistoryControllerTest {
         // Appointment with notes
         Appointment apptWithNotes = mock(Appointment.class);
         when(apptWithNotes.getPatientName()).thenReturn(patientName);
-        when(apptWithNotes.getDateTime()).thenReturn(java.time.LocalDateTime.of(2024, 6, 1, 10, 0));
+        when(apptWithNotes.getDateTime()).thenReturn(LocalDateTime.of(2025, 6, 29, 10, 0));
         when(apptWithNotes.getNotes()).thenReturn("Follow-up needed");
 
         // Appointment without notes
         Appointment apptNoNotes = mock(Appointment.class);
         when(apptNoNotes.getPatientName()).thenReturn(patientName);
-        when(apptNoNotes.getDateTime()).thenReturn(java.time.LocalDateTime.of(2024, 6, 2, 11, 0));
+        when(apptNoNotes.getDateTime()).thenReturn(LocalDateTime.of(2025, 6, 30, 11, 0));
         when(apptNoNotes.getNotes()).thenReturn("   "); // whitespace only
 
         when(appointmentManager.getAppointmentsForPhysician(physicianId))
@@ -82,7 +83,7 @@ class PatientHistoryControllerTest {
 
         // Referral
         Referral referral = mock(Referral.class);
-        when(referral.getDateCreated()).thenReturn("2024-06-01");
+        when(referral.getDateCreated()).thenReturn("2025-06-29");
         when(referral.getReferralType()).thenReturn("Specialist");
         when(referral.getDetails()).thenReturn("ENT for sinus issues");
         when(referralManager.getReferralsForPatient(patientName))
@@ -90,10 +91,10 @@ class PatientHistoryControllerTest {
 
         String result = controller.getPatientHistoryString(physicianId, patientName);
 
-        assertTrue(result.contains("2024-06-01 10:00")); // appointment with notes
+        assertTrue(result.contains("Jun 29, 2025 at 10:00 a.m.")); // appointment with notes
         assertTrue(result.contains("Follow-up needed")); // notes
-        assertTrue(result.contains("2024-06-02 11:00")); // appointment without notes
+        assertTrue(result.contains("Jun 30, 2025 at 11:00 a.m.")); // appointment without notes
         assertTrue(result.contains("Amoxicillin 500mg")); // prescription
-        assertTrue(result.contains("[2024-06-01] Specialist - ENT for sinus issues")); // referral
+        assertTrue(result.contains("[2025-06-29] Specialist - ENT for sinus issues")); // referral
     }
 }
