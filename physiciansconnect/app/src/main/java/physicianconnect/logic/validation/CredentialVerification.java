@@ -6,12 +6,12 @@ import physicianconnect.logic.manager.ReceptionistManager;
 
 import javax.swing.*;
 
-public class CredentialVerfication {
+public class CredentialVerification {
     private final PhysicianManager physicianManager;
     private final ReceptionistManager receptionistManager;
     private final JDialog dialog;
 
-    public CredentialVerfication(PhysicianManager physicianManager, ReceptionistManager receptionistManager, JDialog dialog) {
+    public CredentialVerification(PhysicianManager physicianManager, ReceptionistManager receptionistManager, JDialog dialog) {
         this.physicianManager = physicianManager;
         this.receptionistManager = receptionistManager;
         this.dialog = dialog;

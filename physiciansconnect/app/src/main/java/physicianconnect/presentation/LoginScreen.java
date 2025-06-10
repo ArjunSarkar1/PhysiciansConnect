@@ -237,7 +237,7 @@ public class LoginScreen extends JFrame {
                                 String password = new String(passwordField.getPassword());
                                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
-                                CredentialVerfication verification = new CredentialVerfication(physicianManager, receptionistManager, dialog);
+                                CredentialVerification verification = new CredentialVerification(physicianManager, receptionistManager, dialog);
                                 if (!verification.verifySignUpData(name, email, password, confirmPassword)) {
                                     return;
                                 }
