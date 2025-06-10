@@ -56,11 +56,15 @@ public class ReceptionistManager {
         return null;
     }
 
-    public void validateAndUpdateReceptionist(Receptionist receptionist, String name) {
+    public void validateAndUpdateReceptionist(Receptionist receptionist, String name, boolean notifyAppt,
+            boolean notifyBill, boolean notifyMsg) {
         if (receptionist == null)
             throw new IllegalArgumentException("Receptionist cannot be null.");
 
         receptionist.setName(name);
+        receptionist.setNotifyAppointment(notifyAppt);
+        receptionist.setNotifyBilling(notifyBill);
+        receptionist.setNotifyMessages(notifyMsg);
 
         validateBasicInfo(receptionist);
         updateReceptionist(receptionist);

@@ -89,12 +89,12 @@ class ReceptionistProfilePanelTest {
         editButton.doClick();
         nameField.setText("New Name");
 
-        doNothing().when(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name");
+        doNothing().when(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name", true, true, true);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
             paneMock.when(() -> JOptionPane.showMessageDialog(any(), eq(UIConfig.PROFILE_UPDATED_MESSAGE))).thenAnswer(inv -> null);
             saveButton.doClick();
-            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name");
+            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name", true, true, true);
             verify(profileUpdated).run();
             assertFalse(nameField.isEditable());
         }
@@ -112,13 +112,13 @@ class ReceptionistProfilePanelTest {
         nameField.setText("Invalid Name");
 
         doThrow(new IllegalArgumentException("Invalid name")).when(receptionistManager)
-                .validateAndUpdateReceptionist(receptionist, "Invalid Name");
+                .validateAndUpdateReceptionist(receptionist, "Invalid Name", true, true, true);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
             paneMock.when(() -> JOptionPane.showMessageDialog(any(), eq("Invalid name"), eq(UIConfig.VALIDATION_ERROR_TITLE), eq(JOptionPane.ERROR_MESSAGE)))
                     .thenAnswer(inv -> null);
             saveButton.doClick();
-            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "Invalid Name");
+            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "Invalid Name", true, true, true);
             paneMock.verify(() -> JOptionPane.showMessageDialog(any(), eq("Invalid name"), eq(UIConfig.VALIDATION_ERROR_TITLE), eq(JOptionPane.ERROR_MESSAGE)));
             assertTrue(nameField.isEditable());
         }
@@ -133,8 +133,6 @@ class ReceptionistProfilePanelTest {
         signOutButton.doClick();
         verify(logoutCallback).run();
     }
-
-
 
     @Test
     void testSignOutButtonDisposesWindowAndCallsLogout() {

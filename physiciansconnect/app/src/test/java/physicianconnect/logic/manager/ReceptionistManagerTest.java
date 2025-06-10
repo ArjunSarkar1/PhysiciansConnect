@@ -24,9 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
-
 
 public class ReceptionistManagerTest {
 
@@ -95,11 +93,93 @@ public class ReceptionistManagerTest {
         assertEquals("id", result.get(0).getId());
     }
 
+    // --- Coverage for getReceptionistByEmail ---
     @Test
-    public void testValidateAndUpdateReceptionistNullThrows() {
-        assertThrows(IllegalArgumentException.class, () -> manager.validateAndUpdateReceptionist(null, "Name"));
+    public void testGetReceptionistByEmailReturnsCorrectReceptionist() {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        Receptionist r1 = new Receptionist("id1", "Name1", "test1@email.com", "pw1");
+        Receptionist r2 = new Receptionist("id2", "Name2", "test2@email.com", "pw2");
+        when(mockDB.getAllReceptionists()).thenReturn(List.of(r1, r2));
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+
+        Receptionist found = mgr.getReceptionistByEmail("test2@email.com");
+        assertNotNull(found);
+        assertEquals("id2", found.getId());
     }
 
+    @Test
+    public void testGetReceptionistByEmailReturnsNullIfNotFound() {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        when(mockDB.getAllReceptionists()).thenReturn(List.of());
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+
+        Receptionist found = mgr.getReceptionistByEmail("notfound@email.com");
+        assertNull(found);
+    }
+
+    // --- Coverage for login ---
+    @Test
+    public void testLoginSuccess() {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        Receptionist r = new Receptionist("id", "Name", "login@email.com", "pw123");
+        when(mockDB.getAllReceptionists()).thenReturn(List.of(r));
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+
+        Receptionist loggedIn = mgr.login("login@email.com", "pw123");
+        assertNotNull(loggedIn);
+        assertEquals("id", loggedIn.getId());
+    }
+
+    @Test
+    public void testLoginWrongPasswordReturnsNull() {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        Receptionist r = new Receptionist("id", "Name", "login@email.com", "pw123");
+        when(mockDB.getAllReceptionists()).thenReturn(List.of(r));
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+
+        Receptionist loggedIn = mgr.login("login@email.com", "wrongpw");
+        assertNull(loggedIn);
+    }
+
+    @Test
+    public void testLoginNotFoundReturnsNull() {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        when(mockDB.getAllReceptionists()).thenReturn(List.of());
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+
+        Receptionist loggedIn = mgr.login("notfound@email.com", "pw");
+        assertNull(loggedIn);
+    }
+
+    // --- Coverage for validateAndUpdateReceptionist ---
+@Test
+public void testValidateAndUpdateReceptionistUpdatesFieldsAndCallsUpdate() {
+    ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+    ReceptionistManager mgr = new ReceptionistManager(mockDB);
+    Receptionist r = spy(new Receptionist("id", "OldName", "old@email.com", "pw"));
+
+    
+    ReceptionistManager mgrSpy = spy(mgr);
+    doNothing().when(mgrSpy).validateBasicInfo(any());
+
+    mgrSpy.validateAndUpdateReceptionist(r, "NewName", true, false, true);
+
+    verify(r).setName("NewName");
+    verify(r).setNotifyAppointment(true);
+    verify(r).setNotifyBilling(false);
+    verify(r).setNotifyMessages(true);
+    verify(mgrSpy).validateBasicInfo(r);
+    verify(mockDB).updateReceptionist(r); // <-- verify persistence, not private method
+}
+
+    @Test
+    public void testValidateAndUpdateReceptionistNullThrows() {
+        assertThrows(IllegalArgumentException.class, () ->
+            manager.validateAndUpdateReceptionist(null, "Name", true, true, true)
+        );
+    }
+
+    // --- Coverage for updateReceptionist (private) ---
     @Test
     public void testUpdateReceptionistNullThrows() throws Exception {
         ReceptionistManager mgr = new ReceptionistManager(mock(ReceptionistPersistence.class));
@@ -128,6 +208,19 @@ public class ReceptionistManagerTest {
             }
         });
     }
+
+    @Test
+    public void testUpdateReceptionistCallsPersistence() throws Exception {
+        ReceptionistPersistence mockDB = mock(ReceptionistPersistence.class);
+        ReceptionistManager mgr = new ReceptionistManager(mockDB);
+        Receptionist r = new Receptionist("id", "Name", "e@e.com", "pw");
+        var m = ReceptionistManager.class.getDeclaredMethod("updateReceptionist", Receptionist.class);
+        m.setAccessible(true);
+        m.invoke(mgr, r);
+        verify(mockDB).updateReceptionist(r);
+    }
+
+    // --- Existing validation and photo tests unchanged ---
 
     @Test
     public void testValidationRejectsEmptyName() {
