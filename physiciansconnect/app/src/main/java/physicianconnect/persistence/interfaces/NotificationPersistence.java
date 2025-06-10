@@ -1,4 +1,4 @@
-package physicianconnect.persistence.stub;
+package physicianconnect.persistence.interfaces;
 
 import java.util.List;
 import physicianconnect.objects.Notification;

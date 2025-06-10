@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import physicianconnect.objects.Notification;
-import physicianconnect.persistence.stub.NotificationPersistence;
+import physicianconnect.persistence.interfaces.NotificationPersistence;
 
 public class NotificationDB implements NotificationPersistence {
     private final Connection conn;

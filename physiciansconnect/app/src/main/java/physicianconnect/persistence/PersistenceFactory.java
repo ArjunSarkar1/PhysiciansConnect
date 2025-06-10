@@ -8,7 +8,6 @@ import java.util.List;
 
 import physicianconnect.persistence.interfaces.*;
 import physicianconnect.persistence.sqlite.*;
-import physicianconnect.persistence.stub.NotificationPersistence;
 import physicianconnect.persistence.stub.StubFactory;
 
 public class PersistenceFactory {
