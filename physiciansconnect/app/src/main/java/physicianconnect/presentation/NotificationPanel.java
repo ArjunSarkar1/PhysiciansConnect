@@ -63,31 +63,49 @@ public class NotificationPanel extends JPanel {
     public void loadNotifications() {
         notificationListModel.clear();
         unreadNotifications.clear();
+        
+        // Get all notifications for the user
         List<Notification> storedNotifications = notificationPersistence.getNotificationsForUser(userId, userType);
+        
+        // Add notifications to the list model
         for (Notification notification : storedNotifications) {
             notificationListModel.addElement(notification);
-            // Only add to unread if it's newer than last viewed time
-            if (!notification.isRead() && notification.getTimestamp().isAfter(lastViewedTime)) {
+            if (!notification.isRead()) {
                 unreadNotifications.add(notification);
             }
         }
+        
+        // Get the count of unread notifications from persistence
+        int unreadCount = notificationPersistence.getUnreadNotificationCount(userId, userType);
+        
+        // Update the notification counter
+        updateNotificationCount(unreadCount);
     }
 
     public void addNotification(String message, String type) {
-        Notification notification = new Notification(message, type, LocalDateTime.now(), userId, userType);
+        // Check if a similar notification already exists in the last few seconds
+        LocalDateTime now = LocalDateTime.now();
+        boolean duplicateExists = false;
         
-        // Add to persistence
-        notificationPersistence.addNotification(notification);
+        // Check both in-memory list and database for duplicates
+        for (int i = 0; i < notificationListModel.size(); i++) {
+            Notification existing = notificationListModel.get(i);
+            if (existing.getMessage().equals(message) && 
+                existing.getType().equals(type) && 
+                existing.getTimestamp().isAfter(now.minusSeconds(5))) {
+                duplicateExists = true;
+                break;
+            }
+        }
         
-        // Add to the beginning of the list
-        notificationListModel.add(0, notification);
-        
-        // Always add to unread notifications for new notifications
-        unreadNotifications.add(notification);
-        
-        // Keep only the most recent notifications
-        while (notificationListModel.size() > MAX_NOTIFICATIONS) {
-            notificationListModel.remove(notificationListModel.size() - 1);
+        if (!duplicateExists) {
+            Notification notification = new Notification(message, type, now, userId, userType);
+            
+            // Add to persistence
+            notificationPersistence.addNotification(notification);
+            
+            // Reload all notifications to ensure consistency
+            loadNotifications();
         }
     }
 
@@ -98,10 +116,26 @@ public class NotificationPanel extends JPanel {
 
     public void markAllAsRead() {
         lastViewedTime = LocalDateTime.now();
-        for (Notification notification : unreadNotifications) {
-            notification.markAsRead();
+        notificationPersistence.markNotificationsAsRead(userId, userType);
+        // Reload notifications to ensure UI is in sync with database
+        loadNotifications();
+    }
+
+    private void updateNotificationCount(int count) {
+        // This method should be called by the parent component to update the notification counter
+        if (getParent() != null) {
+            Container parent = getParent();
+            while (parent != null && !(parent instanceof NotificationButton)) {
+                parent = parent.getParent();
+            }
+            if (parent instanceof NotificationButton) {
+                final NotificationButton button = (NotificationButton) parent;
+                final int finalCount = count;
+                SwingUtilities.invokeLater(() -> {
+                    button.updateNotificationCount(finalCount);
+                });
+            }
         }
-        unreadNotifications.clear();
     }
 
     private class NotificationCellRenderer extends DefaultListCellRenderer {
