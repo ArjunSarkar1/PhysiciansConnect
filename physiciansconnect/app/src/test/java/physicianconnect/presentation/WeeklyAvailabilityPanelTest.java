@@ -104,7 +104,7 @@ class WeeklyAvailabilityPanelTest {
                         (mock, context) -> {
                             // Provide real JSpinners so setValue won't NPE
                             mock.dateSpinner = new JSpinner(new SpinnerDateModel());
-                            mock.timeSpinner = new JSpinner(new SpinnerDateModel());
+//                            mock.timeSpinner = new JSpinner(new SpinnerDateModel());
                             doNothing().when(mock).setVisible(true);
                         })) {
 

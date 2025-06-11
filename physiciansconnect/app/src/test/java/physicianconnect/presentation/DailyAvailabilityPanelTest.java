@@ -95,7 +95,7 @@ class DailyAvailabilityPanelTest {
             try (MockedConstruction<AddAppointmentPanel> mockAddDlg = mockConstruction(AddAppointmentPanel.class,
                     (mock, context) -> {
                         mock.dateSpinner = new JSpinner(new SpinnerDateModel());
-                        mock.timeSpinner = new JSpinner(new SpinnerDateModel());
+//                        mock.timeSpinner = new JSpinner(new SpinnerDateModel());
                         when(mock.isVisible()).thenReturn(true);
                     })) {
 
