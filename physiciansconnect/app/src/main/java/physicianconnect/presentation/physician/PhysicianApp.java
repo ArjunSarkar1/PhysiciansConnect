@@ -476,6 +476,7 @@ public class PhysicianApp {
         // Mark all notifications as read when panel is opened
         notificationPanel.showNotificationPanel();
         notificationButton.updateNotificationCount(0);
+        lastNotifiedUnreadMessageCount = 0;
     }
 
     private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
@@ -668,7 +669,10 @@ public class PhysicianApp {
     private void refreshNotificationCount() {
         if (notificationPanel != null) {
             int count = notificationPanel.getUnreadNotificationCount();
-            notificationButton.updateNotificationCount(count);
+            if (count != lastNotifiedUnreadMessageCount) {
+                notificationButton.updateNotificationCount(count);
+                lastNotifiedUnreadMessageCount = count;
+            }
         }
     }
 
