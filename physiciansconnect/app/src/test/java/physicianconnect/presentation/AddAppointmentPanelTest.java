@@ -4,19 +4,19 @@ import org.junit.jupiter.api.*;
 import org.mockito.*;
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.exceptions.InvalidAppointmentException;
+import physicianconnect.presentation.util.TestUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 
 @ExtendWith(MockitoExtension.class)
 class AddAppointmentPanelTest {
@@ -37,16 +37,18 @@ class AddAppointmentPanelTest {
     }
 
     @Test
-    void testFieldsAreEditableAndDefault() throws Exception {
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1");
-        assertTrue(panel.isModal());
-        assertTrue(panel.isVisible() || !panel.isVisible()); // Just to access
+    void testFieldsAreEditableAndDefault() {
+        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1") {
+            {
+                setModal(false);
+            }
+        };
         // Patient name field should be empty
-        JTextField nameField = (JTextField) TestUtils.getField(panel, "patientNameField");
+        JTextField nameField = TestUtils.findTextField(panel, 0);
         assertNotNull(nameField);
         assertEquals("", nameField.getText());
         // Notes area should be empty
-        JTextArea notesArea = (JTextArea) TestUtils.getField(panel, "notesArea");
+        JTextArea notesArea = TestUtils.findTextArea(panel, 0);
         assertNotNull(notesArea);
         assertEquals("", notesArea.getText());
     }
@@ -54,125 +56,140 @@ class AddAppointmentPanelTest {
     @Test
     void testSaveAppointmentSuccess() throws Exception {
         Runnable callback = mock(Runnable.class);
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1", callback);
+        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1", callback) {
+            {
+                setModal(false);
+            }
+        };
 
-        JTextField nameField = (JTextField) TestUtils.getField(panel, "patientNameField");
+        JTextField nameField = TestUtils.findTextField(panel, 0);
         nameField.setText("Test Patient");
 
         // Set date and time
-        JSpinner dateSpinner = (JSpinner) TestUtils.getField(panel, "dateSpinner");
-        JSpinner timeSpinner = (JSpinner) TestUtils.getField(panel, "timeSpinner");
+        JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
+        JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
         Calendar cal = Calendar.getInstance();
         cal.set(2025, Calendar.JUNE, 1, 9, 30, 0);
         Date date = cal.getTime();
         dateSpinner.setValue(date);
         timeSpinner.setValue(date);
 
-        JTextArea notesArea = (JTextArea) TestUtils.getField(panel, "notesArea");
+        JTextArea notesArea = TestUtils.findTextArea(panel, 0);
         notesArea.setText("Test notes");
 
         // Simulate save button click
         JButton saveBtn = TestUtils.getButton(panel, "Save");
         assertNotNull(saveBtn);
+        TestUtils.pressOkOnAnyDialogAsync();
         SwingUtilities.invokeAndWait(saveBtn::doClick);
 
-        verify(mockController).createAppointment(eq("doc1"), eq("Test Patient"), any(LocalDateTime.class), eq("Test notes"));
+        TestUtils.pressOkOnAnyDialog();
+
+        verify(mockController).createAppointment(eq("doc1"), eq("Test Patient"), any(LocalDateTime.class),
+                eq("Test notes"));
         verify(callback).run();
+
     }
 
     @Test
     void testSaveAppointmentInvalidNameShowsDialog() throws Exception {
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1");
-        JTextField nameField = (JTextField) TestUtils.getField(panel, "patientNameField");
-        nameField.setText("   "); // Invalid
+        SwingUtilities.invokeAndWait(() -> {
+            AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1") {
+                {
+                    setModal(false);
+                }
+            };
+            JTextField nameField = TestUtils.findTextField(panel, 0);
+            nameField.setText("   "); // Invalid
 
-        // Mock JOptionPane
-        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
-            JButton saveBtn = TestUtils.getButton(panel, "Save");
-            SwingUtilities.invokeAndWait(saveBtn::doClick);
-            mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), contains("invalid"), any(), eq(JOptionPane.ERROR_MESSAGE)));
-        }
-        verify(mockController, never()).createAppointment(any(), any(), any(), any());
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                JButton saveBtn = TestUtils.getButton(panel, "Save");
+                saveBtn.doClick();
+                TestUtils.pressOkOnAnyDialog(); // <-- Auto-press OK after dialog appears
+                mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), eq("Please enter a patient name."), any(),
+                        eq(JOptionPane.ERROR_MESSAGE)));
+            }
+            verify(mockController, never()).createAppointment(any(), any(), any(), any());
+        });
     }
 
     @Test
     void testSaveAppointmentControllerThrowsInvalidAppointment() throws Exception {
         doThrow(new InvalidAppointmentException("bad date")).when(mockController)
                 .createAppointment(any(), any(), any(), any());
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1");
-        JTextField nameField = (JTextField) TestUtils.getField(panel, "patientNameField");
-        nameField.setText("Test Patient");
+        SwingUtilities.invokeAndWait(() -> {
+            AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1") {
+                {
+                    setModal(false);
+                }
+            };
+            JTextField nameField = TestUtils.findTextField(panel, 0);
+            nameField.setText("Test Patient");
 
-        // Set date and time
-        JSpinner dateSpinner = (JSpinner) TestUtils.getField(panel, "dateSpinner");
-        JSpinner timeSpinner = (JSpinner) TestUtils.getField(panel, "timeSpinner");
-        Date now = new Date();
-        dateSpinner.setValue(now);
-        timeSpinner.setValue(now);
+            // Set date and time
+            JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
+            JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
+            Date now = new Date();
+            dateSpinner.setValue(now);
+            timeSpinner.setValue(now);
 
-        JTextArea notesArea = (JTextArea) TestUtils.getField(panel, "notesArea");
-        notesArea.setText("Test notes");
+            JTextArea notesArea = TestUtils.findTextArea(panel, 0);
+            notesArea.setText("Test notes");
 
-        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
-            JButton saveBtn = TestUtils.getButton(panel, "Save");
-            SwingUtilities.invokeAndWait(saveBtn::doClick);
-            mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), eq("bad date"), any(), eq(JOptionPane.ERROR_MESSAGE)));
-        }
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                JButton saveBtn = TestUtils.getButton(panel, "Save");
+                saveBtn.doClick();
+                TestUtils.pressOkOnAnyDialog(); // <-- Auto-press OK after dialog appears
+                mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), eq("bad date"), any(),
+                        eq(JOptionPane.ERROR_MESSAGE)));
+            }
+        });
     }
 
     @Test
     void testSaveAppointmentControllerThrowsUnexpected() throws Exception {
         doThrow(new RuntimeException("boom")).when(mockController)
                 .createAppointment(any(), any(), any(), any());
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1");
-        JTextField nameField = (JTextField) TestUtils.getField(panel, "patientNameField");
-        nameField.setText("Test Patient");
+        SwingUtilities.invokeAndWait(() -> {
+            AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1") {
+                {
+                    setModal(false);
+                }
+            };
+            JTextField nameField = TestUtils.findTextField(panel, 0);
+            nameField.setText("Test Patient");
 
-        // Set date and time
-        JSpinner dateSpinner = (JSpinner) TestUtils.getField(panel, "dateSpinner");
-        JSpinner timeSpinner = (JSpinner) TestUtils.getField(panel, "timeSpinner");
-        Date now = new Date();
-        dateSpinner.setValue(now);
-        timeSpinner.setValue(now);
+            // Set date and time
+            JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
+            JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
+            Date now = new Date();
+            dateSpinner.setValue(now);
+            timeSpinner.setValue(now);
 
-        JTextArea notesArea = (JTextArea) TestUtils.getField(panel, "notesArea");
-        notesArea.setText("Test notes");
+            JTextArea notesArea = TestUtils.findTextArea(panel, 0);
+            notesArea.setText("Test notes");
 
-        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
-            JButton saveBtn = TestUtils.getButton(panel, "Save");
-            SwingUtilities.invokeAndWait(saveBtn::doClick);
-            mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), contains("Unexpected error"), any(), eq(JOptionPane.ERROR_MESSAGE)));
-        }
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                JButton saveBtn = TestUtils.getButton(panel, "Save");
+                saveBtn.doClick();
+                TestUtils.pressOkOnAnyDialog(); // <-- Auto-press OK after dialog appears
+                mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), contains("Unexpected error"), any(),
+                        eq(JOptionPane.ERROR_MESSAGE)));
+            }
+        });
     }
 
     @Test
     void testCancelButtonDisposesDialog() throws Exception {
-        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1");
+        AddAppointmentPanel panel = new AddAppointmentPanel(frame, mockController, "doc1") {
+            {
+                setModal(false);
+            }
+        };
         JButton cancelBtn = TestUtils.getButton(panel, "Cancel");
         assertNotNull(cancelBtn);
         SwingUtilities.invokeAndWait(cancelBtn::doClick);
         assertFalse(panel.isDisplayable());
     }
 
-    // --- Helper for reflection and button finding ---
-    static class TestUtils {
-        static Object getField(Object obj, String fieldName) throws Exception {
-            var field = obj.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.get(obj);
-        }
-
-        static JButton getButton(Container container, String text) {
-            for (Component c : container.getComponents()) {
-                if (c instanceof JButton && ((JButton) c).getText().equalsIgnoreCase(text)) {
-                    return (JButton) c;
-                }
-                if (c instanceof Container) {
-                    JButton btn = getButton((Container) c, text);
-                    if (btn != null) return btn;
-                }
-            }
-            return null;
-        }
-    }
 }

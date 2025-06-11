@@ -94,6 +94,7 @@ public class LoginScreen extends JFrame {
             BorderFactory.createLineBorder(UITheme.ACCENT_LIGHT_COLOR),
             BorderFactory.createEmptyBorder(8, 10, 8, 10)
         ));
+        emailField.setName(UIConfig.EMAIL_FIELD_NAME);
         emailPanel.add(emailLabel, BorderLayout.NORTH);
         emailPanel.add(emailField, BorderLayout.CENTER);
 
@@ -109,6 +110,7 @@ public class LoginScreen extends JFrame {
             BorderFactory.createLineBorder(UITheme.ACCENT_LIGHT_COLOR),
             BorderFactory.createEmptyBorder(8, 10, 8, 10)
         ));
+        passField.setName(UIConfig.PASSWORD_FIELD_NAME);
         passPanel.add(passLabel, BorderLayout.NORTH);
         passPanel.add(passField, BorderLayout.CENTER);
 
@@ -132,6 +134,7 @@ public class LoginScreen extends JFrame {
         loginBtn.setOpaque(true);
         loginBtn.setBorderPainted(false);
         UITheme.applyHoverEffect(loginBtn);
+        loginBtn.setName(UIConfig.LOGIN_BUTTON_NAME);
 
         createBtn = new JButton(UIConfig.CREAT_ACCOUNT_BUTTON_TEXT);
         createBtn.setFont(UITheme.BUTTON_FONT);
@@ -142,6 +145,7 @@ public class LoginScreen extends JFrame {
         createBtn.setOpaque(true);
         createBtn.setBorderPainted(false);
         UITheme.applyHoverEffect(createBtn);
+        createBtn.setName(UIConfig.CREATE_ACCOUNT_BUTTON_NAME);
 
         buttonPanel.add(loginBtn);
         buttonPanel.add(createBtn);

@@ -157,8 +157,12 @@ public final class UIConfig {
     public static final String REFERRALS_HEADER = "Referrals for";
     public static final String REFERRALS_LIST_TITLE = "All Referrals";
     public static final String ADD_APPOINTMENT_CONFIRM_TITLE = "Add Appointment";
+    public static final String EMAIL_FIELD_NAME = "emailField";
+    public static final String PASSWORD_FIELD_NAME = "passwordField";
+    public static final String LOGIN_BUTTON_NAME = "loginBtn";
+    public static final String CREATE_ACCOUNT_BUTTON_NAME = "createBtn";
 
-    // ─────────── Receptionist stuff to be sorted ───────────
+    // ─────────── Receptionist───────────
     public static final String RECEPTIONIST_DASHBOARD_TITLE = "Receptionist Dashboard";
     public static final String ALL_PHYSICIANS_LABEL = "ALL PHYSICIANS";
     public static final String PHYSICIAN_LABEL = "Physician:";
@@ -174,7 +178,7 @@ public static final String REVENUE_SUMMARY_COLLAPSED = "►";
 public static final String REVENUE_SUMMARY_EXPANDED = "▼";
 
 
-    // ─────────── Billoing stuff to be sorted ───────────
+    // ─────────── Billing ───────────
     public static final String NEW_INVOICE_BUTTON_TEXT = "New Invoice";
 public static final String REVENUE_SUMMARY_BUTTON_TEXT = "Revenue Summary";
 public static final String TOTAL_LABEL = "Total";

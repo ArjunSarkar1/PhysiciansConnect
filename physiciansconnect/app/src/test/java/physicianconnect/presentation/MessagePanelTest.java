@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class MessagePanelTest {
@@ -103,39 +107,44 @@ class MessagePanelTest {
         assertEquals(2, messageListModel.size());
     }
 
-    @Test
-    void testSendMessageSuccess() throws Exception {
-        Message sent = createMessage("doc1", "physician", "rec1", "receptionist", "How are you?", false);
-        when(messageController.sendMessage(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(sent);
-        when(messageController.getAllMessagesForUser(anyString(), anyString())).thenReturn(List.of(sent));
-        when(messageController.getUnreadMessagesForUser(anyString(), anyString())).thenReturn(List.of());
-        when(messageController.getUnreadMessageCount(anyString(), anyString())).thenReturn(0);
+@Test
+void testSendMessageSuccess() throws Exception {
+    Message sent = createMessage("doc1", "physician", "rec1", "receptionist", "How are you?", false);
 
-        MessagePanel panel = new MessagePanel(messageController, "doc1", "physician", users);
+    // Before sending, no messages
+    when(messageController.getAllMessagesForUser(anyString(), anyString()))
+        .thenReturn(List.of()) // first call: recipient selection
+        .thenReturn(List.of(sent)); // second call: after sending
+    when(messageController.getUnreadMessagesForUser(anyString(), anyString())).thenReturn(List.of());
+    when(messageController.getUnreadMessageCount(anyString(), anyString())).thenReturn(0);
 
-        // Select recipient
-        JList<Object> searchResultsList = (JList<Object>) getField(panel, "searchResultsList");
-        DefaultListModel<Object> model = (DefaultListModel<Object>) getField(panel, "searchResultsModel");
-        int rec1Index = -1;
-        for (int i = 0; i < model.size(); i++) {
-            if (model.get(i) instanceof Receptionist && ((Receptionist) model.get(i)).getId().equals("rec1")) {
-                rec1Index = i;
-                break;
-            }
+    MessagePanel panel = new MessagePanel(messageController, "doc1", "physician", users);
+
+    when(messageController.sendMessage(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(sent);
+
+    // Select recipient
+    JList<Object> searchResultsList = (JList<Object>) getField(panel, "searchResultsList");
+    DefaultListModel<Object> model = (DefaultListModel<Object>) getField(panel, "searchResultsModel");
+    int rec1Index = -1;
+    for (int i = 0; i < model.size(); i++) {
+        if (model.get(i) instanceof Receptionist && ((Receptionist) model.get(i)).getId().equals("rec1")) {
+            rec1Index = i;
+            break;
         }
-        searchResultsList.setSelectedIndex(rec1Index);
-
-        JTextField messageInput = (JTextField) getField(panel, "messageInput");
-        messageInput.setText("How are you?");
-
-        JButton sendButton = findButton(panel, "Send");
-        assertNotNull(sendButton);
-        sendButton.doClick();
-
-        DefaultListModel<Message> messageListModel = (DefaultListModel<Message>) getField(panel, "messageListModel");
-        assertEquals(1, messageListModel.size());
-        assertEquals("How are you?", messageListModel.get(0).getContent());
     }
+    searchResultsList.setSelectedIndex(rec1Index);
+
+    JTextField messageInput = (JTextField) getField(panel, "messageInput");
+    messageInput.setText("How are you?");
+
+    JButton sendButton = findButton(panel, "Send");
+    assertNotNull(sendButton);
+    sendButton.doClick();
+
+    DefaultListModel<Message> messageListModel = (DefaultListModel<Message>) getField(panel, "messageListModel");
+    assertEquals(1, messageListModel.size());
+    assertEquals("How are you?", messageListModel.get(0).getContent());
+}
 
     @Test
     void testSendMessageNoRecipientShowsDialog() throws Exception {

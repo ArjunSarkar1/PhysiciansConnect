@@ -1,4 +1,4 @@
-package physicianconnect.presentation;
+package physicianconnect.logic.manager;
 
 import java.awt.Window;
 import java.time.LocalDateTime;
@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import physicianconnect.objects.Notification;
 import physicianconnect.persistence.interfaces.NotificationPersistence;
 import physicianconnect.persistence.sqlite.NotificationDB;
+import physicianconnect.presentation.NotificationBanner;
+import physicianconnect.presentation.NotificationPanel;
 
 public class InvoiceNotificationManager {
     private final NotificationBanner banner;

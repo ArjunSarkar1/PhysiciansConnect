@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
+import physicianconnect.presentation.util.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,8 +14,8 @@ class NotificationButtonTest {
     @Test
     void testInitialState() {
         NotificationButton btn = new NotificationButton();
-        JButton button = (JButton) getField(btn, "notificationButton");
-        JLabel label = (JLabel) getField(btn, "notificationLabel");
+        JButton button = (JButton) TestUtils.getField(btn, "notificationButton");
+        JLabel label = (JLabel) TestUtils.getField(btn, "notificationLabel");
 
         assertEquals("Alerts", button.getText());
         assertFalse(label.isVisible());
@@ -23,7 +24,7 @@ class NotificationButtonTest {
     @Test
     void testUpdateNotificationCount() {
         NotificationButton btn = new NotificationButton();
-        JLabel label = (JLabel) getField(btn, "notificationLabel");
+        JLabel label = (JLabel) TestUtils.getField(btn, "notificationLabel");
 
         btn.updateNotificationCount(0);
         assertFalse(label.isVisible());
@@ -39,7 +40,7 @@ class NotificationButtonTest {
     @Test
     void testSetOnAction() {
         NotificationButton btn = new NotificationButton();
-        JButton button = (JButton) getField(btn, "notificationButton");
+        JButton button = (JButton) TestUtils.getField(btn, "notificationButton");
 
         final boolean[] called = {false};
         btn.setOnAction(e -> called[0] = true);
@@ -50,14 +51,5 @@ class NotificationButtonTest {
         assertTrue(called[0]);
     }
 
-    // Helper to access private fields
-    private Object getField(Object obj, String name) {
-        try {
-            Field f = obj.getClass().getDeclaredField(name);
-            f.setAccessible(true);
-            return f.get(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 }
