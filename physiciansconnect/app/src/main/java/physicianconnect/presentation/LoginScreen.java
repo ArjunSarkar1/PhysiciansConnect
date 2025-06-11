@@ -42,9 +42,7 @@ public class LoginScreen extends JFrame {
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(UITheme.BACKGROUND_COLOR);
         try {
-            Path imagePath = Paths.get("src/main/resources/picture_assets/login_image.png")
-                    .toAbsolutePath();
-            ImageIcon icon = new ImageIcon(imagePath.toString());
+            ImageIcon icon = new ImageIcon(getClass().getResource("/picture_assets/login_image.png"));
             Image scaled = icon.getImage().getScaledInstance(500, 600, Image.SCALE_SMOOTH);
             JLabel imageLabel = new JLabel(new ImageIcon(scaled));
             imagePanel.add(imageLabel, BorderLayout.CENTER);
