@@ -67,12 +67,10 @@ class AddAppointmentPanelTest {
 
         // Set date and time
         JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
-        JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
         Calendar cal = Calendar.getInstance();
         cal.set(2025, Calendar.JUNE, 1, 9, 30, 0);
         Date date = cal.getTime();
         dateSpinner.setValue(date);
-        timeSpinner.setValue(date);
 
         JTextArea notesArea = TestUtils.findTextArea(panel, 0);
         notesArea.setText("Test notes");
@@ -128,10 +126,8 @@ class AddAppointmentPanelTest {
 
             // Set date and time
             JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
-            JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
             Date now = new Date();
             dateSpinner.setValue(now);
-            timeSpinner.setValue(now);
 
             JTextArea notesArea = TestUtils.findTextArea(panel, 0);
             notesArea.setText("Test notes");
@@ -161,10 +157,8 @@ class AddAppointmentPanelTest {
 
             // Set date and time
             JSpinner dateSpinner = TestUtils.findSpinner(panel, 0);
-            JSpinner timeSpinner = TestUtils.findSpinner(panel, 1);
             Date now = new Date();
             dateSpinner.setValue(now);
-            timeSpinner.setValue(now);
 
             JTextArea notesArea = TestUtils.findTextArea(panel, 0);
             notesArea.setText("Test notes");

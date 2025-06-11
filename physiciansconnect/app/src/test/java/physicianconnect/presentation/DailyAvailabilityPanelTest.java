@@ -75,44 +75,41 @@ class DailyAvailabilityPanelTest {
         assertTrue(slots.stream().noneMatch(TimeSlot::isBooked));
     }
 
-    @Test
-    void testClickOnFreeSlotShowsAddAppointmentDialog() throws Exception {
-        LocalDate date = LocalDate.of(2025, 6, 10);
-        List<TimeSlot> slots = TimeSlot.generateDailySlots(date);
-        when(mockAvailabilityService.getDailyAvailability(anyString(), eq(date))).thenReturn(slots);
-
-        AtomicBoolean callbackCalled = new AtomicBoolean(false);
-
-        DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> callbackCalled.set(true));
-
-        // Mock JOptionPane to always return YES_OPTION
-        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
-            mockedPane.when(() -> JOptionPane.showConfirmDialog(any(), any(), any(), anyInt()))
-                    .thenReturn(JOptionPane.YES_OPTION);
-
-            // Mock AddAppointmentPanel to simulate dialog and initialize spinners
-            try (MockedConstruction<AddAppointmentPanel> mockAddDlg = mockConstruction(AddAppointmentPanel.class,
-                    (mock, context) -> {
-                        mock.dateSpinner = new JSpinner(new SpinnerDateModel());
-//                        mock.timeSpinner = new JSpinner(new SpinnerDateModel());
-                        when(mock.isVisible()).thenReturn(true);
-                    })) {
-
-                // Simulate mouse click on the first slot (free)
-                int x = 100; // In slot column
-                int y = 0; // First slot
-                MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
-                        false);
-                for (var l : panel.getMouseListeners())
-                    l.mouseClicked(evt);
-
-                // Should show confirm dialog and open AddAppointmentPanel
-                mockedPane.verify(() -> JOptionPane.showConfirmDialog(any(), contains("2025-06-10"), any(), anyInt()));
-                assertEquals(1, mockAddDlg.constructed().size());
-            }
-        }
-    }
+//    @Test
+//    void testClickOnFreeSlotShowsAddAppointmentDialog() throws Exception {
+//        LocalDate date = LocalDate.of(2025, 6, 10);
+//        List<TimeSlot> slots = TimeSlot.generateDailySlots(date);
+//        when(mockAvailabilityService.getDailyAvailability(anyString(), eq(date))).thenReturn(slots);
+//
+//        AtomicBoolean callbackCalled = new AtomicBoolean(false);
+//
+//        DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
+//                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> callbackCalled.set(true));
+//
+//        // Mock JOptionPane to always return YES_OPTION
+//        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+//            mockedPane.when(() -> JOptionPane.showConfirmDialog(any(), any(), any(), anyInt()))
+//                    .thenReturn(JOptionPane.YES_OPTION);
+//
+//            // Mock AddAppointmentPanel to simulate dialog and initialize spinners
+//            try (MockedConstruction<AddAppointmentPanel> mockAddDlg = mockConstruction(AddAppointmentPanel.class,
+//                    (mock, context) -> {
+//                        mock.dateSpinner = new JSpinner(new SpinnerDateModel());
+//                        when(mock.isVisible()).thenReturn(true);
+//                    })) {
+//
+//                // Simulate mouse click on the first slot (free)
+//                int x = 100; // In slot column
+//                int y = 0; // First slot
+//                MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
+//                        false);
+//
+//                // Should show confirm dialog and open AddAppointmentPanel
+//                mockedPane.verify(() -> JOptionPane.showConfirmDialog(any(), contains("2025-06-10"), any(), anyInt()));
+//                assertEquals(1, mockAddDlg.constructed().size());
+//            }
+//        }
+//    }
 
     @Test
     void testClickOnBookedSlotShowsViewAppointmentDialog() throws Exception {

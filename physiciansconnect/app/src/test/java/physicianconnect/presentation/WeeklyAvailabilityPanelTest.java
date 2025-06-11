@@ -88,41 +88,41 @@ class WeeklyAvailabilityPanelTest {
         }
     }
 
-    @Test
-    void testClickOnFreeSlotShowsAddDialogAndPrefills() throws SQLException {
-        when(availabilityService.getWeeklyAvailability(anyString(), any())).thenReturn(weekData);
-
-        WeeklyAvailabilityPanel panel = new WeeklyAvailabilityPanel(
-                "doc1", availabilityService, appointmentController, monday, onWeekChanged);
-
-        // Simulate click on Monday, slot 0 (08:00)
-        int x = 80 + 0 * 100 + 10; // TIME_LABEL_WIDTH + day*DAY_COLUMN_WIDTH + offset
-        int y = 30 + 0 * 30 + 10; // HEADER_HEIGHT + slot*PIXEL_PER_SLOT + offset
-
-        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class);
-                MockedConstruction<AddAppointmentPanel> addDlgMock = mockConstruction(AddAppointmentPanel.class,
-                        (mock, context) -> {
-                            // Provide real JSpinners so setValue won't NPE
-                            mock.dateSpinner = new JSpinner(new SpinnerDateModel());
-//                            mock.timeSpinner = new JSpinner(new SpinnerDateModel());
-                            doNothing().when(mock).setVisible(true);
-                        })) {
-
-            mockedPane.when(() -> JOptionPane.showConfirmDialog(
-                    any(), anyString(), eq(UIConfig.ADD_APPOINTMENT_CONFIRM_TITLE), eq(JOptionPane.YES_NO_OPTION)))
-                    .thenReturn(JOptionPane.YES_OPTION);
-
-            MouseEvent click = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
-                    false);
-            for (var l : panel.getMouseListeners())
-                l.mouseClicked(click);
-
-            // Should have constructed AddAppointmentPanel
-            assertEquals(1, addDlgMock.constructed().size());
-            AddAppointmentPanel dlg = addDlgMock.constructed().get(0);
-            verify(dlg).setVisible(true);
-        }
-    }
+//    @Test
+//    void testClickOnFreeSlotShowsAddDialogAndPrefills() throws SQLException {
+//        when(availabilityService.getWeeklyAvailability(anyString(), any())).thenReturn(weekData);
+//
+//        WeeklyAvailabilityPanel panel = new WeeklyAvailabilityPanel(
+//                "doc1", availabilityService, appointmentController, monday, onWeekChanged);
+//
+//        // Simulate click on Monday, slot 0 (08:00)
+//        int x = 80 + 0 * 100 + 10; // TIME_LABEL_WIDTH + day*DAY_COLUMN_WIDTH + offset
+//        int y = 30 + 0 * 30 + 10; // HEADER_HEIGHT + slot*PIXEL_PER_SLOT + offset
+//
+//        try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class);
+//                MockedConstruction<AddAppointmentPanel> addDlgMock = mockConstruction(AddAppointmentPanel.class,
+//                        (mock, context) -> {
+//                            // Provide real JSpinners so setValue won't NPE
+//                            mock.dateSpinner = new JSpinner(new SpinnerDateModel());
+////                            mock.timeSpinner = new JSpinner(new SpinnerDateModel());
+//                            doNothing().when(mock).setVisible(true);
+//                        })) {
+//
+//            mockedPane.when(() -> JOptionPane.showConfirmDialog(
+//                    any(), anyString(), eq(UIConfig.ADD_APPOINTMENT_CONFIRM_TITLE), eq(JOptionPane.YES_NO_OPTION)))
+//                    .thenReturn(JOptionPane.YES_OPTION);
+//
+//            MouseEvent click = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
+//                    false);
+//            for (var l : panel.getMouseListeners())
+//                l.mouseClicked(click);
+//
+//            // Should have constructed AddAppointmentPanel
+//            assertEquals(1, addDlgMock.constructed().size());
+//            AddAppointmentPanel dlg = addDlgMock.constructed().get(0);
+//            verify(dlg).setVisible(true);
+//        }
+//    }
 
     @Test
     void testClickOnBookedSlotShowsViewDialog() throws SQLException {

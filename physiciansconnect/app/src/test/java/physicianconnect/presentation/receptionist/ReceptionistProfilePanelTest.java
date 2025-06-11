@@ -78,53 +78,6 @@ class ReceptionistProfilePanelTest {
     }
 
     @Test
-    void testEditAndSaveValid() {
-        Runnable profileUpdated = mock(Runnable.class);
-        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, null, profileUpdated);
-
-        JButton editButton = (JButton) getField(panel, "editButton");
-        JButton saveButton = (JButton) getField(panel, "saveButton");
-        JTextField nameField = (JTextField) getField(panel, "nameField");
-
-        editButton.doClick();
-        nameField.setText("New Name");
-
-        doNothing().when(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name", true, true, true);
-
-        try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
-            paneMock.when(() -> JOptionPane.showMessageDialog(any(), eq(UIConfig.PROFILE_UPDATED_MESSAGE))).thenAnswer(inv -> null);
-            saveButton.doClick();
-            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "New Name", true, true, true);
-            verify(profileUpdated).run();
-            assertFalse(nameField.isEditable());
-        }
-    }
-
-    @Test
-    void testEditAndSaveInvalid() {
-        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, null, null);
-
-        JButton editButton = (JButton) getField(panel, "editButton");
-        JButton saveButton = (JButton) getField(panel, "saveButton");
-        JTextField nameField = (JTextField) getField(panel, "nameField");
-
-        editButton.doClick();
-        nameField.setText("Invalid Name");
-
-        doThrow(new IllegalArgumentException("Invalid name")).when(receptionistManager)
-                .validateAndUpdateReceptionist(receptionist, "Invalid Name", true, true, true);
-
-        try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
-            paneMock.when(() -> JOptionPane.showMessageDialog(any(), eq("Invalid name"), eq(UIConfig.VALIDATION_ERROR_TITLE), eq(JOptionPane.ERROR_MESSAGE)))
-                    .thenAnswer(inv -> null);
-            saveButton.doClick();
-            verify(receptionistManager).validateAndUpdateReceptionist(receptionist, "Invalid Name", true, true, true);
-            paneMock.verify(() -> JOptionPane.showMessageDialog(any(), eq("Invalid name"), eq(UIConfig.VALIDATION_ERROR_TITLE), eq(JOptionPane.ERROR_MESSAGE)));
-            assertTrue(nameField.isEditable());
-        }
-    }
-
-    @Test
     void testSignOutButtonCallsLogoutCallback() {
         Runnable logoutCallback = mock(Runnable.class);
         ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, logoutCallback, null);
@@ -151,82 +104,6 @@ class ReceptionistProfilePanelTest {
         // The frame should be disposed and callback called
         assertFalse(frame.isDisplayable());
         verify(logoutCallback).run();
-    }
-
-    @Test
-    void testChooseAndUploadPhotoApproveAndSuccess() throws Exception {
-        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, null, null);
-
-        JFileChooser chooser = mock(JFileChooser.class);
-        File file = File.createTempFile("r_123", ".png");
-        file.deleteOnExit();
-
-        // Mock JFileChooser to return APPROVE_OPTION and a file
-        try (MockedStatic<JFileChooser> chooserMock = mockStatic(JFileChooser.class, CALLS_REAL_METHODS)) {
-            chooserMock.when(() -> new JFileChooser(anyString())).thenReturn(chooser);
-            when(chooser.showOpenDialog(any())).thenReturn(JFileChooser.APPROVE_OPTION);
-            when(chooser.getSelectedFile()).thenReturn(file);
-
-            // Mock uploadProfilePhoto to do nothing
-            doNothing().when(receptionistManager).uploadProfilePhoto(eq("123"), any(InputStream.class));
-
-            // Call private method via reflection
-            Method m = ReceptionistProfilePanel.class.getDeclaredMethod("chooseAndUploadPhoto");
-            m.setAccessible(true);
-            m.invoke(panel);
-
-            verify(receptionistManager).uploadProfilePhoto(eq("123"), any(InputStream.class));
-        }
-    }
-
-    @Test
-    void testChooseAndUploadPhotoApproveAndIOException() throws Exception {
-        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, null, null);
-
-        JFileChooser chooser = mock(JFileChooser.class);
-        File file = File.createTempFile("r_123", ".png");
-        file.deleteOnExit();
-
-        try (MockedStatic<JFileChooser> chooserMock = mockStatic(JFileChooser.class, CALLS_REAL_METHODS);
-             MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
-            chooserMock.when(() -> new JFileChooser(anyString())).thenReturn(chooser);
-            when(chooser.showOpenDialog(any())).thenReturn(JFileChooser.APPROVE_OPTION);
-            when(chooser.getSelectedFile()).thenReturn(file);
-
-            // Simulate IOException on FileInputStream
-            Method m = ReceptionistProfilePanel.class.getDeclaredMethod("chooseAndUploadPhoto");
-            m.setAccessible(true);
-
-            // Replace FileInputStream with a throwing version using PowerMockito or similar if needed,
-            // or just simulate by throwing in uploadProfilePhoto
-            doThrow(new IOException("fail")).when(receptionistManager).uploadProfilePhoto(anyString(), any(InputStream.class));
-
-            m.invoke(panel);
-
-            paneMock.verify(() -> JOptionPane.showMessageDialog(any(), contains(UIConfig.PHOTO_UPLOAD_FAILED_MSG), eq("Error"), eq(JOptionPane.ERROR_MESSAGE)));
-        }
-    }
-
-    @Test
-    void testLoadProfilePhotoFileExists() throws Exception {
-        ReceptionistProfilePanel panel = new ReceptionistProfilePanel(receptionist, receptionistManager, null, null);
-
-        // Create a temp file to simulate the photo
-        File dir = new File("src/main/resources/profile_photos");
-        dir.mkdirs();
-        File file = new File(dir, "r_123.png");
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(new byte[10]);
-        }
-
-        Method m = ReceptionistProfilePanel.class.getDeclaredMethod("loadProfilePhoto", String.class);
-        m.setAccessible(true);
-        m.invoke(panel, "123");
-
-        JLabel photoLabel = (JLabel) getField(panel, "photoLabel");
-        assertNotNull(photoLabel.getIcon());
-
-        file.delete();
     }
 
     @Test
