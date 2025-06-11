@@ -96,6 +96,27 @@ public class SchemaInitializer {
                                 + "paid_at TEXT"
                                 + ");";
 
+                String createMessagesTable = "CREATE TABLE IF NOT EXISTS messages ("
+                                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                + "sender_id TEXT NOT NULL, "
+                                + "recipient_id TEXT NOT NULL, "
+                                + "subject TEXT NOT NULL, "
+                                + "body TEXT NOT NULL, "
+                                + "timestamp TEXT NOT NULL, "
+                                + "is_read BOOLEAN DEFAULT FALSE, "
+                                + "FOREIGN KEY (sender_id) REFERENCES physicians(id) ON DELETE CASCADE, "
+                                + "FOREIGN KEY (recipient_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                                + ");";
+
+                String createNotificationsTable = "CREATE TABLE IF NOT EXISTS notifications ("
+                                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                + "recipient_id TEXT NOT NULL, "
+                                + "message TEXT NOT NULL, "
+                                + "timestamp TEXT NOT NULL, "
+                                + "is_read BOOLEAN DEFAULT FALSE, "
+                                + "FOREIGN KEY (recipient_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                                + ");";
+
                 try (Statement stmt = connection.createStatement()) {
                         stmt.execute("PRAGMA foreign_keys = ON;");
                         stmt.execute(createPhysiciansTable);
@@ -106,6 +127,8 @@ public class SchemaInitializer {
                         stmt.execute(createReceptionistTable);
                         stmt.execute(createInvoicesTable);
                         stmt.execute(createPaymentsTable);
+                        stmt.execute(createMessagesTable);
+                        stmt.execute(createNotificationsTable);
                 } catch (SQLException e) {
                         throw new RuntimeException("Failed to initialize PhysicianConnect schema", e);
                 }

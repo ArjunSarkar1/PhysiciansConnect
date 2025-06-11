@@ -12,5 +12,9 @@ public interface ReceptionistPersistence {
 
     List<Receptionist> getAllReceptionists();
 
+    List<String> getAllReceptionistIds();
+
     void updateReceptionist(Receptionist receptionist);
+
+    void deleteReceptionist(String id);
 }

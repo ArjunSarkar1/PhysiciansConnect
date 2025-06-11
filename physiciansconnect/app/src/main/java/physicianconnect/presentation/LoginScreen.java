@@ -9,6 +9,7 @@ import physicianconnect.logic.exceptions.InvalidCredentialException;
 import physicianconnect.logic.manager.AppointmentManager;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReceptionistManager;
+import physicianconnect.logic.validation.CredentialVerification;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import java.nio.file.Path;
@@ -102,6 +103,24 @@ public class LoginScreen extends JFrame {
                 createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 UITheme.applyHoverEffect(createBtn);
 
+                // Add key listener for enter key on password field
+                passField.addKeyListener(new java.awt.event.KeyAdapter() {
+                    public void keyPressed(java.awt.event.KeyEvent evt) {
+                        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                            loginBtn.doClick();
+                        }
+                    }
+                });
+
+                // Add key listener for enter key on email field
+                emailField.addKeyListener(new java.awt.event.KeyAdapter() {
+                    public void keyPressed(java.awt.event.KeyEvent evt) {
+                        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                            passField.requestFocus();
+                        }
+                    }
+                });
+
                 JPanel testInfoPanel = new JPanel();
                 testInfoPanel.setLayout(new BoxLayout(testInfoPanel, BoxLayout.Y_AXIS));
                 testInfoPanel.setBackground(rightPanel.getBackground()); // match bg
@@ -184,6 +203,48 @@ public class LoginScreen extends JFrame {
                         JPasswordField passwordField = new JPasswordField(20);
                         JPasswordField confirmPasswordField = new JPasswordField(20);
 
+                        JButton registerBtn = new JButton(UIConfig.REGISTER_BUTTON_TEXT);
+                        registerBtn.setBackground(new Color(76, 175, 80));
+                        registerBtn.setForeground(Color.WHITE);
+                        registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                        registerBtn.setOpaque(true);
+                        registerBtn.setBorderPainted(false);
+                        registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        UITheme.applyHoverEffect(registerBtn);
+
+                        // Add key listeners for enter key in registration form
+                        nameField.addKeyListener(new java.awt.event.KeyAdapter() {
+                            public void keyPressed(java.awt.event.KeyEvent evt) {
+                                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                                    regEmailField.requestFocus();
+                                }
+                            }
+                        });
+
+                        regEmailField.addKeyListener(new java.awt.event.KeyAdapter() {
+                            public void keyPressed(java.awt.event.KeyEvent evt) {
+                                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                                    passwordField.requestFocus();
+                                }
+                            }
+                        });
+
+                        passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
+                            public void keyPressed(java.awt.event.KeyEvent evt) {
+                                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                                    confirmPasswordField.requestFocus();
+                                }
+                            }
+                        });
+
+                        confirmPasswordField.addKeyListener(new java.awt.event.KeyAdapter() {
+                            public void keyPressed(java.awt.event.KeyEvent evt) {
+                                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                                    registerBtn.doClick();
+                                }
+                            }
+                        });
+
                         regGbc.gridx = 0;
                         regGbc.gridy = 0;
                         dialog.add(new JLabel(UIConfig.ACCOUNT_TYPE_LABEL), regGbc);
@@ -214,15 +275,6 @@ public class LoginScreen extends JFrame {
                         regGbc.gridx = 1;
                         dialog.add(confirmPasswordField, regGbc);
 
-                        JButton registerBtn = new JButton(UIConfig.REGISTER_BUTTON_TEXT);
-                        registerBtn.setBackground(new Color(76, 175, 80));
-                        registerBtn.setForeground(Color.WHITE);
-                        registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                        registerBtn.setOpaque(true);
-                        registerBtn.setBorderPainted(false);
-                        registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        UITheme.applyHoverEffect(registerBtn);
-
                         regGbc.gridx = 0;
                         regGbc.gridy = 5;
                         regGbc.gridwidth = 2;
@@ -236,39 +288,9 @@ public class LoginScreen extends JFrame {
                                 String password = new String(passwordField.getPassword());
                                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
-                                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_REQUIRED_FIELD,
-                                                        UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_INVALID_EMAIL,
-                                                        "Error", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (password.length() < 6) {
-                                        JOptionPane.showMessageDialog(dialog,
-                                                        UIConfig.ERROR_PASSWORD_LENGTH, UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (!password.equals(confirmPassword)) {
-                                        JOptionPane.showMessageDialog(dialog, UIConfig.ERROR_PASSWORD_MISMATCH,
-                                                        UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                }
-
-                                if (physicianManager.getPhysicianByEmail(email) != null ||
-                                                receptionistManager.getReceptionistByEmail(email) != null) {
-                                        JOptionPane.showMessageDialog(dialog,
-                                                        UIConfig.ERROR_EMAIL_EXISTS, UIConfig.ERROR_DIALOG_TITLE,
-                                                        JOptionPane.ERROR_MESSAGE);
-                                        return;
+                                CredentialVerification verification = new CredentialVerification(physicianManager, receptionistManager, dialog);
+                                if (!verification.verifySignUpData(name, email, password, confirmPassword)) {
+                                    return;
                                 }
 
                                 PhysicianController physicianController = new PhysicianController(physicianManager);

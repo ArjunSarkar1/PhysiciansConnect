@@ -26,21 +26,24 @@ public class MedicationManagerTest {
         PersistenceFactory.reset();
     }
 
-    @Test
-    public void testAddAndFetchMedication() {
-        Medication m = new Medication("Ibuprofen", "200mg", "Twice a day", "Take with food");
-        medDB.addMedication(m);
+@Test
+public void testAddAndFetchMedication() {
+    Medication m = new Medication("TestMed", "999mg", "Once", "Test notes");
+    // Delete if already exists to avoid UNIQUE constraint error
+    medDB.deleteMedication(m);
 
-        List<Medication> result = medDB.getAllMedications();
+    medDB.addMedication(m);
 
-        boolean found = result.stream()
-                .anyMatch(med -> med.getName().equals("Ibuprofen")
-                        && med.getDosage().equals("200mg")
-                        && "Twice a day".equals(med.getDefaultFrequency())
-                        && "Take with food".equals(med.getDefaultNotes()));
+    List<Medication> result = medDB.getAllMedications();
 
-        assertTrue(found, "Expected to find medication 'Ibuprofen' with dosage '200mg', frequency 'Twice a day', and notes 'Take with food'");
-    }
+    boolean found = result.stream()
+            .anyMatch(med -> med.getName().equals("TestMed")
+                    && med.getDosage().equals("999mg")
+                    && "Once".equals(med.getDefaultFrequency())
+                    && "Test notes".equals(med.getDefaultNotes()));
+
+    assertTrue(found, "Expected to find medication 'TestMed' with dosage '999mg', frequency 'Once', and notes 'Test notes'");
+}
 
     @Test
     public void testDeleteMedication() {

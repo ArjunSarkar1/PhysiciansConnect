@@ -11,6 +11,9 @@ import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.InvoiceExportUtil;
 import physicianconnect.presentation.util.RevenueSummaryUtil;
+import physicianconnect.presentation.InvoiceNotificationManager;
+import physicianconnect.presentation.NotificationPanel;
+import physicianconnect.persistence.interfaces.NotificationPersistence;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -33,14 +36,18 @@ public class BillingPanel extends JPanel {
     private final JTable invoiceTable;
     private final TableRowSorter<DefaultTableModel> sorter;
     private final JTextField searchField;
+    private final InvoiceNotificationManager notificationManager;
 
     // For keeping the invoice dialog open and refreshing content
     private JDialog invoiceDialog;
     private JPanel invoiceContentPanel;
 
-    public BillingPanel(BillingController billingController, AppointmentController appointmentController) {
+    public BillingPanel(BillingController billingController, AppointmentController appointmentController,
+                       NotificationPanel notificationPanel, NotificationPersistence notificationPersistence) {
         this.billingController = billingController;
         this.appointmentController = appointmentController;
+        this.notificationManager = new InvoiceNotificationManager(SwingUtilities.getWindowAncestor(this), 
+                                                                notificationPanel, notificationPersistence);
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         setBackground(UITheme.BACKGROUND_COLOR);
@@ -318,39 +325,35 @@ public class BillingPanel extends JPanel {
         formPanel.add(insuranceAdjLabel);
         formPanel.add(insuranceAdjField);
 
-        int result = JOptionPane.showConfirmDialog(this, formPanel, UIConfig.NEW_INVOICE_DIALOG_TITLE,
-                JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(this, formPanel, "Create New Invoice",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
         if (result == JOptionPane.OK_OPTION) {
-            try {
-                Appointment selected = (Appointment) appointmentBox.getSelectedItem();
-                if (selected == null)
-                    throw new Exception(UIConfig.ERROR_NO_APPOINTMENT_SELECTED);
-                String appointmentId = String.valueOf(selected.getId());
-                String patientName = selected.getPatientName();
-                List<ServiceItem> services = selectedServices[0];
-                String insuranceType = (String) insuranceBox.getSelectedItem();
-                double insuranceAdj = Double.parseDouble(insuranceAdjField.getText().trim());
-
-                // Validation
-                if (services == null || services.isEmpty())
-                    throw new Exception(UIConfig.ERROR_NO_SERVICES_SELECTED);
-                if (insuranceType == null)
-                    throw new Exception(UIConfig.ERROR_NO_INSURANCE_SELECTED);
-
-                // Prevent duplicate invoice for appointment
-                if (billingController.getAllInvoices().stream()
-                        .anyMatch(inv -> inv.getAppointmentId().equals(appointmentId))) {
-                    throw new Exception(UIConfig.ERROR_DUPLICATE_INVOICE);
+            Appointment selectedAppointment = (Appointment) appointmentBox.getSelectedItem();
+            if (selectedAppointment != null) {
+                if (selectedServices[0] == null || selectedServices[0].isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please select at least one service.",
+                            UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                BillingValidator.validateInvoiceServices(services);
+                try {
+                    double insuranceAdj = Double.parseDouble(insuranceAdjField.getText().trim());
+                    if (insuranceAdj < 0) {
+                        throw new NumberFormatException();
+                    }
 
-                billingController.createInvoice(appointmentId, patientName, services, insuranceAdj);
-                refreshInvoices();
-                RevenueSummaryUtil.fireRevenueSummaryChanged();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.ERROR_DIALOG_TITLE,
-                        JOptionPane.ERROR_MESSAGE);
+                    String appointmentId = String.valueOf(selectedAppointment.getId());
+                    String patientName = selectedAppointment.getPatientName();
+                    
+                    billingController.createInvoice(appointmentId, patientName, selectedServices[0], insuranceAdj);
+                    notificationManager.notifyInvoiceCreated(patientName);
+                    refreshInvoices();
+                    RevenueSummaryUtil.fireRevenueSummaryChanged();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid insurance adjustment amount.",
+                            UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }
@@ -425,8 +428,9 @@ public class BillingPanel extends JPanel {
                 apptDateTime = appt.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             }
         } catch (Exception e) {
-            apptDateTime = "";
+            System.out.println("Error getting appointment date: " + e.getMessage());
         }
+
         JLabel apptLabel = new JLabel(UIConfig.APPOINTMENT_LABEL + (apptDateTime.isEmpty() ? "-" : apptDateTime));
         apptLabel.setFont(UITheme.LABEL_FONT);
         apptLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -443,12 +447,14 @@ public class BillingPanel extends JPanel {
         JPanel servicesPanel = new JPanel();
         servicesPanel.setLayout(new BoxLayout(servicesPanel, BoxLayout.Y_AXIS));
         servicesPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        
         for (ServiceItem s : invoice.getServices()) {
             JLabel serviceLine = new JLabel("   • " + s.getName() + ": $" + String.format("%.2f", s.getCost()));
             serviceLine.setFont(UITheme.LABEL_FONT);
             serviceLine.setAlignmentX(Component.LEFT_ALIGNMENT);
             servicesPanel.add(serviceLine);
         }
+
         servicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         infoPanel.add(servicesPanel);
 
@@ -500,6 +506,7 @@ public class BillingPanel extends JPanel {
         balanceLabel.setFont(detailFont);
         JLabel balanceValue = new JLabel("$" + String.format("%.2f", invoice.getBalance()));
         balanceValue.setFont(detailFont);
+
         if (invoice.getBalance() > 0)
             balanceValue.setForeground(Color.RED);
 
@@ -507,6 +514,7 @@ public class BillingPanel extends JPanel {
         statusLabel.setFont(detailFont);
         JLabel statusValue = new JLabel(invoice.getStatus());
         statusValue.setFont(detailFont.deriveFont(Font.BOLD));
+
         if ("Paid".equalsIgnoreCase(invoice.getStatus()))
             statusValue.setForeground(new Color(0, 128, 0));
         else if ("Partial".equalsIgnoreCase(invoice.getStatus()))
@@ -537,6 +545,7 @@ public class BillingPanel extends JPanel {
         // Buttons
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         btnPanel.setBackground(UITheme.BACKGROUND_COLOR);
+
         if (!"Paid".equals(invoice.getStatus())) {
             JButton payBtn = new JButton(UIConfig.RECORD_PAYMENT_BUTTON_TEXT);
             styleButton(payBtn);
@@ -544,6 +553,7 @@ public class BillingPanel extends JPanel {
             payBtn.addActionListener(e -> showPaymentDialog(invoice));
             btnPanel.add(payBtn);
         }
+
         JButton deleteBtn = new JButton(UIConfig.DELETE_INVOICE_BUTTON_TEXT);
         styleButton(deleteBtn);
         deleteBtn.setFont(UITheme.BUTTON_FONT);
@@ -552,11 +562,13 @@ public class BillingPanel extends JPanel {
                     UIConfig.CONFIRM_DIALOG_TITLE, JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 billingController.deleteInvoice(invoice.getId());
+                notificationManager.notifyInvoiceDeleted(invoice.getPatientName());
                 refreshInvoices();
                 RevenueSummaryUtil.fireRevenueSummaryChanged();
                 invoiceDialog.dispose();
             }
         });
+        
         btnPanel.add(deleteBtn);
 
         // Export/Print Button
@@ -597,20 +609,31 @@ public class BillingPanel extends JPanel {
         panel.add(new JLabel(UIConfig.PAYMENT_METHOD_LABEL));
         panel.add(methodBox);
 
-        int result = JOptionPane.showConfirmDialog(this, panel, UIConfig.RECORD_PAYMENT_DIALOG_TITLE,
-                JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(this, panel, "Add Payment",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
         if (result == JOptionPane.OK_OPTION) {
             try {
-                double amount = Double.parseDouble(amountField.getText().trim());
+                double amount = Double.parseDouble(amountField.getText());
                 String method = (String) methodBox.getSelectedItem();
                 BillingValidator.validatePaymentAmount(amount, invoice.getBalance());
+                
+                // Record the payment
                 billingController.recordPayment(invoice.getId(), amount, method);
+                
+                // Get the updated invoice to check its new status
+                Invoice updatedInvoice = billingController.getInvoiceById(invoice.getId());
+                
+                // Only show the paid notification if the invoice is now fully paid
+                if ("Paid".equals(updatedInvoice.getStatus())) {
+                    notificationManager.notifyInvoicePaid(updatedInvoice.getPatientName());
+                }
+                
                 refreshInvoices();
                 RevenueSummaryUtil.fireRevenueSummaryChanged();
-                // Fetch updated invoice and payments
-                Invoice updatedInvoice = billingController.getInvoiceById(invoice.getId());
+                
+                // Show updated details in the same dialog
                 List<Payment> updatedPayments = billingController.getPaymentsByInvoice(invoice.getId());
-                // Show updated details in the same dialog (refresh content)
                 showInvoiceDetail(updatedInvoice, updatedPayments);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.ERROR_DIALOG_TITLE,

@@ -5,6 +5,7 @@ import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.logic.manager.ReceptionistManager;
 
 import javax.swing.*;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
 import java.awt.image.BufferedImage;
@@ -29,7 +30,8 @@ public class ReceptionistProfilePanel extends JPanel {
     private final ReceptionistManager receptionistManager;
 
     private static final int MAX_PHOTO_SIZE = 200;
-    private static final String PHOTO_DIR = "src/main/resources/profile_photos";
+    private static final String PHOTO_DIR = "profile_photos";
+    private static final String[] SUPPORTED_IMAGE_TYPES = {".png", ".jpg", ".jpeg"};
 
     public ReceptionistProfilePanel(Receptionist receptionist, ReceptionistManager receptionistManager,
             Runnable logoutCallback, Runnable onProfileUpdated) {
@@ -39,17 +41,20 @@ public class ReceptionistProfilePanel extends JPanel {
         this.onProfileUpdated = onProfileUpdated;
 
         setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // --- Photo Panel (left)
         photoLabel = new JLabel();
         photoLabel.setPreferredSize(new Dimension(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE));
         photoLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        photoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         loadProfilePhoto(receptionist.getId());
 
         changePhotoButton = new JButton(UIConfig.CHANGE_PHOTO_BUTTON_TEXT);
         changePhotoButton.addActionListener(e -> chooseAndUploadPhoto());
 
         JPanel photoPanel = new JPanel(new BorderLayout(10, 10));
+        photoPanel.setBackground(getBackground());
         photoPanel.add(photoLabel, BorderLayout.CENTER);
         photoPanel.add(changePhotoButton, BorderLayout.SOUTH);
 
@@ -59,16 +64,17 @@ public class ReceptionistProfilePanel extends JPanel {
         emailField.setEditable(false);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
         JLabel nameLabel = new JLabel(UIConfig.NAME_LABEL);
-        nameLabel.setPreferredSize(new Dimension(100, 25));
-        nameField.setPreferredSize(new Dimension(200, 25));
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD));
+        nameField.setPreferredSize(new Dimension(250, 30));
         gbc.gridx = 0;
         gbc.gridy = 0;
         formPanel.add(nameLabel, gbc);
@@ -76,8 +82,8 @@ public class ReceptionistProfilePanel extends JPanel {
         formPanel.add(nameField, gbc);
 
         JLabel emailLabel = new JLabel(UIConfig.USER_EMAIL_LABEL);
-        emailLabel.setPreferredSize(new Dimension(100, 25));
-        emailField.setPreferredSize(new Dimension(200, 25));
+        emailLabel.setFont(emailLabel.getFont().deriveFont(Font.BOLD));
+        emailField.setPreferredSize(new Dimension(250, 30));
         gbc.gridx = 0;
         gbc.gridy = 1;
         formPanel.add(emailLabel, gbc);
@@ -85,11 +91,13 @@ public class ReceptionistProfilePanel extends JPanel {
         formPanel.add(emailField, gbc);
 
         JLabel notifyLabel = new JLabel(UIConfig.NOTIFICATION_PREFS_LABEL);
+        notifyLabel.setFont(notifyLabel.getFont().deriveFont(Font.BOLD));
         notifyAppointments = new JCheckBox(UIConfig.NOTIFY_APPOINTMENTS, receptionist.isNotifyAppointment());
         notifyBilling = new JCheckBox(UIConfig.NOTIFY_BILLING, receptionist.isNotifyBilling());
         notifyMessages = new JCheckBox(UIConfig.MESSAGES_DIALOG_TITLE, receptionist.isNotifyMessages());
 
-        JPanel checkboxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel checkboxPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        checkboxPanel.setBackground(getBackground());
         checkboxPanel.add(notifyAppointments);
         checkboxPanel.add(notifyBilling);
         checkboxPanel.add(notifyMessages);
@@ -100,14 +108,13 @@ public class ReceptionistProfilePanel extends JPanel {
         gbc.gridx = 1;
         formPanel.add(checkboxPanel, gbc);
 
-        JPanel paddedFormPanel = new JPanel(new BorderLayout());
-        paddedFormPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        paddedFormPanel.add(formPanel, BorderLayout.CENTER);
+        // Create photo directory if it doesn't exist
+        createPhotoDirectory();
 
-        JPanel paddedPhotoPanel = new JPanel(new BorderLayout());
-        paddedPhotoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 10));
-        paddedPhotoPanel.add(photoPanel, BorderLayout.NORTH);
-        paddedFormPanel.add(paddedPhotoPanel, BorderLayout.WEST);
+        JPanel paddedFormPanel = new JPanel(new BorderLayout(20, 0));
+        paddedFormPanel.setBackground(getBackground());
+        paddedFormPanel.add(formPanel, BorderLayout.CENTER);
+        paddedFormPanel.add(photoPanel, BorderLayout.WEST);
 
         add(paddedFormPanel, BorderLayout.CENTER);
 
@@ -115,9 +122,10 @@ public class ReceptionistProfilePanel extends JPanel {
         editButton = new JButton(UIConfig.EDIT_BUTTON_TEXT);
         saveButton = new JButton(UIConfig.SAVE_BUTTON_TEXT);
         cancelButton = new JButton(UIConfig.CANCEL_BUTTON_TEXT);
-        signOutButton = new JButton(UIConfig.LOGIN_BUTTON_TEXT);
+        signOutButton = new JButton(UIConfig.LOGOUT_BUTTON_TEXT);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        buttonPanel.setBackground(getBackground());
         buttonPanel.add(editButton);
         buttonPanel.add(saveButton);
         buttonPanel.add(signOutButton);
@@ -132,40 +140,47 @@ public class ReceptionistProfilePanel extends JPanel {
             notifyAppointments.setSelected(receptionist.isNotifyAppointment());
             notifyBilling.setSelected(receptionist.isNotifyBilling());
             notifyMessages.setSelected(receptionist.isNotifyMessages());
-
         });
-        saveButton.addActionListener(e -> {
-            try {
-                receptionistManager.validateAndUpdateReceptionist(
-                        receptionist,
-                        nameField.getText().trim(),
-                        notifyAppointments.isSelected(),
-                        notifyBilling.isSelected(),
-                        notifyMessages.isSelected());
-
-                if (onProfileUpdated != null) {
-                    onProfileUpdated.run();
-                }
-
-                JOptionPane.showMessageDialog(this, UIConfig.PROFILE_UPDATED_MESSAGE);
-                setEditable(false);
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.VALIDATION_ERROR_TITLE,
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
+        saveButton.addActionListener(e -> saveProfile());
         signOutButton.addActionListener(e -> {
             Window topWindow = SwingUtilities.getWindowAncestor(this);
-            if (topWindow != null)
+            if (topWindow != null) {
                 topWindow.dispose();
-            if (logoutCallback != null)
+            }
+            if (logoutCallback != null) {
                 logoutCallback.run();
+            }
         });
 
         saveButton.setVisible(false);
         cancelButton.setVisible(false);
         setEditable(false);
+    }
+
+    private void saveProfile() {
+        try {
+            String newName = nameField.getText().trim();
+            if (newName.isEmpty()) {
+                throw new IllegalArgumentException("Name cannot be empty");
+            }
+
+            receptionistManager.validateAndUpdateReceptionist(
+                    receptionist,
+                    newName,
+                    notifyAppointments.isSelected(),
+                    notifyBilling.isSelected(),
+                    notifyMessages.isSelected());
+
+            if (onProfileUpdated != null) {
+                onProfileUpdated.run();
+            }
+
+            JOptionPane.showMessageDialog(this, UIConfig.PROFILE_UPDATED_MESSAGE);
+            setEditable(false);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.VALIDATION_ERROR_TITLE,
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void setEditable(boolean editable) {
@@ -180,48 +195,112 @@ public class ReceptionistProfilePanel extends JPanel {
         notifyMessages.setEnabled(editable);
     }
 
+    private void createPhotoDirectory() {
+        File photoDir = new File(PHOTO_DIR);
+        if (!photoDir.exists()) {
+            photoDir.mkdirs();
+        }
+    }
+
     private void chooseAndUploadPhoto() {
-        JFileChooser chooser = new JFileChooser(PHOTO_DIR);
+        JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.isDirectory() || (f.getName().endsWith(".png") && f.getName().startsWith("r_"));
+                if (f.isDirectory()) return true;
+                String name = f.getName().toLowerCase();
+                for (String type : SUPPORTED_IMAGE_TYPES) {
+                    if (name.endsWith(type)) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             @Override
             public String getDescription() {
-                return "Receptionist PNG Images (r_*.png)";
+                return "Image Files (*.png, *.jpg, *.jpeg)";
             }
         });
 
         int result = chooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            try (InputStream in = new FileInputStream(file)) {
-                receptionistManager.uploadProfilePhoto(receptionist.getId(), in);
+            try {
+                // Validate image
+                BufferedImage img = ImageIO.read(file);
+                if (img == null) {
+                    throw new IOException("Invalid image file");
+                }
+
+                // Resize image if needed
+                if (img.getWidth() > MAX_PHOTO_SIZE || img.getHeight() > MAX_PHOTO_SIZE) {
+                    img = resizeImage(img);
+                }
+
+                // Save resized image
+                File outputFile = new File(PHOTO_DIR, "r_" + receptionist.getId() + ".png");
+                ImageIO.write(img, "png", outputFile);
+
+                // Update profile photo
+                receptionistManager.uploadProfilePhoto(receptionist.getId(), new FileInputStream(outputFile));
                 loadProfilePhoto(receptionist.getId());
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, UIConfig.PHOTO_UPLOAD_FAILED_MSG + ex.getMessage(), "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Failed to upload photo: " + ex.getMessage(), 
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private BufferedImage resizeImage(BufferedImage originalImage) {
+        double ratio = Math.min(
+            (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
+            (double) MAX_PHOTO_SIZE / originalImage.getHeight()
+        );
+        
+        int newWidth = (int) (originalImage.getWidth() * ratio);
+        int newHeight = (int) (originalImage.getHeight() * ratio);
+        
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g.dispose();
+        
+        return resizedImage;
     }
 
     private void loadProfilePhoto(String id) {
         File file = new File(PHOTO_DIR, "r_" + id + ".png");
         if (file.exists()) {
-            ImageIcon icon = new ImageIcon(file.getAbsolutePath());
-            Image img = icon.getImage().getScaledInstance(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, Image.SCALE_SMOOTH);
-            photoLabel.setIcon(new ImageIcon(img));
-        } else {
-            BufferedImage placeholder = new BufferedImage(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = placeholder.createGraphics();
-            g2.setColor(Color.LIGHT_GRAY);
-            g2.fillRect(0, 0, MAX_PHOTO_SIZE, MAX_PHOTO_SIZE);
-            g2.setColor(Color.DARK_GRAY);
-            g2.drawString(UIConfig.NO_PHOTO_PLACEHOLDER_TEXT, 50, 100);
-            g2.dispose();
-            photoLabel.setIcon(new ImageIcon(placeholder));
+            try {
+                BufferedImage img = ImageIO.read(file);
+                if (img != null) {
+                    Image scaledImg = img.getScaledInstance(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, Image.SCALE_SMOOTH);
+                    photoLabel.setIcon(new ImageIcon(scaledImg));
+                    return;
+                }
+            } catch (IOException ex) {
+                // Fall through to placeholder if image loading fails
+                System.out.println("Error loading photo: " + ex.getMessage());
+            }
         }
+        
+        // Create placeholder if no photo exists or loading failed
+        BufferedImage placeholder = new BufferedImage(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = placeholder.createGraphics();
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.fillRect(0, 0, MAX_PHOTO_SIZE, MAX_PHOTO_SIZE);
+        g2.setColor(Color.DARK_GRAY);
+        g2.setFont(new Font("Arial", Font.PLAIN, 14));
+        String text = UIConfig.NO_PHOTO_PLACEHOLDER_TEXT;
+        FontMetrics fm = g2.getFontMetrics();
+        int x = (MAX_PHOTO_SIZE - fm.stringWidth(text)) / 2;
+        int y = (MAX_PHOTO_SIZE - fm.getHeight()) / 2 + fm.getAscent();
+        g2.drawString(text, x, y);
+        g2.dispose();
+        photoLabel.setIcon(new ImageIcon(placeholder));
     }
 }
