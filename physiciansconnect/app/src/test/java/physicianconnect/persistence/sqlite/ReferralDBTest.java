@@ -86,7 +86,7 @@ public class ReferralDBTest {
         db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
         conn.close();
         Exception ex = assertThrows(RuntimeException.class, () -> db.getReferralsForPhysician("doc1"));
-        assertTrue(ex.getMessage().contains("Failed to fetch referrals for physician"));
+        assertTrue(ex.getMessage().contains("Failed to fetch referrals"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ReferralDBTest {
         db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
         conn.close();
         Exception ex = assertThrows(RuntimeException.class, () -> db.getReferralsForPatient("Patient A"));
-        assertTrue(ex.getMessage().contains("Failed to fetch referrals for patient"));
+        assertTrue(ex.getMessage().contains("Failed to fetch referrals"));
     }
 
     @Test

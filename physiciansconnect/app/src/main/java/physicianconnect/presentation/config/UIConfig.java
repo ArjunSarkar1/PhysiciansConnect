@@ -26,7 +26,7 @@ public final class UIConfig {
     public static final String REGISTER_BUTTON_TEXT = "Register";
     public static final String PROFILE_BUTTON_TEXT = "Profile";
     public static final String BILLING_BUTTON_TEXT = "Billing & Invoicing";
-        public static final String CHANGE_PHOTO_BUTTON_TEXT = "Change Photo";
+    public static final String CHANGE_PHOTO_BUTTON_TEXT = "Change Photo";
     public static final String EDIT_BUTTON_TEXT = "Edit";
     public static final String NO_PHOTO_PLACEHOLDER_TEXT = "No Photo";
 
@@ -113,6 +113,18 @@ public final class UIConfig {
     public static final String VALIDATION_ERROR_TITLE = "Validation Error";
     public static final String PHOTO_UPLOAD_FAILED_MSG = "Failed to upload photo: ";
 
+    // ─────────── Photo Error Messages ───────────
+    public static final String ERROR_INVALID_IMAGE_FILE = "Invalid image file";
+    public static final String ERROR_PHOTO_UPLOAD = "Failed to upload photo: ";
+    public static final String ERROR_PHOTO_LOADING = "Error loading photo: ";
+
+    // ─────────── Profile Validation Messages ───────────
+    public static final String ERROR_NAME_EMPTY = "Name cannot be empty";
+    public static final String ERROR_SPECIALTY_EMPTY = "Specialty cannot be empty";
+    public static final String ERROR_OFFICE_HOURS_EMPTY = "Office hours cannot be empty";
+    public static final String ERROR_PHONE_EMPTY = "Phone number cannot be empty";
+    public static final String ERROR_ADDRESS_EMPTY = "Office address cannot be empty";
+
     // ─────────── Success Messages ───────────
     public static final String SUCCESS_DIALOG_TITLE = "Success";
     public static final String SUCCESS_ACCOUNT_CREATED = "Account created successfully!";
@@ -131,6 +143,7 @@ public final class UIConfig {
     public static final String HISTORY_DATE_PATTERN = "MMM dd, yyyy 'at' hh:mm a";
     public static final DateTimeFormatter HISTORY_DATE_FORMATTER = DateTimeFormatter
             .ofPattern("MMM dd, yyyy 'at' hh:mm a");
+
     // ─────────── Miscellaneous ───────────
     public static final String APP_TITLE = "PhysicianConnect";
     public static final String LOADING_MESSAGE = "Loading...";
@@ -157,8 +170,12 @@ public final class UIConfig {
     public static final String REFERRALS_HEADER = "Referrals for";
     public static final String REFERRALS_LIST_TITLE = "All Referrals";
     public static final String ADD_APPOINTMENT_CONFIRM_TITLE = "Add Appointment";
+    public static final String EMAIL_FIELD_NAME = "emailField";
+    public static final String PASSWORD_FIELD_NAME = "passwordField";
+    public static final String LOGIN_BUTTON_NAME = "loginBtn";
+    public static final String CREATE_ACCOUNT_BUTTON_NAME = "createBtn";
 
-    // ─────────── Receptionist stuff to be sorted ───────────
+    // ─────────── Receptionist───────────
     public static final String RECEPTIONIST_DASHBOARD_TITLE = "Receptionist Dashboard";
     public static final String ALL_PHYSICIANS_LABEL = "ALL PHYSICIANS";
     public static final String PHYSICIAN_LABEL = "Physician:";
@@ -170,43 +187,52 @@ public final class UIConfig {
     public static final String TIME_FORMAT = "hh:mm a";
     
     public static final String REVENUE_SUMMARY_HEADER = "Revenue Summary";
-public static final String REVENUE_SUMMARY_COLLAPSED = "►";
-public static final String REVENUE_SUMMARY_EXPANDED = "▼";
+    public static final String REVENUE_SUMMARY_COLLAPSED = "►";
+    public static final String REVENUE_SUMMARY_EXPANDED = "▼";
 
-
-    // ─────────── Billoing stuff to be sorted ───────────
+    // ─────────── Billing ───────────
     public static final String NEW_INVOICE_BUTTON_TEXT = "New Invoice";
-public static final String REVENUE_SUMMARY_BUTTON_TEXT = "Revenue Summary";
-public static final String TOTAL_LABEL = "Total";
-public static final String BALANCE_LABEL = "Balance";
-public static final String STATUS_LABEL = "Status";
-public static final String APPOINTMENT_LABEL = "Appointment: ";
-public static final String SERVICES_LABEL = "Services:";
-public static final String INSURANCE_TYPE_LABEL = "Insurance Type:";
-public static final String INSURANCE_ADJUSTMENT_LABEL = "Insurance Adjustment:";
-public static final String SELECT_SERVICES_BUTTON_TEXT = "Select Services";
-public static final String NO_SERVICES_SELECTED_LABEL = "No services selected";
-public static final String SERVICES_SELECTED_LABEL = "services selected";
-public static final String SELECT_SERVICES_DIALOG_TITLE = "Select Services";
-public static final String ERROR_NO_SERVICES_SELECTED = "Please select at least one service.";
-public static final String ERROR_NO_INSURANCE_SELECTED = "Please select an insurance type.";
-public static final String ERROR_DUPLICATE_INVOICE = "An invoice already exists for this appointment.";
-public static final String ERROR_INVALID_AMOUNT = "Invalid amount for ";
-public static final String RECORD_PAYMENT_BUTTON_TEXT = "Record Payment";
-public static final String DELETE_INVOICE_BUTTON_TEXT = "Delete Invoice";
-public static final String CONFIRM_DELETE_INVOICE = "Delete this invoice?";
-public static final String INVOICE_DETAILS_DIALOG_TITLE = "Invoice Details";
-public static final String AMOUNT_LABEL = "Amount:";
-public static final String PAYMENT_METHOD_LABEL = "Payment Method:";
-public static final String RECORD_PAYMENT_DIALOG_TITLE = "Record Payment";
-public static final String REVENUE_SUMMARY_FORMAT = "Total Billed: $%.2f\nTotal Paid: $%.2f\nOutstanding: $%.2f";
-public static final String REVENUE_SUMMARY_TITLE = "Revenue Summary";
-public static final String REVENUE_SUMMARY_DIALOG_TITLE = "Revenue Summary";
-public static final String TOTAL_BILLED_LABEL = "Billed";
-public static final String TOTAL_PAID_LABEL = "Paid";
-public static final String OUTSTANDING_LABEL = "Outstanding";
-public static final String CREATED_LABEL = "Created: ";
+    public static final String REVENUE_SUMMARY_BUTTON_TEXT = "Revenue Summary";
+    public static final String TOTAL_LABEL = "Total";
+    public static final String BALANCE_LABEL = "Balance";
+    public static final String STATUS_LABEL = "Status";
+    public static final String APPOINTMENT_LABEL = "Appointment: ";
+    public static final String SERVICES_LABEL = "Services:";
+    public static final String INSURANCE_TYPE_LABEL = "Insurance Type:";
+    public static final String INSURANCE_ADJUSTMENT_LABEL = "Insurance Adjustment:";
+    public static final String SELECT_SERVICES_BUTTON_TEXT = "Select Services";
+    public static final String NO_SERVICES_SELECTED_LABEL = "No services selected";
+    public static final String SERVICES_SELECTED_LABEL = "services selected";
+    public static final String SELECT_SERVICES_DIALOG_TITLE = "Select Services";
+    public static final String ERROR_NO_SERVICES_SELECTED = "Please select at least one service.";
+    public static final String ERROR_NO_INSURANCE_SELECTED = "Please select an insurance type.";
+    public static final String ERROR_DUPLICATE_INVOICE = "An invoice already exists for this appointment.";
+    public static final String ERROR_INVALID_AMOUNT = "Invalid amount for ";
+    public static final String RECORD_PAYMENT_BUTTON_TEXT = "Record Payment";
+    public static final String DELETE_INVOICE_BUTTON_TEXT = "Delete Invoice";
+    public static final String CONFIRM_DELETE_INVOICE = "Delete this invoice?";
+    public static final String INVOICE_DETAILS_DIALOG_TITLE = "Invoice Details";
+    public static final String AMOUNT_LABEL = "Amount:";
+    public static final String PAYMENT_METHOD_LABEL = "Payment Method:";
+    public static final String RECORD_PAYMENT_DIALOG_TITLE = "Record Payment";
+    public static final String REVENUE_SUMMARY_FORMAT = "Total Billed: $%.2f\nTotal Paid: $%.2f\nOutstanding: $%.2f";
+    public static final String REVENUE_SUMMARY_TITLE = "Revenue Summary";
+    public static final String REVENUE_SUMMARY_DIALOG_TITLE = "Revenue Summary";
+    public static final String TOTAL_BILLED_LABEL = "Billed";
+    public static final String TOTAL_PAID_LABEL = "Paid";
+    public static final String OUTSTANDING_LABEL = "Outstanding";
+    public static final String CREATED_LABEL = "Created: ";
     public static final String NEW_INVOICE_DIALOG_TITLE = "Create New Invoice";
+
+    // ─────────── Profile Photo ───────────
+    public static final String PHOTO_DIR = "src/main/resources/profile_photos";
+    public static final String[] SUPPORTED_IMAGE_TYPES = { ".png", ".jpg", ".jpeg" };
+    public static final String SELECT_PROFILE_PHOTO_DIALOG_TITLE = "Select Profile Photo";
+    public static final String PHYSICIAN_PHOTO_FILTER_DESC = "Physician Profile Photos (*.png, *.jpg, *.jpeg)";
+    public static final String RECEPTIONIST_PHOTO_FILTER_DESC = "Receptionist Profile Photos (*.png, *.jpg, *.jpeg)";
+    public static final String PHOTO_PREFIX_PHYSICIAN = "p_";
+    public static final String PHOTO_PREFIX_RECEPTIONIST = "r_";
+    public static final String PHOTO_EXTENSION = ".png";
 
     // Prevent instantiation
     private UIConfig() {

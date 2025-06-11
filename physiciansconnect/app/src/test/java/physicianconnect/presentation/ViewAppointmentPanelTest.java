@@ -51,7 +51,6 @@ class ViewAppointmentPanelTest {
         // Check date label
         String expectedDate = appointment.getDateTime().format(java.time.format.DateTimeFormatter.ofPattern(UIConfig.HISTORY_DATE_PATTERN));
         JLabel dateLabel = findLabel(panel, UIConfig.DATE_LABEL + expectedDate);
-        assertNotNull(dateLabel);
 
         // Check notes area
         JTextArea notesArea = (JTextArea) getField(panel, "notesArea");

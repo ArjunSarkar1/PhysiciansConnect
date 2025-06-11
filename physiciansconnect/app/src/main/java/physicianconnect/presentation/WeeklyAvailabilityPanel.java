@@ -18,6 +18,8 @@ import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.format.DateTimeFormatter;
+
 
 /**
  * Shows a weekly grid: a left-hand time column (08:00–16:30)
@@ -35,7 +37,7 @@ public class WeeklyAvailabilityPanel extends JPanel {
 
     // Constants
     private static final int DAYS_IN_WEEK     = 7;
-    private static final int SLOT_COUNT       = 16;   // 08:00–16:30
+    private static final int SLOT_COUNT       = 18;   // 08:00–16:30
     private static final int PIXEL_PER_SLOT   = 30;   // each row is 30px tall
     private static final int TIME_LABEL_WIDTH = 80;   // width of left-hand time column
     private static final int DAY_COLUMN_WIDTH = 100;  // width of each day-of-week column
@@ -114,11 +116,20 @@ public class WeeklyAvailabilityPanel extends JPanel {
                                 }
                         );
                         // Pre-fill date/time spinners:
-                        java.util.Date prefill = java.util.Date.from(
+                        // 1) set the date
+                        java.util.Date prefillDate = java.util.Date.from(
                                 slotTime.atZone(ZoneId.systemDefault()).toInstant()
                         );
-                        addDlg.dateSpinner.setValue(prefill);
-                        addDlg.timeSpinner.setValue(prefill);
+                        addDlg.dateSpinner.setValue(prefillDate);
+
+                        // 2) format the time as “HH:mm”
+                        String prefillString = slotTime
+                                .toLocalTime()
+                                .format(DateTimeFormatter.ofPattern("HH:mm"));
+
+                        // 3) set the combo
+                        addDlg.timeCombo.setSelectedItem(prefillString);
+
                         addDlg.setVisible(true);
                     }
                 } else {

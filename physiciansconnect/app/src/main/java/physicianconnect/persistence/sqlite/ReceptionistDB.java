@@ -22,16 +22,14 @@ public class ReceptionistDB implements ReceptionistPersistence {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Receptionist(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getBoolean("notifyAppointment"),
-                        rs.getBoolean("notifyBilling"),
-                        rs.getBoolean("notifyMessages"));
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password")
+                );
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find receptionist by id", e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -117,6 +115,34 @@ public class ReceptionistDB implements ReceptionistPersistence {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update receptionist", e);
+        }
+    }
+
+    @Override
+    public List<String> getAllReceptionistIds() {
+        List<String> ids = new ArrayList<>();
+        String sql = "SELECT id FROM receptionists";
+        
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                ids.add(rs.getString("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return ids;
+    }
+
+    @Override
+    public void deleteReceptionist(String id) {
+        String sql = "DELETE FROM receptionists WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

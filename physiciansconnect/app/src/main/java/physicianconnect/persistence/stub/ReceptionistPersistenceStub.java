@@ -51,10 +51,6 @@ public class ReceptionistPersistenceStub implements ReceptionistPersistence {
         return new ArrayList<>(receptionists.values());
     }
 
-    public void deleteReceptionistById(String id) {
-        receptionists.remove(id);
-    }
-
     public void deleteAllReceptionists() {
         receptionists.clear();
     }
@@ -65,6 +61,16 @@ public class ReceptionistPersistenceStub implements ReceptionistPersistence {
             throw new IllegalArgumentException("Receptionist not found.");
         }
         receptionists.put(receptionist.getId(), receptionist);
+    }
+
+    @Override
+    public void deleteReceptionist(String id) {
+        receptionists.remove(id);
+    }
+
+    @Override
+    public List<String> getAllReceptionistIds() {
+        return new ArrayList<>(receptionists.keySet());
     }
 
     public void close() {

@@ -108,15 +108,13 @@ public class AppointmentDB implements AppointmentPersistence {
     @Override
     public void updateAppointment(Appointment appointment) {
         String sql = "UPDATE appointments " +
-                "   SET notes = ? " +
-                " WHERE physician_id = ? " +
-                "   AND patient_name = ? " +
-                "   AND datetime = ?";
+                "   SET notes = ?, " +
+                "       datetime = ? " +
+                " WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, appointment.getNotes());
-            stmt.setString(2, appointment.getPhysicianId());
-            stmt.setString(3, appointment.getPatientName());
-            stmt.setString(4, appointment.getDateTime().toString());
+            stmt.setString(2, appointment.getDateTime().toString());
+            stmt.setInt(3, appointment.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update appointment", e);

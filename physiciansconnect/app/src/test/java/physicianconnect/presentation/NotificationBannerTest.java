@@ -21,25 +21,33 @@ class NotificationBannerTest {
         owner.dispose();
     }
 
-    @Test
-    void testShowAndDismiss() throws Exception {
-        NotificationBanner banner = new NotificationBanner(owner);
+@Test
+void testShowAndDismiss() throws Exception {
+    NotificationBanner banner = new NotificationBanner(owner);
 
-        final boolean[] clicked = {false};
-        ActionListener listener = e -> clicked[0] = true;
+    final boolean[] clicked = {false};
+    ActionListener listener = e -> clicked[0] = true;
 
-        SwingUtilities.invokeAndWait(() -> banner.show("Test message", listener));
-        assertTrue(banner.isVisible());
+    SwingUtilities.invokeAndWait(() -> banner.show("Test message", listener));
+    assertTrue(banner.isVisible());
 
-        // Simulate click
-        SwingUtilities.invokeAndWait(() -> {
-            for (var l : banner.getMouseListeners()) {
-                l.mouseClicked(null);
-            }
-        });
-        assertFalse(banner.isVisible());
-        assertTrue(clicked[0]);
+    // Simulate click
+    SwingUtilities.invokeAndWait(() -> {
+        for (var l : banner.getMouseListeners()) {
+            l.mouseClicked(null);
+        }
+    });
+
+    // Wait for fade-out to complete (max 500ms)
+    int waited = 0;
+    while (banner.isVisible() && waited < 600) {
+        Thread.sleep(50);
+        waited += 50;
     }
+
+    assertFalse(banner.isVisible());
+    assertTrue(clicked[0]);
+}
 
     @Test
     void testDismissHidesBanner() throws Exception {

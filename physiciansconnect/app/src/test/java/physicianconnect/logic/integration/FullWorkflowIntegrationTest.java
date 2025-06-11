@@ -7,7 +7,9 @@ import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.manager.ReferralManager;
 import physicianconnect.objects.*;
 import physicianconnect.persistence.*;
+import physicianconnect.persistence.interfaces.AppointmentPersistence;
 import physicianconnect.persistence.interfaces.MedicationPersistence;
+import physicianconnect.persistence.interfaces.PhysicianPersistence;
 import physicianconnect.persistence.interfaces.PrescriptionPersistence;
 import physicianconnect.persistence.interfaces.ReferralPersistence;
 
@@ -17,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FullWorkflowIntegrationTest {
 
+
     private PhysicianManager physicianManager;
     private AppointmentManager appointmentManager;
     private ReferralManager referralManager;
@@ -24,15 +27,28 @@ public class FullWorkflowIntegrationTest {
     private MedicationPersistence medicationPersistence;
     private PrescriptionPersistence prescriptionPersistence;
     private ReferralPersistence referralPersistence;
+    private AppointmentPersistence appointmentPersistence;
+    private PhysicianPersistence physicianPersistence;
 
     @BeforeEach
     public void setup() {
         PersistenceFactory.initialize(PersistenceType.TEST, true); // Seed DB
-        physicianManager = new PhysicianManager(PersistenceFactory.getPhysicianPersistence());
-        appointmentManager = new AppointmentManager(PersistenceFactory.getAppointmentPersistence());
+
+        physicianPersistence = PersistenceFactory.getPhysicianPersistence();
+        appointmentPersistence = PersistenceFactory.getAppointmentPersistence();
         medicationPersistence = PersistenceFactory.getMedicationPersistence();
         prescriptionPersistence = PersistenceFactory.getPrescriptionPersistence();
         referralPersistence = PersistenceFactory.getReferralPersistence();
+
+        // Delete all data before each test
+        prescriptionPersistence.deleteAllPrescriptions();
+        medicationPersistence.deleteAllMedications();
+        referralPersistence.deleteAllReferrals();
+        appointmentPersistence.deleteAllAppointments();
+        physicianPersistence.deleteAllPhysicians();
+
+        physicianManager = new PhysicianManager(physicianPersistence);
+        appointmentManager = new AppointmentManager(appointmentPersistence);
         referralManager = new ReferralManager(referralPersistence);
     }
 
@@ -47,6 +63,7 @@ public class FullWorkflowIntegrationTest {
         Physician doc = new Physician("p1", "Dr. House", "house@hospital.com", "vicodin");
         physicianManager.addPhysician(doc);
 
+        medicationPersistence.deleteAllMedications();
         // Add medication
         Medication med = new Medication("Vicodin", "10mg", "Pain relief", "Take with water");
         medicationPersistence.addMedication(med);

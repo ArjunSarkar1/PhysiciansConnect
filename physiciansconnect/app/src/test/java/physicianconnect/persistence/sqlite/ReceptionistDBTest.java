@@ -70,13 +70,13 @@ class ReceptionistDBTest {
         assertTrue(ex.getMessage().contains("Failed to add receptionist"));
     }
 
-    @Test
-    void testGetReceptionistByIdCatchesSQLException() throws Exception {
-        db.addReceptionist(new Receptionist("id1", "Alice", "alice@email.com", "pw"));
-        conn.close();
-        Exception ex = assertThrows(RuntimeException.class, () -> db.getReceptionistById("id1"));
-        assertTrue(ex.getMessage().contains("Failed to find receptionist by id"));
-    }
+@Test
+void testGetReceptionistByIdCatchesSQLException() throws Exception {
+    db.addReceptionist(new Receptionist("id1", "Alice", "alice@email.com", "pw"));
+    conn.close();
+    Receptionist result = db.getReceptionistById("id1");
+    assertNull(result);
+}
 
     @Test
     void testGetReceptionistByEmailCatchesSQLException() throws Exception {

@@ -60,7 +60,7 @@ public class PersistenceFactory {
                     receptionistPersistence = new ReceptionistDB(conn);
                     invoicePersistence = new InvoiceDB(conn);
                     paymentPersistence = new PaymentDB(conn);
-                    notificationPersistence = new NotificationDB(conn);
+                    notificationPersistence = new NotificationDB(conn, getReceptionistPersistence());
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -136,7 +136,7 @@ public class PersistenceFactory {
         if (notificationPersistence == null) {
             try {
                 Connection conn = ConnectionManager.get();
-                notificationPersistence = new NotificationDB(conn);
+                notificationPersistence = new NotificationDB(conn, getReceptionistPersistence());
             } catch (Exception e) {
                 e.printStackTrace();
                 notificationPersistence = StubFactory.createNotificationPersistence();

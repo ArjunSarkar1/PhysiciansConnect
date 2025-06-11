@@ -1,4 +1,3 @@
-// DailyAvailabilityPanel.java
 package physicianconnect.presentation;
 
 import physicianconnect.logic.AvailabilityService;
@@ -17,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
+
 
 /**
  * Shows a single day’s 16 half-hour slots (08:00–16:30) in one column,
@@ -34,7 +35,7 @@ public class DailyAvailabilityPanel extends JPanel {
     private List<TimeSlot> currentSlots;
 
     // Constants (layout dimensions)
-    private static final int SLOT_COUNT       = 16;   // 16 half-hour slots (08:00–16:30)
+    private static final int SLOT_COUNT       = 18;   // 16 half-hour slots (08:00–16:30)
     private static final int PIXEL_PER_SLOT   = 30;   // each row is 30px tall
     private static final int TIME_LABEL_WIDTH = 80;   // width of the left-hand time column
     private static final int SLOT_COLUMN_WIDTH = 200; // width of the slot column
@@ -108,11 +109,20 @@ public class DailyAvailabilityPanel extends JPanel {
                                 }
                         );
                         // Pre-fill date/time spinners:
-                        java.util.Date prefill = java.util.Date.from(
+                        // 1) set the date
+                        java.util.Date prefillDate = java.util.Date.from(
                                 slotTime.atZone(ZoneId.systemDefault()).toInstant()
                         );
-                        addDlg.dateSpinner.setValue(prefill);
-                        addDlg.timeSpinner.setValue(prefill);
+                        addDlg.dateSpinner.setValue(prefillDate);
+
+                        // 2) format the time as “HH:mm”
+                        String prefillString = slotTime
+                                .toLocalTime()
+                                .format(DateTimeFormatter.ofPattern("HH:mm"));
+
+                        // 3) set the combo
+                        addDlg.timeCombo.setSelectedItem(prefillString);
+
 
                         addDlg.setVisible(true);
                     }
