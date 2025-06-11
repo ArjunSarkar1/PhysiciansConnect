@@ -113,6 +113,18 @@ public final class UIConfig {
     public static final String VALIDATION_ERROR_TITLE = "Validation Error";
     public static final String PHOTO_UPLOAD_FAILED_MSG = "Failed to upload photo: ";
 
+    // ─────────── Photo Error Messages ───────────
+    public static final String ERROR_INVALID_IMAGE_FILE = "Invalid image file";
+    public static final String ERROR_PHOTO_UPLOAD = "Failed to upload photo: ";
+    public static final String ERROR_PHOTO_LOADING = "Error loading photo: ";
+
+    // ─────────── Profile Validation Messages ───────────
+    public static final String ERROR_NAME_EMPTY = "Name cannot be empty";
+    public static final String ERROR_SPECIALTY_EMPTY = "Specialty cannot be empty";
+    public static final String ERROR_OFFICE_HOURS_EMPTY = "Office hours cannot be empty";
+    public static final String ERROR_PHONE_EMPTY = "Phone number cannot be empty";
+    public static final String ERROR_ADDRESS_EMPTY = "Office address cannot be empty";
+
     // ─────────── Success Messages ───────────
     public static final String SUCCESS_DIALOG_TITLE = "Success";
     public static final String SUCCESS_ACCOUNT_CREATED = "Account created successfully!";
@@ -211,6 +223,16 @@ public final class UIConfig {
     public static final String OUTSTANDING_LABEL = "Outstanding";
     public static final String CREATED_LABEL = "Created: ";
     public static final String NEW_INVOICE_DIALOG_TITLE = "Create New Invoice";
+
+    // ─────────── Profile Photo ───────────
+    public static final String PHOTO_DIR = "src/main/resources/profile_photos";
+    public static final String[] SUPPORTED_IMAGE_TYPES = { ".png", ".jpg", ".jpeg" };
+    public static final String SELECT_PROFILE_PHOTO_DIALOG_TITLE = "Select Profile Photo";
+    public static final String PHYSICIAN_PHOTO_FILTER_DESC = "Physician Profile Photos (*.png, *.jpg, *.jpeg)";
+    public static final String RECEPTIONIST_PHOTO_FILTER_DESC = "Receptionist Profile Photos (*.png, *.jpg, *.jpeg)";
+    public static final String PHOTO_PREFIX_PHYSICIAN = "p_";
+    public static final String PHOTO_PREFIX_RECEPTIONIST = "r_";
+    public static final String PHOTO_EXTENSION = ".png";
 
     // Prevent instantiation
     private UIConfig() {
