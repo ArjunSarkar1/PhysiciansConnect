@@ -74,11 +74,22 @@ public class NotificationButton extends JPanel {
         if (count > 0) {
             notificationLabel.setText(String.valueOf(count));
             notificationLabel.setVisible(true);
-            // Ensure the label stays visible
+            // Ensure the label stays visible and is properly sized
+            notificationLabel.setPreferredSize(new Dimension(
+                Math.max(20, notificationLabel.getPreferredSize().width),
+                BUTTON_HEIGHT
+            ));
             notificationLabel.revalidate();
             notificationLabel.repaint();
+            // Ensure the panel is also updated
+            revalidate();
+            repaint();
         } else {
             notificationLabel.setVisible(false);
+            notificationLabel.setText("0");
+            // Ensure the panel is updated when hiding the counter
+            revalidate();
+            repaint();
         }
     }
 } 
