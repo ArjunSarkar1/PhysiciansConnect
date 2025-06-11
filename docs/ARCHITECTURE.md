@@ -1,6 +1,6 @@
 !["PhysicianConnect"](diagram.png)
 
-## Dependency Injection Configuration
+## Dependency Injection Config
 
 The application uses a simple but effective dependency injection pattern to switch between different persistence implementations. This is achieved through the following components:
 
