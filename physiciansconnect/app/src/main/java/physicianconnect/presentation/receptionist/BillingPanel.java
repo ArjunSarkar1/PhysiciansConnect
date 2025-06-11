@@ -1,6 +1,7 @@
 package physicianconnect.presentation.receptionist;
 
 import physicianconnect.logic.controller.BillingController;
+import physicianconnect.logic.manager.InvoiceNotificationManager;
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.validation.BillingValidator;
 import physicianconnect.objects.Appointment;
@@ -11,7 +12,6 @@ import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.InvoiceExportUtil;
 import physicianconnect.presentation.util.RevenueSummaryUtil;
-import physicianconnect.presentation.InvoiceNotificationManager;
 import physicianconnect.presentation.NotificationPanel;
 import physicianconnect.persistence.interfaces.NotificationPersistence;
 
