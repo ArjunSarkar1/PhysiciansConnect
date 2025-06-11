@@ -21,11 +21,11 @@ import java.awt.event.*;
 
 public class LoginScreen extends JFrame {
     private final AppController controller;
-    private JTextField emailField;
-    private JPasswordField passField;
-    private JButton loginBtn;
-    private JButton createBtn;
-    private JLabel errorLabel;
+    public JTextField emailField;
+    public JPasswordField passField;
+    public JButton loginBtn;
+    public JButton createBtn;
+    public JLabel errorLabel;
 
     public LoginScreen(PhysicianManager physicianManager, AppointmentManager appointmentManager,
             ReceptionistManager receptionistManager, AppController controller) {
