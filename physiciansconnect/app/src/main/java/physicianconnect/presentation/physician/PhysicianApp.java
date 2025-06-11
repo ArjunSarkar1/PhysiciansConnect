@@ -474,7 +474,7 @@ public class PhysicianApp {
         }
         notificationDialog.setVisible(true);
         // Mark all notifications as read when panel is opened
-        notificationPanel.markAllAsRead();
+        notificationPanel.showNotificationPanel();
         notificationButton.updateNotificationCount(0);
     }
 

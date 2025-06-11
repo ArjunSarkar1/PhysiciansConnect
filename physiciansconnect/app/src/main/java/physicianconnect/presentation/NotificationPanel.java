@@ -12,6 +12,7 @@ import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.objects.Notification;
 import physicianconnect.persistence.interfaces.NotificationPersistence;
+import physicianconnect.persistence.sqlite.NotificationDB;
 
 public class NotificationPanel extends JPanel {
     private final DefaultListModel<Notification> notificationListModel;
@@ -29,7 +30,7 @@ public class NotificationPanel extends JPanel {
         this.userId = userId;
         this.userType = userType;
         this.unreadNotifications = new ArrayList<>();
-        this.lastViewedTime = LocalDateTime.now();
+        this.lastViewedTime = LocalDateTime.MIN;
         
         setLayout(new BorderLayout(10, 10));
         setBackground(UITheme.BACKGROUND_COLOR);
@@ -64,13 +65,21 @@ public class NotificationPanel extends JPanel {
         notificationListModel.clear();
         unreadNotifications.clear();
         List<Notification> storedNotifications = notificationPersistence.getNotificationsForUser(userId, userType);
+        
+        // Sort notifications by timestamp, newest first
+        storedNotifications.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        
         for (Notification notification : storedNotifications) {
             notificationListModel.addElement(notification);
-            // Only add to unread if it's newer than last viewed time
-            if (!notification.isRead() && notification.getTimestamp().isAfter(lastViewedTime)) {
+            // Add to unread if it's not marked as read
+            if (!notification.isRead()) {
                 unreadNotifications.add(notification);
             }
         }
+        
+        // Ensure the UI is updated
+        revalidate();
+        repaint();
     }
 
     public void addNotification(String message, String type) {
@@ -104,20 +113,41 @@ public class NotificationPanel extends JPanel {
             while (notificationListModel.size() > MAX_NOTIFICATIONS) {
                 notificationListModel.remove(notificationListModel.size() - 1);
             }
+            
+            // Ensure the UI is updated
+            revalidate();
+            repaint();
         }
     }
 
     public int getUnreadNotificationCount() {
-        // Return the actual count of unread notifications
+        // Force a refresh of notifications to ensure accurate count
+        loadNotifications();
         return unreadNotifications.size();
     }
 
     public void markAllAsRead() {
         lastViewedTime = LocalDateTime.now();
         for (Notification notification : unreadNotifications) {
-            notification.markAsRead();
+            if (notificationPersistence instanceof NotificationDB) {
+                ((NotificationDB) notificationPersistence).markNotificationAsRead(notification);
+            } else {
+                notification.markAsRead();
+            }
         }
         unreadNotifications.clear();
+        
+        // Force a refresh of notifications to ensure UI is up to date
+        loadNotifications();
+        
+        // Ensure the UI is updated
+        revalidate();
+        repaint();
+    }
+
+    public void showNotificationPanel() {
+        // Mark all notifications as read when panel is opened
+        markAllAsRead();
     }
 
     private class NotificationCellRenderer extends DefaultListCellRenderer {

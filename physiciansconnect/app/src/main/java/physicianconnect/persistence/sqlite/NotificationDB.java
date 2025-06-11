@@ -27,12 +27,21 @@ public class NotificationDB implements NotificationPersistence {
                 user_type TEXT NOT NULL,
                 message TEXT NOT NULL,
                 type TEXT NOT NULL,
-                timestamp TEXT NOT NULL
+                timestamp TEXT NOT NULL,
+                is_read INTEGER DEFAULT 0
             )
         """;
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
+            
+            // Check if is_read column exists
+            try {
+                stmt.executeQuery("SELECT is_read FROM notifications LIMIT 1");
+            } catch (SQLException e) {
+                // Column doesn't exist, add it
+                stmt.execute("ALTER TABLE notifications ADD COLUMN is_read INTEGER DEFAULT 0");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -40,7 +49,7 @@ public class NotificationDB implements NotificationPersistence {
 
     @Override
     public void addNotification(Notification notification) {
-        String sql = "INSERT INTO notifications (user_id, user_type, message, type, timestamp) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO notifications (user_id, user_type, message, type, timestamp, is_read) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, notification.getUserId());
@@ -48,6 +57,7 @@ public class NotificationDB implements NotificationPersistence {
             pstmt.setString(3, notification.getMessage());
             pstmt.setString(4, notification.getType());
             pstmt.setString(5, notification.getTimestamp().toString());
+            pstmt.setInt(6, notification.isRead() ? 1 : 0);
             
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -66,13 +76,17 @@ public class NotificationDB implements NotificationPersistence {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    notifications.add(new Notification(
+                    Notification notification = new Notification(
                         rs.getString("message"),
                         rs.getString("type"),
                         LocalDateTime.parse(rs.getString("timestamp")),
                         rs.getString("user_id"),
                         rs.getString("user_type")
-                    ));
+                    );
+                    if (rs.getInt("is_read") == 1) {
+                        notification.markAsRead();
+                    }
+                    notifications.add(notification);
                 }
             }
         } catch (SQLException e) {
@@ -97,9 +111,20 @@ public class NotificationDB implements NotificationPersistence {
     }
 
     public void markNotificationAsRead(Notification notification) {
-        // Since we're using SQLite and the Notification object is immutable,
-        // we'll just mark it as read in memory
-        notification.markAsRead();
+        String sql = "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND user_type = ? AND message = ? AND type = ? AND timestamp = ?";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, notification.getUserId());
+            pstmt.setString(2, notification.getUserType());
+            pstmt.setString(3, notification.getMessage());
+            pstmt.setString(4, notification.getType());
+            pstmt.setString(5, notification.getTimestamp().toString());
+            
+            pstmt.executeUpdate();
+            notification.markAsRead();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void broadcastToReceptionists(String message, String type) {
@@ -108,11 +133,12 @@ public class NotificationDB implements NotificationPersistence {
         
         // Create a notification for each receptionist
         for (String receptionistId : receptionistIds) {
+            // Create notification with the recipient's ID as userId
             Notification notification = new Notification(
                 message,
                 type,
                 LocalDateTime.now(),
-                receptionistId,
+                receptionistId,  // This is now the recipient's ID
                 "receptionist"
             );
             addNotification(notification);

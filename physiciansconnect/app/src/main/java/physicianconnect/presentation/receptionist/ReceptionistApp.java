@@ -199,6 +199,14 @@ public class ReceptionistApp {
         notificationButton = new NotificationButton();
         notificationButton.setOnAction(e -> showNotificationPanel());
 
+        // Initialize notification refresh timer
+        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
+        notificationRefreshTimer.start();
+
+        // Initialize message refresh timer
+        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
+        messageRefreshTimer.start();
+
         // Right-aligned panel for physician dropdown, date/time, and message button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setOpaque(false);
@@ -499,13 +507,6 @@ public class ReceptionistApp {
 
         appointmentManager.addChangeListener(this::updateAppointments);
 
-        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
-        messageRefreshTimer.start();
-
-        // Add notification refresh timer
-        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
-        notificationRefreshTimer.start();
-
         frame.setVisible(true);
     }
 
@@ -632,7 +633,7 @@ private void updateCalendarPanels() {
         }
         notificationDialog.setVisible(true);
         // Mark all notifications as read when panel is opened
-        notificationPanel.markAllAsRead();
+        notificationPanel.showNotificationPanel();
         notificationButton.updateNotificationCount(0);
     }
 
