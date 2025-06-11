@@ -5,7 +5,8 @@ import java.time.LocalDate;
 
 public final class PrescriptionValidator {
 
-    private PrescriptionValidator() { }
+    private PrescriptionValidator() {
+    }
 
     public static void validateMedicationName(String name) throws InvalidPrescriptionException {
         if (name == null || name.trim().isEmpty()) {
@@ -16,6 +17,21 @@ public final class PrescriptionValidator {
     public static void validateDosage(String dosage) throws InvalidPrescriptionException {
         if (dosage == null || dosage.trim().isEmpty()) {
             throw new InvalidPrescriptionException("Dosage cannot be empty.");
+        }
+
+        /*
+         * Accept values like:
+         * • "500 mg"
+         * • "0.5 mL"
+         * • "1 tablet"
+         * • "2 tabs"
+         * Units are case-insensitive and you can extend them as needed.
+         */
+
+        String pattern = "^[0-9]+(?:\\.[0-9]+)?\\s*(mg|g|µg|mcg|ml|mL|tablet|tab|tabs?|caps?|units?)$";
+        if (!dosage.trim().toLowerCase().matches(pattern)) {
+            throw new InvalidPrescriptionException(
+                    "Dosage must look like \"500 mg\", \"1 tablet\", etc.");
         }
     }
 
