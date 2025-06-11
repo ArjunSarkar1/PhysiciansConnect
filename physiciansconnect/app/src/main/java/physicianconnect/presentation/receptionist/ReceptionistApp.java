@@ -626,7 +626,11 @@ private void updateCalendarPanels() {
     private void showNotificationPanel() {
         if (notificationDialog == null) {
             notificationDialog = new JDialog(frame, "Notifications", false);
-            // Don't recreate the panel, use the existing one
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "receptionist"
+            );
             notificationDialog.setContentPane(notificationPanel);
             notificationDialog.pack();
             notificationDialog.setLocationRelativeTo(frame);
@@ -635,6 +639,7 @@ private void updateCalendarPanels() {
         // Mark all notifications as read when panel is opened
         notificationPanel.showNotificationPanel();
         notificationButton.updateNotificationCount(0);
+        lastNotifiedUnreadMessageCount = 0;
     }
 
     private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
@@ -704,10 +709,11 @@ private void updateCalendarPanels() {
 
     private void refreshNotificationCount() {
         if (notificationPanel != null) {
-            // Reload notifications to get the latest state
-            notificationPanel.loadNotifications();
             int count = notificationPanel.getUnreadNotificationCount();
-            notificationButton.updateNotificationCount(count);
+            if (count != lastNotifiedUnreadMessageCount) {
+                notificationButton.updateNotificationCount(count);
+                lastNotifiedUnreadMessageCount = count;
+            }
         }
     }
 
