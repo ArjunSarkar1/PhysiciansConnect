@@ -6,9 +6,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class ProfileImageUtil {
+    private static final String PHOTO_DIR = "src/main/resources/profile_photos";
+
     public static ImageIcon getProfileIcon(String id, boolean isPhysician) {
         String prefix = isPhysician ? "p_" : "r_";
-        File photoFile = new File("src/main/resources/profile_photos", prefix + id + ".png");
+        File photoFile = new File(PHOTO_DIR, prefix + id + ".png");
 
         if (photoFile.exists()) {
             ImageIcon icon = new ImageIcon(photoFile.getAbsolutePath());
