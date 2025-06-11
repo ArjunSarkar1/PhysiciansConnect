@@ -20,7 +20,9 @@ class PaymentDBTest {
         SchemaInitializer.initializeSchema(conn);
         db = new PaymentDB(conn);
 
-        // Insert parent appointment and invoice for foreign key constraints
+        // Insert the physician first for foreign key constraints
+        insertPhysician("doc1");
+        // Then insert parent appointment and invoice
         insertAppointment("1");
         insertInvoice("inv1", "1");
     }
@@ -29,6 +31,18 @@ class PaymentDBTest {
     void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
+        }
+    }
+
+    // Helper to insert the physician
+    private void insertPhysician(String id) throws Exception {
+        String sqlPhys = "INSERT OR IGNORE INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)";
+        try (var stmt = conn.prepareStatement(sqlPhys)) {
+            stmt.setString(1, id);
+            stmt.setString(2, "Dr. Test");
+            stmt.setString(3, "test@doc.com");
+            stmt.setString(4, "pw");
+            stmt.executeUpdate();
         }
     }
 
@@ -41,15 +55,6 @@ class PaymentDBTest {
             stmt.setString(3, "Test Patient");
             stmt.setString(4, LocalDateTime.now().toString());
             stmt.setString(5, "");
-            stmt.executeUpdate();
-        }
-        // Insert the physician if needed (for appointment foreign key)
-        String sqlPhys = "INSERT OR IGNORE INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)";
-        try (var stmt = conn.prepareStatement(sqlPhys)) {
-            stmt.setString(1, "doc1");
-            stmt.setString(2, "Dr. Test");
-            stmt.setString(3, "test@doc.com");
-            stmt.setString(4, "pw");
             stmt.executeUpdate();
         }
     }

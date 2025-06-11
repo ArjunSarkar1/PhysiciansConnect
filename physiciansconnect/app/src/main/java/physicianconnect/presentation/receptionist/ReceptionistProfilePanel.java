@@ -30,8 +30,6 @@ public class ReceptionistProfilePanel extends JPanel {
     private final ReceptionistManager receptionistManager;
 
     private static final int MAX_PHOTO_SIZE = 200;
-    private static final String PHOTO_DIR = "profile_photos";
-    private static final String[] SUPPORTED_IMAGE_TYPES = {".png", ".jpg", ".jpeg"};
 
     public ReceptionistProfilePanel(Receptionist receptionist, ReceptionistManager receptionistManager,
             Runnable logoutCallback, Runnable onProfileUpdated) {
@@ -51,7 +49,9 @@ public class ReceptionistProfilePanel extends JPanel {
         loadProfilePhoto(receptionist.getId());
 
         changePhotoButton = new JButton(UIConfig.CHANGE_PHOTO_BUTTON_TEXT);
-        changePhotoButton.addActionListener(e -> chooseAndUploadPhoto());
+        changePhotoButton.addActionListener(e -> {
+            chooseAndUploadPhoto();
+        });
 
         JPanel photoPanel = new JPanel(new BorderLayout(10, 10));
         photoPanel.setBackground(getBackground());
@@ -161,7 +161,7 @@ public class ReceptionistProfilePanel extends JPanel {
         try {
             String newName = nameField.getText().trim();
             if (newName.isEmpty()) {
-                throw new IllegalArgumentException("Name cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_NAME_EMPTY);
             }
 
             receptionistManager.validateAndUpdateReceptionist(
@@ -196,7 +196,7 @@ public class ReceptionistProfilePanel extends JPanel {
     }
 
     private void createPhotoDirectory() {
-        File photoDir = new File(PHOTO_DIR);
+        File photoDir = new File(UIConfig.PHOTO_DIR);
         if (!photoDir.exists()) {
             photoDir.mkdirs();
         }
@@ -204,33 +204,35 @@ public class ReceptionistProfilePanel extends JPanel {
 
     private void chooseAndUploadPhoto() {
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+        chooser.setCurrentDirectory(new File(UIConfig.PHOTO_DIR));
+        chooser.setDialogTitle(UIConfig.SELECT_PROFILE_PHOTO_DIALOG_TITLE);
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.addChoosableFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
             public boolean accept(File f) {
                 if (f.isDirectory()) return true;
                 String name = f.getName().toLowerCase();
-                for (String type : SUPPORTED_IMAGE_TYPES) {
-                    if (name.endsWith(type)) {
-                        return true;
-                    }
-                }
-                return false;
+                return name.startsWith(UIConfig.PHOTO_PREFIX_RECEPTIONIST) && 
+                       (name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[0]) || 
+                        name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[1]) || 
+                        name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[2]));
             }
 
             @Override
             public String getDescription() {
-                return "Image Files (*.png, *.jpg, *.jpeg)";
+                return UIConfig.RECEPTIONIST_PHOTO_FILTER_DESC;
             }
         });
 
         int result = chooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+            File selectedFile = chooser.getSelectedFile();
             try {
                 // Validate image
-                BufferedImage img = ImageIO.read(file);
+                BufferedImage img = ImageIO.read(selectedFile);
                 if (img == null) {
-                    throw new IOException("Invalid image file");
+                    throw new IOException(UIConfig.ERROR_INVALID_IMAGE_FILE);
                 }
 
                 // Resize image if needed
@@ -238,42 +240,49 @@ public class ReceptionistProfilePanel extends JPanel {
                     img = resizeImage(img);
                 }
 
+                // Ensure directory exists
+                File photoDir = new File(UIConfig.PHOTO_DIR);
+                if (!photoDir.exists()) {
+                    photoDir.mkdirs();
+                }
+
                 // Save resized image
-                File outputFile = new File(PHOTO_DIR, "r_" + receptionist.getId() + ".png");
+                File outputFile = new File(photoDir, UIConfig.PHOTO_PREFIX_RECEPTIONIST + receptionist.getId() + UIConfig.PHOTO_EXTENSION);
                 ImageIO.write(img, "png", outputFile);
 
                 // Update profile photo
-                receptionistManager.uploadProfilePhoto(receptionist.getId(), new FileInputStream(outputFile));
+                FileInputStream fis = new FileInputStream(outputFile);
+                receptionistManager.uploadProfilePhoto(receptionist.getId(), fis);
+                fis.close();
                 loadProfilePhoto(receptionist.getId());
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, 
-                    "Failed to upload photo: " + ex.getMessage(), 
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        UIConfig.ERROR_PHOTO_UPLOAD + ex.getMessage(),
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage) {
         double ratio = Math.min(
-            (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
-            (double) MAX_PHOTO_SIZE / originalImage.getHeight()
-        );
-        
+                (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
+                (double) MAX_PHOTO_SIZE / originalImage.getHeight());
+
         int newWidth = (int) (originalImage.getWidth() * ratio);
         int newHeight = (int) (originalImage.getHeight() * ratio);
-        
+
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = resizedImage.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
         g.dispose();
-        
+
         return resizedImage;
     }
 
     private void loadProfilePhoto(String id) {
-        File file = new File(PHOTO_DIR, "r_" + id + ".png");
+        File file = new File(UIConfig.PHOTO_DIR, UIConfig.PHOTO_PREFIX_RECEPTIONIST + id + UIConfig.PHOTO_EXTENSION);
         if (file.exists()) {
             try {
                 BufferedImage img = ImageIO.read(file);
@@ -284,10 +293,10 @@ public class ReceptionistProfilePanel extends JPanel {
                 }
             } catch (IOException ex) {
                 // Fall through to placeholder if image loading fails
-                System.out.println("Error loading photo: " + ex.getMessage());
+                System.out.println(UIConfig.ERROR_PHOTO_LOADING + ex.getMessage());
             }
         }
-        
+
         // Create placeholder if no photo exists or loading failed
         BufferedImage placeholder = new BufferedImage(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = placeholder.createGraphics();

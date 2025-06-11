@@ -6,6 +6,7 @@ import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.manager.PhysicianManager;
 import physicianconnect.logic.AvailabilityService;
 import physicianconnect.objects.Physician;
+import physicianconnect.presentation.util.TestUtils; // <-- Add this import
 
 import javax.swing.*;
 import java.awt.*;
@@ -125,31 +126,5 @@ class AllPhysiciansDailyPanelTest {
         searchField.setText("xyz");
         searchField.postActionEvent();
         assertEquals(0, panelsContainer.getComponentCount());
-    }
-
-    // --- Helper for reflection and button finding ---
-    static class TestUtils {
-        static Object getField(Object obj, String fieldName) {
-            try {
-                var field = obj.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.get(obj);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        static JButton getButton(Container container, String text) {
-            for (Component c : container.getComponents()) {
-                if (c instanceof JButton && ((JButton) c).getText().equalsIgnoreCase(text)) {
-                    return (JButton) c;
-                }
-                if (c instanceof Container) {
-                    JButton btn = getButton((Container) c, text);
-                    if (btn != null) return btn;
-                }
-            }
-            return null;
-        }
     }
 }

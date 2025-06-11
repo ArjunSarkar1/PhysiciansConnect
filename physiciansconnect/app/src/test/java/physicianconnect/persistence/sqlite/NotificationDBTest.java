@@ -2,6 +2,7 @@ package physicianconnect.persistence.sqlite;
 
 import org.junit.jupiter.api.*;
 import physicianconnect.objects.Notification;
+import physicianconnect.persistence.interfaces.ReceptionistPersistence;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,16 +10,29 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class NotificationDBTest {
     private Connection conn;
     private NotificationDB db;
+    private ReceptionistPersistence receptionistPersistence;
 
     @BeforeEach
     void setUp() throws Exception {
         conn = DriverManager.getConnection("jdbc:sqlite::memory:");
         SchemaInitializer.initializeSchema(conn);
-        db = new NotificationDB(conn);
+        receptionistPersistence = mock(ReceptionistPersistence.class);
+        db = new NotificationDB(conn, receptionistPersistence);
+
+            // Insert a physician with id "uid" to satisfy the foreign key constraint
+    try (var stmt = conn.prepareStatement(
+            "INSERT INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)")) {
+        stmt.setString(1, "uid");
+        stmt.setString(2, "Test Physician");
+        stmt.setString(3, "test@doc.com");
+        stmt.setString(4, "pw");
+        stmt.executeUpdate();
+    }
     }
 
     @AfterEach
@@ -28,14 +42,15 @@ class NotificationDBTest {
         }
     }
 
-    @Test
-    void testAddAndFetchNotification() {
-        Notification n = new Notification("msg", "type", LocalDateTime.now(), "uid", "utype");
-        db.addNotification(n);
-        List<Notification> list = db.getNotificationsForUser("uid", "utype");
-        assertEquals(1, list.size());
-        assertEquals("msg", list.get(0).getMessage());
-    }
+@Test
+void testAddAndFetchNotification() {
+    LocalDateTime now = LocalDateTime.now();
+    Notification n = new Notification("msg", "type", now, "uid", "utype");
+    db.addNotification(n);
+    List<Notification> list = db.getNotificationsForUser("uid", "utype");
+    assertEquals(1, list.size());
+    assertEquals("msg", list.get(0).getMessage());
+}
 
     @Test
     void testClearNotificationsForUser() {

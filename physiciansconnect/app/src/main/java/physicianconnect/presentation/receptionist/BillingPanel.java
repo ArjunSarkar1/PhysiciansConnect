@@ -1,6 +1,7 @@
 package physicianconnect.presentation.receptionist;
 
 import physicianconnect.logic.controller.BillingController;
+import physicianconnect.logic.manager.InvoiceNotificationManager;
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.validation.BillingValidator;
 import physicianconnect.objects.Appointment;
@@ -11,7 +12,6 @@ import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.config.UITheme;
 import physicianconnect.presentation.util.InvoiceExportUtil;
 import physicianconnect.presentation.util.RevenueSummaryUtil;
-import physicianconnect.presentation.InvoiceNotificationManager;
 import physicianconnect.presentation.NotificationPanel;
 import physicianconnect.persistence.interfaces.NotificationPersistence;
 
@@ -579,12 +579,14 @@ public class BillingPanel extends JPanel {
         exportBtn.addActionListener(e -> InvoiceExportUtil.exportInvoice(this, invoice, finalApptDateTime, payments));
         btnPanel.add(exportBtn);
 
+        // Scroll pane to display the invoice details (with better styling!!!!)
         JScrollPane scrollPane = new JScrollPane(infoPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16); 
         invoiceContentPanel.add(scrollPane, BorderLayout.CENTER);
         invoiceContentPanel.add(btnPanel, BorderLayout.SOUTH);
 
+        // Revalidate and repaint the invoice content Panel
         invoiceContentPanel.revalidate();
         invoiceContentPanel.repaint();
 
@@ -597,24 +599,82 @@ public class BillingPanel extends JPanel {
     }
 
     private void showPaymentDialog(Invoice invoice) {
-        JTextField amountField = new JTextField();
+
+        // Format the balance with exactly 2 decimal places
+        String formattedBalance = String.format("%.2f", Math.round(invoice.getBalance() * 100.0) / 100.0);
+        JTextField amountField = new JTextField(formattedBalance);
         amountField.setFont(UITheme.LABEL_FONT);
         JComboBox<String> methodBox = new JComboBox<>(PAYMENT_METHODS);
         methodBox.setFont(UITheme.LABEL_FONT);
 
-        JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
+        // Create a panel with proper spacing and layout
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(UITheme.BACKGROUND_COLOR);
-        panel.add(new JLabel(UIConfig.AMOUNT_LABEL));
+        panel.setBorder(BorderFactory.createEmptyBorder(16, 24, 16, 24));
+
+        // Add current balance information with exactly 2 decimal places
+        JLabel balanceLabel = new JLabel(String.format("Current Balance: $%.2f", 
+            Math.round(invoice.getBalance() * 100.0) / 100.0));
+        balanceLabel.setFont(UITheme.LABEL_FONT.deriveFont(Font.BOLD));
+        balanceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(balanceLabel);
+        panel.add(Box.createVerticalStrut(16));
+
+        // Amount field with label
+        JLabel amountLabel = new JLabel(UIConfig.AMOUNT_LABEL);
+        amountLabel.setFont(UITheme.LABEL_FONT);
+        amountLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(amountLabel);
+        panel.add(Box.createVerticalStrut(4));
+        amountField.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(amountField);
-        panel.add(new JLabel(UIConfig.PAYMENT_METHOD_LABEL));
+        panel.add(Box.createVerticalStrut(12));
+
+        // Payment method with label
+        JLabel methodLabel = new JLabel(UIConfig.PAYMENT_METHOD_LABEL);
+        methodLabel.setFont(UITheme.LABEL_FONT);
+        methodLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(methodLabel);
+        panel.add(Box.createVerticalStrut(4));
+        methodBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(methodBox);
 
-        int result = JOptionPane.showConfirmDialog(this, panel, "Add Payment",
+        // Add input validation for amount field
+        amountField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                validateAmount();
+            }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                validateAmount();
+            }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                validateAmount();
+            }
+
+            private void validateAmount() {
+                String text = amountField.getText();
+
+                if (!text.matches("^\\d*\\.?\\d{0,2}$")) { // Regex usedd to check if the amount is valid
+                    amountField.setBackground(new Color(255, 200, 200));
+                } else {
+                    amountField.setBackground(Color.WHITE);
+                }
+            }
+        });
+
+        int result = JOptionPane.showConfirmDialog(this, panel, UIConfig.RECORD_PAYMENT_DIALOG_TITLE,
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             try {
-                double amount = Double.parseDouble(amountField.getText());
+                String amountText = amountField.getText().trim();
+                if (!amountText.matches("^\\d*\\.?\\d{0,2}$")) {
+                    throw new NumberFormatException("Please enter a valid amount with up to 2 decimal places");
+                }
+                
+                // Round to 2 decimal places to handle sub-cent values
+                double amount = Math.round(Double.parseDouble(amountText) * 100.0) / 100.0;
                 String method = (String) methodBox.getSelectedItem();
                 BillingValidator.validatePaymentAmount(amount, invoice.getBalance());
                 
@@ -635,6 +695,11 @@ public class BillingPanel extends JPanel {
                 // Show updated details in the same dialog
                 List<Payment> updatedPayments = billingController.getPaymentsByInvoice(invoice.getId());
                 showInvoiceDetail(updatedInvoice, updatedPayments);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid amount with up to 2 decimal places.",
+                        UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), UIConfig.ERROR_DIALOG_TITLE,
                         JOptionPane.ERROR_MESSAGE);

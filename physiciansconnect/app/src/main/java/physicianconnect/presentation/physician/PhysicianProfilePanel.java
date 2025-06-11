@@ -35,9 +35,6 @@ public class PhysicianProfilePanel extends JPanel {
     private final Physician physician;
     private final PhysicianManager physicianManager;
 
-    private static final String PHOTO_DIR = "profile_photos";
-    private static final String[] SUPPORTED_IMAGE_TYPES = {".png", ".jpg", ".jpeg"};
-
     public PhysicianProfilePanel(Physician physician, PhysicianManager physicianManager,
             AppointmentManager appointmentManager,
             AppController appController, Runnable onProfileUpdated, Runnable logoutCallback) {
@@ -62,7 +59,10 @@ public class PhysicianProfilePanel extends JPanel {
         loadProfilePhoto(physician.getId());
 
         changePhotoButton = new JButton(UIConfig.CHANGE_PHOTO_BUTTON_TEXT);
-        changePhotoButton.addActionListener(e -> chooseAndUploadPhoto());
+        changePhotoButton.addActionListener(e -> {
+            System.out.println("Change photo button clicked");
+            chooseAndUploadPhoto();
+        });
 
         JPanel photoPanel = new JPanel(new BorderLayout(10, 10));
         photoPanel.setBackground(getBackground());
@@ -176,7 +176,7 @@ public class PhysicianProfilePanel extends JPanel {
     }
 
     private void createPhotoDirectory() {
-        File photoDir = new File(PHOTO_DIR);
+        File photoDir = new File(UIConfig.PHOTO_DIR);
         if (!photoDir.exists()) {
             photoDir.mkdirs();
         }
@@ -184,31 +184,35 @@ public class PhysicianProfilePanel extends JPanel {
 
     private void chooseAndUploadPhoto() {
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+        chooser.setCurrentDirectory(new File(UIConfig.PHOTO_DIR));
+        chooser.setDialogTitle(UIConfig.SELECT_PROFILE_PHOTO_DIALOG_TITLE);
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.addChoosableFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
             public boolean accept(File f) {
                 if (f.isDirectory()) return true;
                 String name = f.getName().toLowerCase();
-                for (String type : SUPPORTED_IMAGE_TYPES) {
-                    if (name.endsWith(type)) return true;
-                }
-                return false;
+                return name.startsWith(UIConfig.PHOTO_PREFIX_PHYSICIAN) && 
+                       (name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[0]) || 
+                        name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[1]) || 
+                        name.endsWith(UIConfig.SUPPORTED_IMAGE_TYPES[2]));
             }
 
             @Override
             public String getDescription() {
-                return "Image Files (*.png, *.jpg, *.jpeg)";
+                return UIConfig.PHYSICIAN_PHOTO_FILTER_DESC;
             }
         });
 
         int result = chooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+            File selectedFile = chooser.getSelectedFile();
             try {
                 // Validate image
-                BufferedImage img = ImageIO.read(file);
+                BufferedImage img = ImageIO.read(selectedFile);
                 if (img == null) {
-                    throw new IOException("Invalid image file");
+                    throw new IOException(UIConfig.ERROR_INVALID_IMAGE_FILE);
                 }
 
                 // Resize image if needed
@@ -216,42 +220,49 @@ public class PhysicianProfilePanel extends JPanel {
                     img = resizeImage(img);
                 }
 
+                // Ensure directory exists
+                File photoDir = new File(UIConfig.PHOTO_DIR);
+                if (!photoDir.exists()) {
+                    photoDir.mkdirs();
+                }
+
                 // Save resized image
-                File outputFile = new File(PHOTO_DIR, "p_" + physician.getId() + ".png");
+                File outputFile = new File(photoDir, UIConfig.PHOTO_PREFIX_PHYSICIAN + physician.getId() + UIConfig.PHOTO_EXTENSION);
                 ImageIO.write(img, "png", outputFile);
 
                 // Update profile photo
-                physicianManager.uploadProfilePhoto(physician.getId(), new FileInputStream(outputFile));
+                FileInputStream fis = new FileInputStream(outputFile);
+                physicianManager.uploadProfilePhoto(physician.getId(), fis);
+                fis.close();
                 loadProfilePhoto(physician.getId());
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, 
-                    "Failed to upload photo: " + ex.getMessage(), 
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        UIConfig.ERROR_PHOTO_UPLOAD + ex.getMessage(),
+                        UIConfig.ERROR_DIALOG_TITLE,
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage) {
         double ratio = Math.min(
-            (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
-            (double) MAX_PHOTO_SIZE / originalImage.getHeight()
-        );
-        
+                (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
+                (double) MAX_PHOTO_SIZE / originalImage.getHeight());
+
         int newWidth = (int) (originalImage.getWidth() * ratio);
         int newHeight = (int) (originalImage.getHeight() * ratio);
-        
+
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = resizedImage.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
         g.dispose();
-        
+
         return resizedImage;
     }
 
     private void loadProfilePhoto(String physicianId) {
-        File photoFile = new File(PHOTO_DIR, "p_" + physicianId + ".png");
+        File photoFile = new File(UIConfig.PHOTO_DIR, UIConfig.PHOTO_PREFIX_PHYSICIAN + physicianId + UIConfig.PHOTO_EXTENSION);
         if (photoFile.exists()) {
             try {
                 BufferedImage img = ImageIO.read(photoFile);
@@ -265,7 +276,7 @@ public class PhysicianProfilePanel extends JPanel {
                 System.out.println("Error loading photo: " + ex.getMessage());
             }
         }
-        
+
         // Create placeholder if no photo exists or loading failed
         BufferedImage placeholder = new BufferedImage(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = placeholder.createGraphics();
@@ -292,19 +303,19 @@ public class PhysicianProfilePanel extends JPanel {
 
             // Validate required fields
             if (name.isEmpty()) {
-                throw new IllegalArgumentException("Name cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_NAME_EMPTY);
             }
             if (specialty.isEmpty()) {
-                throw new IllegalArgumentException("Specialty cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_SPECIALTY_EMPTY);
             }
             if (officeHours.isEmpty()) {
-                throw new IllegalArgumentException("Office hours cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_OFFICE_HOURS_EMPTY);
             }
             if (phone.isEmpty()) {
-                throw new IllegalArgumentException("Phone number cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_PHONE_EMPTY);
             }
             if (address.isEmpty()) {
-                throw new IllegalArgumentException("Office address cannot be empty");
+                throw new IllegalArgumentException(UIConfig.ERROR_ADDRESS_EMPTY);
             }
 
             physicianManager.validateAndUpdatePhysician(

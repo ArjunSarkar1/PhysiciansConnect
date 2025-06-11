@@ -6,6 +6,7 @@ import physicianconnect.logic.AvailabilityService;
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.objects.Appointment;
 import physicianconnect.objects.TimeSlot;
+import physicianconnect.presentation.util.TestUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class DailyAvailabilityPanelTest {
@@ -44,7 +50,8 @@ class DailyAvailabilityPanelTest {
         when(mockAvailabilityService.getDailyAvailability(anyString(), eq(date))).thenReturn(slots);
 
         DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {});
+                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {
+                });
 
         assertEquals(date, panel.getCurrentDate());
         // Should have loaded slots from service
@@ -58,7 +65,8 @@ class DailyAvailabilityPanelTest {
                 .thenThrow(new RuntimeException("DB error"));
 
         DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {});
+                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {
+                });
 
         // Should fallback to all-free slots
         assertEquals(date, panel.getCurrentDate());
@@ -83,15 +91,21 @@ class DailyAvailabilityPanelTest {
             mockedPane.when(() -> JOptionPane.showConfirmDialog(any(), any(), any(), anyInt()))
                     .thenReturn(JOptionPane.YES_OPTION);
 
-            // Mock AddAppointmentPanel to simulate dialog
+            // Mock AddAppointmentPanel to simulate dialog and initialize spinners
             try (MockedConstruction<AddAppointmentPanel> mockAddDlg = mockConstruction(AddAppointmentPanel.class,
-                    (mock, context) -> when(mock.isVisible()).thenReturn(true))) {
+                    (mock, context) -> {
+                        mock.dateSpinner = new JSpinner(new SpinnerDateModel());
+                        mock.timeSpinner = new JSpinner(new SpinnerDateModel());
+                        when(mock.isVisible()).thenReturn(true);
+                    })) {
 
                 // Simulate mouse click on the first slot (free)
                 int x = 100; // In slot column
-                int y = 0;   // First slot
-                MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1, false);
-                for (var l : panel.getMouseListeners()) l.mouseClicked(evt);
+                int y = 0; // First slot
+                MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
+                        false);
+                for (var l : panel.getMouseListeners())
+                    l.mouseClicked(evt);
 
                 // Should show confirm dialog and open AddAppointmentPanel
                 mockedPane.verify(() -> JOptionPane.showConfirmDialog(any(), contains("2025-06-10"), any(), anyInt()));
@@ -119,7 +133,8 @@ class DailyAvailabilityPanelTest {
                 .thenReturn(List.of(appt));
 
         DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {});
+                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {
+                });
 
         // Mock ViewAppointmentPanel to simulate dialog
         try (MockedConstruction<ViewAppointmentPanel> mockViewDlg = mockConstruction(ViewAppointmentPanel.class,
@@ -128,8 +143,10 @@ class DailyAvailabilityPanelTest {
             // Simulate mouse click on the second slot (booked)
             int x = 100; // In slot column
             int y = 1 * 30; // Second slot (PIXEL_PER_SLOT = 30)
-            MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1, false);
-            for (var l : panel.getMouseListeners()) l.mouseClicked(evt);
+            MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
+                    false);
+            for (var l : panel.getMouseListeners())
+                l.mouseClicked(evt);
 
             // Should open ViewAppointmentPanel
             assertEquals(1, mockViewDlg.constructed().size());
@@ -153,16 +170,23 @@ class DailyAvailabilityPanelTest {
                 .thenReturn(List.of());
 
         DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {});
+                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {
+                });
 
         // Mock JOptionPane to verify error dialog
         try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
             int x = 100;
             int y = 2 * 30; // Third slot
-            MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1, false);
-            for (var l : panel.getMouseListeners()) l.mouseClicked(evt);
+            MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1,
+                    false);
+            for (var l : panel.getMouseListeners())
+                l.mouseClicked(evt);
 
-            mockedPane.verify(() -> JOptionPane.showMessageDialog(any(), contains("not found"), any(), eq(JOptionPane.ERROR_MESSAGE)));
+            mockedPane.verify(() -> JOptionPane.showMessageDialog(
+                    any(),
+                    contains("could not find appointment"),
+                    any(),
+                    eq(JOptionPane.ERROR_MESSAGE)));
         }
     }
 
@@ -173,27 +197,17 @@ class DailyAvailabilityPanelTest {
         when(mockAvailabilityService.getDailyAvailability(anyString(), eq(date))).thenReturn(slots);
 
         DailyAvailabilityPanel panel = new DailyAvailabilityPanel(
-                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {});
+                "doc1", mockAvailabilityService, mockAppointmentController, date, () -> {
+                });
 
         // Click in the time label column (should do nothing)
         int x = 10; // In time label column (TIME_LABEL_WIDTH = 80)
         int y = 0;
         MouseEvent evt = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1, false);
-        for (var l : panel.getMouseListeners()) l.mouseClicked(evt);
+        for (var l : panel.getMouseListeners())
+            l.mouseClicked(evt);
 
-        // No dialogs or panels should be opened, nothing to assert (no exception = pass)
-    }
-
-    // --- Helper for reflection ---
-    static class TestUtils {
-        static Object getField(Object obj, String fieldName) {
-            try {
-                var field = obj.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.get(obj);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+        // No dialogs or panels should be opened, nothing to assert (no exception =
+        // pass)
     }
 }

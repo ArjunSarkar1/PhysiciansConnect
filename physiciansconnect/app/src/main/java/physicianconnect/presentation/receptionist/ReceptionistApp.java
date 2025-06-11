@@ -199,6 +199,14 @@ public class ReceptionistApp {
         notificationButton = new NotificationButton();
         notificationButton.setOnAction(e -> showNotificationPanel());
 
+        // Initialize notification refresh timer
+        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
+        notificationRefreshTimer.start();
+
+        // Initialize message refresh timer
+        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
+        messageRefreshTimer.start();
+
         // Right-aligned panel for physician dropdown, date/time, and message button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setOpaque(false);
@@ -499,13 +507,6 @@ public class ReceptionistApp {
 
         appointmentManager.addChangeListener(this::updateAppointments);
 
-        messageRefreshTimer = new Timer(5000, e -> refreshMessageCount());
-        messageRefreshTimer.start();
-
-        // Add notification refresh timer
-        notificationRefreshTimer = new Timer(5000, e -> refreshNotificationCount());
-        notificationRefreshTimer.start();
-
         frame.setVisible(true);
     }
 
@@ -625,15 +626,20 @@ private void updateCalendarPanels() {
     private void showNotificationPanel() {
         if (notificationDialog == null) {
             notificationDialog = new JDialog(frame, "Notifications", false);
-            // Don't recreate the panel, use the existing one
+            notificationPanel = new NotificationPanel(
+                PersistenceFactory.getNotificationPersistence(),
+                loggedIn.getId(),
+                "receptionist"
+            );
             notificationDialog.setContentPane(notificationPanel);
             notificationDialog.pack();
             notificationDialog.setLocationRelativeTo(frame);
         }
         notificationDialog.setVisible(true);
         // Mark all notifications as read when panel is opened
-        notificationPanel.markAllAsRead();
+        notificationPanel.showNotificationPanel();
         notificationButton.updateNotificationCount(0);
+        lastNotifiedUnreadMessageCount = 0;
     }
 
     private void showNotificationBanner(String message, java.awt.event.ActionListener onClick) {
@@ -703,10 +709,11 @@ private void updateCalendarPanels() {
 
     private void refreshNotificationCount() {
         if (notificationPanel != null) {
-            // Reload notifications to get the latest state
-            notificationPanel.loadNotifications();
             int count = notificationPanel.getUnreadNotificationCount();
-            notificationButton.updateNotificationCount(count);
+            if (count != lastNotifiedUnreadMessageCount) {
+                notificationButton.updateNotificationCount(count);
+                lastNotifiedUnreadMessageCount = count;
+            }
         }
     }
 

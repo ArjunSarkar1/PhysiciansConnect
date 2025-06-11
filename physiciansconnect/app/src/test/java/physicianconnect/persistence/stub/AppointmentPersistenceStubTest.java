@@ -36,17 +36,18 @@ class AppointmentPersistenceStubTest {
         assertEquals("Updated", list.get(0).getNotes());
     }
 
-    @Test
-    void testUpdateAppointmentNoMatchDoesNothing() {
-        Appointment appt = new Appointment("doc1", "Alice", LocalDateTime.of(2025, 6, 10, 9, 0));
-        stub.addAppointment(appt);
-        Appointment notFound = new Appointment("doc2", "Bob", LocalDateTime.of(2025, 6, 10, 9, 0));
-        notFound.setNotes("Should not update");
-        stub.updateAppointment(notFound);
-        List<Appointment> list = stub.getAppointmentsForPhysician("doc1");
-        assertEquals("Alice", list.get(0).getPatientName());
-        assertNull(list.get(0).getNotes()); // Not updated
-    }
+@Test
+void testUpdateAppointmentNoMatchDoesNothing() {
+    Appointment appt = new Appointment("doc1", "Alice", LocalDateTime.of(2025, 6, 10, 9, 0));
+    stub.addAppointment(appt);
+    Appointment notFound = new Appointment("doc2", "Bob", LocalDateTime.of(2025, 6, 10, 9, 0));
+    notFound.setNotes("Should not update");
+    stub.updateAppointment(notFound);
+    List<Appointment> list = stub.getAppointmentsForPhysician("doc1");
+    assertFalse(list.isEmpty());
+    assertEquals("Alice", list.get(0).getPatientName());
+    assertEquals("", list.get(0).getNotes()); // Not updated, should be empty string
+}
 
     @Test
     void testDeleteAppointment() {
