@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class BillingPanelTest {
+public class BillingPanelTest {
 
     BillingController billingController;
     AppointmentController appointmentController;
@@ -31,7 +31,7 @@ class BillingPanelTest {
     NotificationPersistence notificationPersistence;
 
     // Test subclass to simulate service selection dialog for tests
-    static class TestBillingPanel extends BillingPanel {
+    class TestBillingPanel extends BillingPanel {
         private final List<ServiceItem> testServices;
         TestBillingPanel(BillingController bc, AppointmentController ac, NotificationPanel np, NotificationPersistence npers, List<ServiceItem> testServices) {
             super(bc, ac, np, npers);
@@ -44,7 +44,7 @@ class BillingPanelTest {
     }
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         billingController = mock(BillingController.class);
         appointmentController = mock(AppointmentController.class);
         notificationPanel = mock(NotificationPanel.class);
@@ -52,7 +52,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testPanelPopulatesTableOnConstruct() {
+    public void testPanelPopulatesTableOnConstruct() {
         Invoice inv1 = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         Invoice inv2 = new Invoice("2", "appt2", "Bob", List.of(new ServiceItem("Lab", 50)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv1, inv2));
@@ -67,7 +67,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testSearchFieldFiltersTable() {
+    public void testSearchFieldFiltersTable() {
         Invoice inv1 = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         Invoice inv2 = new Invoice("2", "appt2", "Bob", List.of(new ServiceItem("Lab", 50)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv1, inv2));
@@ -82,7 +82,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowNewInvoiceDialogValid() throws Exception {
+    public void testShowNewInvoiceDialogValid() throws Exception {
         Appointment appt = mock(Appointment.class);
         when(appt.getId()).thenReturn(1);
         when(appt.getPatientName()).thenReturn("Alice");
@@ -112,7 +112,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowNewInvoiceDialogMissingFieldsShowsError() throws Exception {
+    public void testShowNewInvoiceDialogMissingFieldsShowsError() throws Exception {
         Appointment appt = mock(Appointment.class);
         when(appt.getId()).thenReturn(1);
         when(appt.getPatientName()).thenReturn("Alice");
@@ -137,7 +137,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowNewInvoiceDialogDuplicateInvoiceShowsError() throws Exception {
+    public void testShowNewInvoiceDialogDuplicateInvoiceShowsError() throws Exception {
         Appointment appt = mock(Appointment.class);
         when(appt.getId()).thenReturn(1);
         when(appt.getPatientName()).thenReturn("Alice");
@@ -163,7 +163,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowServiceSelectionDialogValidAndInvalidAmount() throws Exception {
+    public void testShowServiceSelectionDialogValidAndInvalidAmount() throws Exception {
         BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
@@ -178,7 +178,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowInvoiceDetailAndDelete() throws Exception {
+    public void testShowInvoiceDetailAndDelete() throws Exception {
         Invoice inv = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         Payment payment = new Payment("1", "1", 100.0, "Cash");
         when(billingController.getAllInvoices()).thenReturn(List.of(inv));
@@ -207,7 +207,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowInvoiceDetailAndExport() throws Exception {
+    public void testShowInvoiceDetailAndExport() throws Exception {
         Invoice inv = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         Payment payment = new Payment("1", "1", 100.0, "Cash");
         when(billingController.getAllInvoices()).thenReturn(List.of(inv));
@@ -229,7 +229,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testShowPaymentDialogValidAndInvalid() throws Exception {
+    public void testShowPaymentDialogValidAndInvalid() throws Exception {
         Invoice inv = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv));
         when(billingController.getInvoiceById("1")).thenReturn(inv);
@@ -257,7 +257,7 @@ class BillingPanelTest {
     }
 
     @Test
-    void testRevenueSummaryButton() {
+    public void testRevenueSummaryButton() {
         when(billingController.getAllInvoices()).thenReturn(new ArrayList<>());
         BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 

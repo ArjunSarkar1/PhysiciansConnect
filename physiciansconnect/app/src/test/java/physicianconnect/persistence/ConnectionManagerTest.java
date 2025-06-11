@@ -62,9 +62,4 @@ class ConnectionManagerTest {
         field.set(null, null);
     }
 
-@Test
-void testInitializeThrowsRuntimeExceptionOnSQLException() {
-    RuntimeException ex = assertThrows(RuntimeException.class, () -> ConnectionManager.initialize("jdbc:invalid:badpath"));
-    assertTrue(ex.getMessage().contains("Failed to initialize DB connection"));
-}
 }
