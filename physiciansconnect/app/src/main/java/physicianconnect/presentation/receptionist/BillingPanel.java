@@ -331,16 +331,28 @@ public class BillingPanel extends JPanel {
         if (result == JOptionPane.OK_OPTION) {
             Appointment selectedAppointment = (Appointment) appointmentBox.getSelectedItem();
             if (selectedAppointment != null) {
-                List<ServiceItem> services = showServiceSelectionDialog();
-                if (services != null && !services.isEmpty()) {
+                if (selectedServices[0] == null || selectedServices[0].isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please select at least one service.",
+                            UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try {
+                    double insuranceAdj = Double.parseDouble(insuranceAdjField.getText().trim());
+                    if (insuranceAdj < 0) {
+                        throw new NumberFormatException();
+                    }
+
                     String appointmentId = String.valueOf(selectedAppointment.getId());
                     String patientName = selectedAppointment.getPatientName();
-                    double insuranceAdj = 1.0; // Default insurance adjustment
                     
-                    billingController.createInvoice(appointmentId, patientName, services, insuranceAdj);
+                    billingController.createInvoice(appointmentId, patientName, selectedServices[0], insuranceAdj);
                     notificationManager.notifyInvoiceCreated(patientName);
                     refreshInvoices();
                     RevenueSummaryUtil.fireRevenueSummaryChanged();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid insurance adjustment amount.",
+                            UIConfig.ERROR_DIALOG_TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -416,8 +428,9 @@ public class BillingPanel extends JPanel {
                 apptDateTime = appt.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             }
         } catch (Exception e) {
-            apptDateTime = "";
+            System.out.println("Error getting appointment date: " + e.getMessage());
         }
+
         JLabel apptLabel = new JLabel(UIConfig.APPOINTMENT_LABEL + (apptDateTime.isEmpty() ? "-" : apptDateTime));
         apptLabel.setFont(UITheme.LABEL_FONT);
         apptLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -434,12 +447,14 @@ public class BillingPanel extends JPanel {
         JPanel servicesPanel = new JPanel();
         servicesPanel.setLayout(new BoxLayout(servicesPanel, BoxLayout.Y_AXIS));
         servicesPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        
         for (ServiceItem s : invoice.getServices()) {
             JLabel serviceLine = new JLabel("   • " + s.getName() + ": $" + String.format("%.2f", s.getCost()));
             serviceLine.setFont(UITheme.LABEL_FONT);
             serviceLine.setAlignmentX(Component.LEFT_ALIGNMENT);
             servicesPanel.add(serviceLine);
         }
+
         servicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         infoPanel.add(servicesPanel);
 
@@ -491,6 +506,7 @@ public class BillingPanel extends JPanel {
         balanceLabel.setFont(detailFont);
         JLabel balanceValue = new JLabel("$" + String.format("%.2f", invoice.getBalance()));
         balanceValue.setFont(detailFont);
+
         if (invoice.getBalance() > 0)
             balanceValue.setForeground(Color.RED);
 
@@ -498,6 +514,7 @@ public class BillingPanel extends JPanel {
         statusLabel.setFont(detailFont);
         JLabel statusValue = new JLabel(invoice.getStatus());
         statusValue.setFont(detailFont.deriveFont(Font.BOLD));
+
         if ("Paid".equalsIgnoreCase(invoice.getStatus()))
             statusValue.setForeground(new Color(0, 128, 0));
         else if ("Partial".equalsIgnoreCase(invoice.getStatus()))
@@ -528,6 +545,7 @@ public class BillingPanel extends JPanel {
         // Buttons
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         btnPanel.setBackground(UITheme.BACKGROUND_COLOR);
+
         if (!"Paid".equals(invoice.getStatus())) {
             JButton payBtn = new JButton(UIConfig.RECORD_PAYMENT_BUTTON_TEXT);
             styleButton(payBtn);
@@ -535,6 +553,7 @@ public class BillingPanel extends JPanel {
             payBtn.addActionListener(e -> showPaymentDialog(invoice));
             btnPanel.add(payBtn);
         }
+
         JButton deleteBtn = new JButton(UIConfig.DELETE_INVOICE_BUTTON_TEXT);
         styleButton(deleteBtn);
         deleteBtn.setFont(UITheme.BUTTON_FONT);
@@ -549,6 +568,7 @@ public class BillingPanel extends JPanel {
                 invoiceDialog.dispose();
             }
         });
+        
         btnPanel.add(deleteBtn);
 
         // Export/Print Button

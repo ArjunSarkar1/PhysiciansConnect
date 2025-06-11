@@ -33,7 +33,7 @@ public class InvoiceNotificationManager {
     }
 
     public void notifyInvoicePaid(String patientName) {
-        String message = String.format("Invoice paid for patient: %s", patientName);
+        String message = String.format("Invoice paid in full for patient: %s", patientName);
         String type = "Invoice Paid!";
         
         // Show banner notification
