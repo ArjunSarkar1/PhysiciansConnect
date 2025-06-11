@@ -111,14 +111,14 @@ class ReceptionistPersistenceStubTest {
     @Test
     void testDeleteReceptionist() {
         stub.addReceptionist(new Receptionist("id1", "Alice", "alice@email.com", "pw"));
-        stub.deleteReceptionistById("id1");
+        stub.deleteReceptionist("id1");
         assertNull(stub.getReceptionistById("id1"));
     }
 
     @Test
     void testDeleteReceptionistNotFoundDoesNothing() {
         // Should not throw
-        assertDoesNotThrow(() -> stub.deleteReceptionistById("notfound"));
+        assertDoesNotThrow(() -> stub.deleteReceptionist("notfound"));
     }
 
     @Test

@@ -91,9 +91,9 @@ class PatientHistoryControllerTest {
 
         String result = controller.getPatientHistoryString(physicianId, patientName);
 
-        assertTrue(result.contains("Jun 29, 2025 at 10:00 a.m.")); // appointment with notes
+        assertTrue(result.contains("Jun 29, 2025 at 10:00 AM")); // appointment with notes
         assertTrue(result.contains("Follow-up needed")); // notes
-        assertTrue(result.contains("Jun 30, 2025 at 11:00 a.m.")); // appointment without notes
+        assertTrue(result.contains("Jun 30, 2025 at 11:00 AM")); // appointment without notes
         assertTrue(result.contains("Amoxicillin 500mg")); // prescription
         assertTrue(result.contains("[2025-06-29] Specialist - ENT for sinus issues")); // referral
     }

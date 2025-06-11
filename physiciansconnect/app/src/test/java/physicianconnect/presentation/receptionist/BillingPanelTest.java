@@ -9,6 +9,8 @@ import physicianconnect.objects.*;
 import physicianconnect.presentation.config.UIConfig;
 import physicianconnect.presentation.util.InvoiceExportUtil;
 import physicianconnect.presentation.util.RevenueSummaryUtil;
+import physicianconnect.presentation.NotificationPanel;
+import physicianconnect.persistence.interfaces.NotificationPersistence;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -25,12 +27,14 @@ class BillingPanelTest {
 
     BillingController billingController;
     AppointmentController appointmentController;
+    NotificationPanel notificationPanel;
+    NotificationPersistence notificationPersistence;
 
     // Test subclass to simulate service selection dialog for tests
     static class TestBillingPanel extends BillingPanel {
         private final List<ServiceItem> testServices;
-        TestBillingPanel(BillingController bc, AppointmentController ac, List<ServiceItem> testServices) {
-            super(bc, ac);
+        TestBillingPanel(BillingController bc, AppointmentController ac, NotificationPanel np, NotificationPersistence npers, List<ServiceItem> testServices) {
+            super(bc, ac, np, npers);
             this.testServices = testServices;
         }
         // No @Override annotation since the original is likely private
@@ -43,6 +47,8 @@ class BillingPanelTest {
     void setup() {
         billingController = mock(BillingController.class);
         appointmentController = mock(AppointmentController.class);
+        notificationPanel = mock(NotificationPanel.class);
+        notificationPersistence = mock(NotificationPersistence.class);
     }
 
     @Test
@@ -51,7 +57,7 @@ class BillingPanelTest {
         Invoice inv2 = new Invoice("2", "appt2", "Bob", List.of(new ServiceItem("Lab", 50)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv1, inv2));
 
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
         JTable table = (JTable) getField(panel, "invoiceTable");
         DefaultTableModel model = (DefaultTableModel) getField(panel, "model");
 
@@ -66,7 +72,7 @@ class BillingPanelTest {
         Invoice inv2 = new Invoice("2", "appt2", "Bob", List.of(new ServiceItem("Lab", 50)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv1, inv2));
 
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
         JTextField searchField = (JTextField) getField(panel, "searchField");
         JTable table = (JTable) getField(panel, "invoiceTable");
 
@@ -84,7 +90,7 @@ class BillingPanelTest {
         when(appointmentController.getAllAppointments()).thenReturn(List.of(appt));
         when(billingController.getAllInvoices()).thenReturn(new ArrayList<>());
 
-        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, List.of(new ServiceItem("Consult", 100)));
+        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence, List.of(new ServiceItem("Consult", 100)));
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class);
              MockedStatic<BillingValidator> valMock = mockStatic(BillingValidator.class);
@@ -114,7 +120,7 @@ class BillingPanelTest {
         when(appointmentController.getAllAppointments()).thenReturn(List.of(appt));
         when(billingController.getAllInvoices()).thenReturn(new ArrayList<>());
 
-        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, null);
+        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence, null);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
             paneMock.when(() -> JOptionPane.showConfirmDialog(any(), any(), eq(UIConfig.NEW_INVOICE_DIALOG_TITLE), anyInt()))
@@ -140,7 +146,7 @@ class BillingPanelTest {
         Invoice inv = new Invoice("1", "appt1", "Alice", List.of(new ServiceItem("Consult", 100)), 0.0);
         when(billingController.getAllInvoices()).thenReturn(List.of(inv));
 
-        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, List.of(new ServiceItem("Consult", 100)));
+        BillingPanel panel = new TestBillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence, List.of(new ServiceItem("Consult", 100)));
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
             paneMock.when(() -> JOptionPane.showConfirmDialog(any(), any(), eq(UIConfig.NEW_INVOICE_DIALOG_TITLE), anyInt()))
@@ -158,7 +164,7 @@ class BillingPanelTest {
 
     @Test
     void testShowServiceSelectionDialogValidAndInvalidAmount() throws Exception {
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class)) {
             paneMock.when(() -> JOptionPane.showConfirmDialog(any(), any(), eq(UIConfig.SELECT_SERVICES_DIALOG_TITLE), anyInt()))
@@ -179,7 +185,7 @@ class BillingPanelTest {
         when(billingController.getPaymentsByInvoice("1")).thenReturn(List.of(payment));
         when(appointmentController.getAllAppointments()).thenReturn(List.of(mock(Appointment.class)));
 
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class);
              MockedStatic<RevenueSummaryUtil> revMock = mockStatic(RevenueSummaryUtil.class)) {
@@ -208,7 +214,7 @@ class BillingPanelTest {
         when(billingController.getPaymentsByInvoice("1")).thenReturn(List.of(payment));
         when(appointmentController.getAllAppointments()).thenReturn(List.of(mock(Appointment.class)));
 
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         try (MockedStatic<InvoiceExportUtil> exportMock = mockStatic(InvoiceExportUtil.class)) {
             Method m = BillingPanel.class.getDeclaredMethod("showInvoiceDetail", Invoice.class, List.class);
@@ -229,7 +235,7 @@ class BillingPanelTest {
         when(billingController.getInvoiceById("1")).thenReturn(inv);
         when(billingController.getPaymentsByInvoice("1")).thenReturn(List.of());
 
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         try (MockedStatic<JOptionPane> paneMock = mockStatic(JOptionPane.class);
              MockedStatic<BillingValidator> valMock = mockStatic(BillingValidator.class);
@@ -253,7 +259,7 @@ class BillingPanelTest {
     @Test
     void testRevenueSummaryButton() {
         when(billingController.getAllInvoices()).thenReturn(new ArrayList<>());
-        BillingPanel panel = new BillingPanel(billingController, appointmentController);
+        BillingPanel panel = new BillingPanel(billingController, appointmentController, notificationPanel, notificationPersistence);
 
         JButton revenueSummaryBtn = findButton(panel, UIConfig.REVENUE_SUMMARY_BUTTON_TEXT);
         assertNotNull(revenueSummaryBtn);

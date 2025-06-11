@@ -29,12 +29,26 @@ class InvoiceDBTest {
         }
     }
 
+    // Helper to insert a matching physician for foreign key constraint
+    private void insertPhysician(String id) throws Exception {
+        String sql = "INSERT INTO physicians (id, name, email, password) VALUES (?, ?, ?, ?)";
+        try (var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            stmt.setString(2, "Test Physician");
+            stmt.setString(3, "test@doc.com");
+            stmt.setString(4, "pw");
+            stmt.executeUpdate();
+        }
+    }
+
     // Helper to insert a matching appointment for foreign key constraint
-    private void insertAppointment(String id) throws Exception {
+    private void insertAppointment(String appointmentId) throws Exception {
+        String physicianId = "doc" + appointmentId;
+        insertPhysician(physicianId);
         String sql = "INSERT INTO appointments (id, physician_id, patient_name, datetime, notes) VALUES (?, ?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, Integer.parseInt(id));
-            stmt.setString(2, "doc1");
+            stmt.setInt(1, Integer.parseInt(appointmentId));
+            stmt.setString(2, physicianId);
             stmt.setString(3, "Test Patient");
             stmt.setString(4, LocalDateTime.now().toString());
             stmt.setString(5, "");
@@ -203,10 +217,10 @@ class InvoiceDBTest {
         Invoice fetched = db.getInvoiceById("invN");
         assertNotNull(fetched);
         assertEquals("N", fetched.getPatientName());
-        }
+    }
 
-        @Test
-        void testSerializeServicesAndDeserializeServices() throws Exception {
+    @Test
+    void testSerializeServicesAndDeserializeServices() throws Exception {
         List<ServiceItem> services = List.of(
             new ServiceItem("A", 1.1),
             new ServiceItem("B", 2.2)
@@ -226,19 +240,19 @@ class InvoiceDBTest {
         // deserialize null/empty (covers str == null || str.isEmpty())
         List<ServiceItem> empty = (List<ServiceItem>) deserializeMethod.invoke(db, "");
         assertTrue(empty.isEmpty());
-        }
+    }
 
-        @Test
-        void testSerializeServicesSingleItem() throws Exception {
+    @Test
+    void testSerializeServicesSingleItem() throws Exception {
         List<ServiceItem> services = List.of(new ServiceItem("Single", 9.99));
         var serializeMethod = db.getClass().getDeclaredMethod("serializeServices", List.class);
         serializeMethod.setAccessible(true);
         String serialized = serializeMethod.invoke(db, services).toString();
         assertEquals("Single:9.99", serialized);
-        }
+    }
 
-        @Test
-        void testDeserializeServicesMalformedString() throws Exception {
+    @Test
+    void testDeserializeServicesMalformedString() throws Exception {
         var deserializeMethod = db.getClass().getDeclaredMethod("deserializeServices", String.class);
         deserializeMethod.setAccessible(true);
         // Malformed: missing cost
@@ -247,20 +261,20 @@ class InvoiceDBTest {
         // Malformed: extra colon
         result = (List<ServiceItem>) deserializeMethod.invoke(db, "A:1.0:extra");
         assertTrue(result.isEmpty());
-        }
+    }
 
-        @Test
-        void testAddInvoiceWithEmptyServices() throws Exception {
+    @Test
+    void testAddInvoiceWithEmptyServices() throws Exception {
         insertAppointment("3");
         Invoice inv = new Invoice("invEmpty", "3", "NoServices", List.of(), 0);
         db.addInvoice(inv);
         Invoice fetched = db.getInvoiceById("invEmpty");
         assertNotNull(fetched);
         assertTrue(fetched.getServices().isEmpty());
-        }
+    }
 
-        @Test
-        void testUpdateInvoiceWithNullStatus() throws Exception {
+    @Test
+    void testUpdateInvoiceWithNullStatus() throws Exception {
         insertAppointment("4");
         Invoice inv = new Invoice("invNullStatus", "4", "NullStatus", List.of(new ServiceItem("Test", 1)), 0);
         db.addInvoice(inv);
@@ -268,20 +282,19 @@ class InvoiceDBTest {
         db.updateInvoice(inv);
         Invoice updated = db.getInvoiceById("invNullStatus");
         assertNull(updated.getStatus());
-        }
+    }
 
-        @Test
-        void testDeleteInvoiceNonExistent() {
+    @Test
+    void testDeleteInvoiceNonExistent() {
         // Should not throw
         assertDoesNotThrow(() -> db.deleteInvoiceById("doesNotExist"));
-        }
+    }
 
-        @Test
-        void testGetAllInvoicesEmpty() {
+    @Test
+    void testGetAllInvoicesEmpty() {
         List<Invoice> all = db.getAllInvoices();
         assertTrue(all.isEmpty());
-        }
-    
+    }
 
     @Test
     void testFromResultSetCoversAllFields() throws Exception {
@@ -301,25 +314,25 @@ class InvoiceDBTest {
         assertNotNull(fetched.getCreatedAt());
     }
 
-@Test
-void testFromResultSetWithNullStatus() throws Exception {
-    insertAppointment("5");
-    // Insert invoice directly with status NULL
-    String sql = "INSERT INTO invoices (id, appointment_id, patient_name, services, insurance_adjustment, total_amount, balance, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    try (var stmt = conn.prepareStatement(sql)) {
-        stmt.setString(1, "invNull");
-        stmt.setInt(2, 5);
-        stmt.setString(3, "NullStatus");
-        stmt.setString(4, ""); // empty services
-        stmt.setDouble(5, 0.0);
-        stmt.setDouble(6, 0.0);
-        stmt.setDouble(7, 0.0);
-        stmt.setNull(8, java.sql.Types.VARCHAR); // status is NULL
-        stmt.setString(9, LocalDateTime.now().toString());
-        stmt.executeUpdate();
+    @Test
+    void testFromResultSetWithNullStatus() throws Exception {
+        insertAppointment("5");
+        // Insert invoice directly with status NULL
+        String sql = "INSERT INTO invoices (id, appointment_id, patient_name, services, insurance_adjustment, total_amount, balance, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "invNull");
+            stmt.setInt(2, 5);
+            stmt.setString(3, "NullStatus");
+            stmt.setString(4, ""); // empty services
+            stmt.setDouble(5, 0.0);
+            stmt.setDouble(6, 0.0);
+            stmt.setDouble(7, 0.0);
+            stmt.setNull(8, java.sql.Types.VARCHAR); // status is NULL
+            stmt.setString(9, LocalDateTime.now().toString());
+            stmt.executeUpdate();
+        }
+        Invoice fetched = db.getInvoiceById("invNull");
+        assertNotNull(fetched);
+        assertNull(fetched.getStatus());
     }
-    Invoice fetched = db.getInvoiceById("invNull");
-    assertNotNull(fetched);
-    assertNull(fetched.getStatus());
-}
 }

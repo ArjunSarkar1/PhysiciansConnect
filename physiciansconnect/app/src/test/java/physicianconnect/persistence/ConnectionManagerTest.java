@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class ConnectionManagerTest {
 
@@ -61,19 +62,9 @@ class ConnectionManagerTest {
         field.set(null, null);
     }
 
-    @Test
-    void testInitializeThrowsRuntimeExceptionOnSQLException() throws Exception {
-        // Ensure static connection is null so initialize() does not return early
-        var field = ConnectionManager.class.getDeclaredField("connection");
-        field.setAccessible(true);
-        field.set(null, null);
-
-        // Static mocking for DriverManager.getConnection
-        try (var driverMock = org.mockito.Mockito.mockStatic(java.sql.DriverManager.class)) {
-            driverMock.when(() -> java.sql.DriverManager.getConnection(anyString()))
-                    .thenThrow(new SQLException("fail"));
-            RuntimeException ex = assertThrows(RuntimeException.class, () -> ConnectionManager.initialize("badpath"));
-            assertTrue(ex.getMessage().contains("Failed to initialize DB connection"));
-        }
-    }
+@Test
+void testInitializeThrowsRuntimeExceptionOnSQLException() {
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> ConnectionManager.initialize("jdbc:invalid:badpath"));
+    assertTrue(ex.getMessage().contains("Failed to initialize DB connection"));
+}
 }
