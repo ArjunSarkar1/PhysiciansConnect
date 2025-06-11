@@ -96,25 +96,25 @@ public class SchemaInitializer {
                                 + "paid_at TEXT"
                                 + ");";
 
-                String createMessagesTable = "CREATE TABLE IF NOT EXISTS messages ("
-                                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                + "sender_id TEXT NOT NULL, "
-                                + "recipient_id TEXT NOT NULL, "
-                                + "subject TEXT NOT NULL, "
-                                + "body TEXT NOT NULL, "
-                                + "timestamp TEXT NOT NULL, "
-                                + "is_read BOOLEAN DEFAULT FALSE, "
-                                + "FOREIGN KEY (sender_id) REFERENCES physicians(id) ON DELETE CASCADE, "
-                                + "FOREIGN KEY (recipient_id) REFERENCES physicians(id) ON DELETE CASCADE"
-                                + ");";
+                String createMessagesTable = "CREATE TABLE IF NOT EXISTS messages (" +
+                                "message_id TEXT PRIMARY KEY, " +
+                                "sender_id TEXT NOT NULL, " +
+                                "sender_type TEXT NOT NULL, " +
+                                "receiver_id TEXT NOT NULL, " +
+                                "receiver_type TEXT NOT NULL, " +
+                                "content TEXT NOT NULL, " +
+                                "timestamp TEXT NOT NULL, " +
+                                "is_read BOOLEAN NOT NULL" +
+                                ");";
 
-                String createNotificationsTable = "CREATE TABLE IF NOT EXISTS notifications ("
-                                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                + "recipient_id TEXT NOT NULL, "
+                String createNotificationsTable = "CREATE TABLE IF NOT EXISTS notifications (" +
+                                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                + "user_id TEXT NOT NULL, "
+                                + "user_type TEXT NOT NULL, "
                                 + "message TEXT NOT NULL, "
+                                + "type TEXT NOT NULL, "
                                 + "timestamp TEXT NOT NULL, "
-                                + "is_read BOOLEAN DEFAULT FALSE, "
-                                + "FOREIGN KEY (recipient_id) REFERENCES physicians(id) ON DELETE CASCADE"
+                                + "FOREIGN KEY (user_id) REFERENCES physicians(id) ON DELETE CASCADE"
                                 + ");";
 
                 try (Statement stmt = connection.createStatement()) {

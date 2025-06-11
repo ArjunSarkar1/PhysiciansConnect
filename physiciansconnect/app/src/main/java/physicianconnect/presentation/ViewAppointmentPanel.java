@@ -8,7 +8,11 @@ import physicianconnect.presentation.config.UITheme;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Dialog for viewing / editing / deleting a single appointment.
@@ -17,21 +21,22 @@ import java.time.format.DateTimeFormatter;
 public class ViewAppointmentPanel extends JDialog {
     private final AppointmentController appointmentController;   // CHANGED
     private final Appointment appointment;
-    private final Runnable    onSuccess;       // may be null
+    private final Runnable onSuccess;       // may be null
 
     private JTextArea notesArea;
+    private JSpinner dateSpinner;
+    private JSpinner timeSpinner;
 
     // ──────────────────────────────────────────────────────────────────────────
-    public ViewAppointmentPanel(JFrame parent,
-                                 AppointmentController controller,   // CHANGED
+    public ViewAppointmentPanel(JFrame parent, AppointmentController controller,   // CHANGED
                                  Appointment appt) {
         this(parent, controller, appt, null);
     }
 
     public ViewAppointmentPanel(JFrame parent,
                                  AppointmentController controller,   // CHANGED
-                                 Appointment appt,
-                                 Runnable onSuccess) {
+                                 Appointment appt, Runnable onSuccess) {
+                                    
         super(parent, UIConfig.VIEW_APPOINTMENT_DIALOG_TITLE, true);
         this.appointmentController = controller;   // CHANGED
         this.appointment           = appt;
@@ -44,7 +49,7 @@ public class ViewAppointmentPanel extends JDialog {
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(UITheme.BACKGROUND_COLOR);
-        setSize(600, 500);
+        setSize(500, 600);
 
         /* ---------- Header ---------- */
         JPanel header = new JPanel(new BorderLayout(10, 10));
@@ -57,24 +62,80 @@ public class ViewAppointmentPanel extends JDialog {
         patient.setForeground(UITheme.TEXT_COLOR);
         header.add(patient, BorderLayout.WEST);
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(UIConfig.HISTORY_DATE_PATTERN);
-        JLabel date = new JLabel(
-                UIConfig.DATE_LABEL + appointment.getDateTime().format(dtf));
-        date.setFont(UITheme.LABEL_FONT);
-        date.setForeground(UITheme.TEXT_COLOR);
-        header.add(date, BorderLayout.EAST);
-
         add(header, BorderLayout.NORTH);
+
+        /* ---------- Main Content Panel ---------- */
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(UITheme.BACKGROUND_COLOR);
+        mainPanel.setBorder(new EmptyBorder(0, 20, 0, 20));
+
+        /* ---------- Date/Time Panel ---------- */
+        JPanel dateTimePanel = new JPanel();
+        dateTimePanel.setLayout(new BoxLayout(dateTimePanel, BoxLayout.Y_AXIS));
+        dateTimePanel.setBackground(UITheme.BACKGROUND_COLOR);
+        dateTimePanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(UITheme.PRIMARY_COLOR, 1),
+            "Appointment Time",
+            javax.swing.border.TitledBorder.LEFT,
+            javax.swing.border.TitledBorder.TOP,
+            UITheme.LABEL_FONT,
+            UITheme.TEXT_COLOR
+        ));
+
+        // Date
+        JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        datePanel.setBackground(UITheme.BACKGROUND_COLOR);
+        JLabel dateLabel = new JLabel(UIConfig.DATE_LABEL);
+        dateLabel.setFont(UITheme.LABEL_FONT);
+        dateLabel.setForeground(UITheme.TEXT_COLOR);
+        datePanel.add(dateLabel);
+
+        dateSpinner = new JSpinner(new SpinnerDateModel());
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
+        dateSpinner.setFont(UITheme.LABEL_FONT);
+        // Set initial date
+        Date initialDate = Date.from(appointment.getDateTime().atZone(ZoneId.systemDefault()).toInstant());
+        dateSpinner.setValue(initialDate);
+        datePanel.add(dateSpinner);
+        dateTimePanel.add(datePanel);
+
+        // Add some vertical space
+        dateTimePanel.add(Box.createVerticalStrut(10));
+
+        // Time
+        JPanel timePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        timePanel.setBackground(UITheme.BACKGROUND_COLOR);
+        JLabel timeLabel = new JLabel(UIConfig.TIME_LABEL);
+        timeLabel.setFont(UITheme.LABEL_FONT);
+        timeLabel.setForeground(UITheme.TEXT_COLOR);
+        timePanel.add(timeLabel);
+
+        timeSpinner = new JSpinner(new SpinnerDateModel());
+        timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm"));
+        timeSpinner.setFont(UITheme.LABEL_FONT);
+        // Set initial time
+        timeSpinner.setValue(initialDate);
+        timePanel.add(timeSpinner);
+        dateTimePanel.add(timePanel);
+
+        // Add some padding at the bottom
+        dateTimePanel.add(Box.createVerticalStrut(10));
+
+        mainPanel.add(dateTimePanel);
+        mainPanel.add(Box.createVerticalStrut(20));
 
         /* ---------- Notes ---------- */
         JPanel notesPanel = new JPanel(new BorderLayout(10, 10));
         notesPanel.setBackground(UITheme.BACKGROUND_COLOR);
-        notesPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
-
-        JLabel notesLbl = new JLabel(UIConfig.APPOINTMENT_NOTES_LABEL);
-        notesLbl.setFont(UITheme.LABEL_FONT);
-        notesLbl.setForeground(UITheme.TEXT_COLOR);
-        notesPanel.add(notesLbl, BorderLayout.NORTH);
+        notesPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(UITheme.PRIMARY_COLOR, 1),
+            UIConfig.APPOINTMENT_NOTES_LABEL,
+            javax.swing.border.TitledBorder.LEFT,
+            javax.swing.border.TitledBorder.TOP,
+            UITheme.LABEL_FONT,
+            UITheme.TEXT_COLOR
+        ));
 
         notesArea = new JTextArea(appointment.getNotes());
         notesArea.setFont(UITheme.LABEL_FONT);
@@ -82,12 +143,19 @@ public class ViewAppointmentPanel extends JDialog {
         notesArea.setWrapStyleWord(true);
         notesArea.setBackground(UITheme.BACKGROUND_COLOR);
         notesArea.setForeground(UITheme.TEXT_COLOR);
+        notesArea.setRows(8); // Set a fixed number of rows
 
         JScrollPane scroll = new JScrollPane(notesArea);
-        scroll.setBorder(BorderFactory.createLineBorder(UITheme.PRIMARY_COLOR, 1));
+        scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         notesPanel.add(scroll, BorderLayout.CENTER);
 
-        add(notesPanel, BorderLayout.CENTER);
+        mainPanel.add(notesPanel);
+        mainPanel.add(Box.createVerticalStrut(20));
+
+        // Wrap mainPanel in a scroll pane
+        JScrollPane mainScroll = new JScrollPane(mainPanel);
+        mainScroll.setBorder(null);
+        add(mainScroll, BorderLayout.CENTER);
 
         /* ---------- Buttons ---------- */
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -96,23 +164,62 @@ public class ViewAppointmentPanel extends JDialog {
 
         JButton update = style(UIConfig.BUTTON_UPDATE_NOTES, UITheme.SUCCESS_BUTTON_COLOR);
         JButton delete = style(UIConfig.BUTTON_DELETE_APPOINTMENT, UITheme.ERROR_BUTTON_COLOR);
-        JButton close  = style(UIConfig.BUTTON_CLOSE, UITheme.CANCEL_BUTTON_COLOR);
+        JButton close = style(UIConfig.BUTTON_CLOSE, UITheme.CANCEL_BUTTON_COLOR);
 
-        // Update notes
+        // Update appointment
         update.addActionListener(e -> {
             try {
-                appointmentController.updateAppointmentNotes(
-                        appointment, notesArea.getText());
+                // Get date and time from spinners
+                Date datePart = (Date) dateSpinner.getValue();
+                Date timePart = (Date) timeSpinner.getValue();
+
+                Calendar cDate = Calendar.getInstance();
+                cDate.setTime(datePart);
+
+                Calendar cTime = Calendar.getInstance();
+                cTime.setTime(timePart);
+
+                cDate.set(Calendar.HOUR_OF_DAY, cTime.get(Calendar.HOUR_OF_DAY));
+                cDate.set(Calendar.MINUTE, cTime.get(Calendar.MINUTE));
+                cDate.set(Calendar.SECOND, 0);
+                cDate.set(Calendar.MILLISECOND, 0);
+
+                LocalDateTime newDateTime = cDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+                // Check if date/time has changed
+                if (!newDateTime.equals(appointment.getDateTime())) {
+                    // Update date/time
+                    appointmentController.updateAppointmentDateTime(
+                        appointment,
+                        newDateTime
+                    );
+                }
+
+                // Check if notes have changed
+                if (!notesArea.getText().equals(appointment.getNotes())) {
+                    // Update notes
+                    appointmentController.updateAppointmentNotes(
+                        appointment,
+                        notesArea.getText()
+                    );
+                }
+
                 JOptionPane.showMessageDialog(
-                        this, UIConfig.MESSAGE_NOTES_UPDATED,
-                        UIConfig.SUCCESS_DIALOG_TITLE,
-                        JOptionPane.INFORMATION_MESSAGE);
+                    this,
+                    UIConfig.MESSAGE_NOTES_UPDATED,
+                    UIConfig.SUCCESS_DIALOG_TITLE,
+                    JOptionPane.INFORMATION_MESSAGE
+                );
                 if (onSuccess != null) onSuccess.run();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(
-                        this, UIConfig.ERROR_UPDATING_NOTES + ex.getMessage(),
-                        UIConfig.ERROR_DIALOG_TITLE,
-                        JOptionPane.ERROR_MESSAGE);
+                    this,
+                    UIConfig.ERROR_UPDATING_NOTES + ex.getMessage(),
+                    UIConfig.ERROR_DIALOG_TITLE,
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 

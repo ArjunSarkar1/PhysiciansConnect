@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import physicianconnect.objects.Notification;
-import physicianconnect.persistence.interfaces.NotificationPersistence;
 
 public class StubFactory {
 
@@ -63,26 +62,6 @@ public class StubFactory {
         @Override
         public void clearNotificationsForUser(String userId, String userType) {
             notifications.removeIf(n -> n.getUserId().equals(userId) && n.getUserType().equals(userType));
-        }
-
-        @Override
-        public int getUnreadNotificationCount(String userId, String userType) {
-            return (int) notifications.stream()
-                .filter(n -> n.getUserId().equals(userId) && n.getUserType().equals(userType) && !n.isRead())
-                .count();
-        }
-
-        @Override
-        public void markNotificationsAsRead(String userId, String userType) {
-            notifications.stream()
-                .filter(n -> n.getUserId().equals(userId) && n.getUserType().equals(userType))
-                .forEach(Notification::markAsRead);
-        }
-
-        @Override
-        public void markNotificationAsRead(int notificationId) {
-            // Since this is a stub, we'll just mark all notifications as read
-            notifications.forEach(Notification::markAsRead);
         }
     }
 }
