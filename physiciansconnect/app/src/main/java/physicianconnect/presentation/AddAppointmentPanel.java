@@ -24,6 +24,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.border.EmptyBorder;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JComboBox;
+import java.util.List;
+import java.util.ArrayList;
+
+
 
 import physicianconnect.logic.controller.AppointmentController;
 import physicianconnect.logic.exceptions.InvalidAppointmentException;
@@ -46,7 +53,7 @@ public class AddAppointmentPanel extends JDialog {
 
     private JTextField patientNameField;
     public JSpinner dateSpinner;
-    public JSpinner timeSpinner;
+    public JComboBox<String> timeCombo;
     private JTextArea notesArea;
 
     /*------------------------------------------------------------------*/
@@ -136,10 +143,11 @@ public class AddAppointmentPanel extends JDialog {
         formPanel.add(timeLabel, gbc);
 
         gbc.gridx = 1;
-        timeSpinner = new JSpinner(new SpinnerDateModel());
-        timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm"));
-        timeSpinner.setFont(UITheme.LABEL_FONT);
-        formPanel.add(timeSpinner, gbc);
+        List<String> slots = buildTimeSlots(8, 17);            // pick your open/close
+        timeCombo = new JComboBox<>(slots.toArray(new String[0]));
+        timeCombo.setFont(UITheme.LABEL_FONT);
+        timeCombo.setSelectedIndex(0);
+        formPanel.add(timeCombo, gbc);
 
         // Notes
         gbc.gridx = 0;
@@ -179,6 +187,22 @@ public class AddAppointmentPanel extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Build a list of “HH:mm” strings from openHour:00 to (closeHour-1):30.
+     * e.g. openHour=9, closeHour=17 → 9:00, 9:30, …, 16:30
+     */
+    private List<String> buildTimeSlots(int openHour, int closeHour) {
+        List<String> slots = new ArrayList<>();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime t = LocalTime.of(openHour, 0);
+        LocalTime last = LocalTime.of(closeHour - 1, 30);
+        while (!t.isAfter(last)) {
+            slots.add(t.format(fmt));
+            t = t.plusMinutes(30);
+        }
+        return slots;
+    }
+
     /*------------------------------------------------------------------*/
     /* Save logic                                                       */
     /*------------------------------------------------------------------*/
@@ -194,18 +218,16 @@ public class AddAppointmentPanel extends JDialog {
                 return;
             }
 
-            // 2) Combine date + time → LocalDateTime
+            // 2) Combine date + selected slot → LocalDateTime
             Date datePart = (Date) dateSpinner.getValue();
-            Date timePart = (Date) timeSpinner.getValue();
+            String sel = (String) timeCombo.getSelectedItem();
+            DateTimeFormatter slotFmt = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime slot = LocalTime.parse(sel, slotFmt);
 
             Calendar cDate = Calendar.getInstance();
             cDate.setTime(datePart);
-
-            Calendar cTime = Calendar.getInstance();
-            cTime.setTime(timePart);
-
-            cDate.set(Calendar.HOUR_OF_DAY, cTime.get(Calendar.HOUR_OF_DAY));
-            cDate.set(Calendar.MINUTE, cTime.get(Calendar.MINUTE));
+            cDate.set(Calendar.HOUR_OF_DAY, slot.getHour());
+            cDate.set(Calendar.MINUTE, slot.getMinute());
             cDate.set(Calendar.SECOND, 0);
             cDate.set(Calendar.MILLISECOND, 0);
 
@@ -227,7 +249,6 @@ public class AddAppointmentPanel extends JDialog {
             if (onSuccessCallback != null) {
                 onSuccessCallback.run();
             }
-
             dispose();
 
         } catch (InvalidAppointmentException ex) {
@@ -236,11 +257,11 @@ public class AddAppointmentPanel extends JDialog {
                     UIConfig.ERROR_DIALOG_TITLE,
                     JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            ex.printStackTrace();  // optional: keep for debugging
+            ex.printStackTrace();  // for debugging
             JOptionPane.showMessageDialog(
                     this,
                     "Unexpected error: " + ex.getMessage(),
-                    UIConfig.ERROR_DIALOG_TITLE,   // <- existing constant
+                    UIConfig.ERROR_DIALOG_TITLE,
                     JOptionPane.ERROR_MESSAGE
             );
         }
