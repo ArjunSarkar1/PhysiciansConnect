@@ -36,7 +36,7 @@ public class PhysicianProfilePanel extends JPanel {
     private final PhysicianManager physicianManager;
 
     private static final String PHOTO_DIR = "profile_photos";
-    private static final String[] SUPPORTED_IMAGE_TYPES = {".png", ".jpg", ".jpeg"};
+    private static final String[] SUPPORTED_IMAGE_TYPES = { ".png", ".jpg", ".jpeg" };
 
     public PhysicianProfilePanel(Physician physician, PhysicianManager physicianManager,
             AppointmentManager appointmentManager,
@@ -184,13 +184,17 @@ public class PhysicianProfilePanel extends JPanel {
 
     private void chooseAndUploadPhoto() {
         JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File(PHOTO_DIR));
+
         chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
             public boolean accept(File f) {
-                if (f.isDirectory()) return true;
+                if (f.isDirectory())
+                    return true;
                 String name = f.getName().toLowerCase();
                 for (String type : SUPPORTED_IMAGE_TYPES) {
-                    if (name.endsWith(type)) return true;
+                    if (name.endsWith(type))
+                        return true;
                 }
                 return false;
             }
@@ -224,29 +228,28 @@ public class PhysicianProfilePanel extends JPanel {
                 physicianManager.uploadProfilePhoto(physician.getId(), new FileInputStream(outputFile));
                 loadProfilePhoto(physician.getId());
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, 
-                    "Failed to upload photo: " + ex.getMessage(), 
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Failed to upload photo: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage) {
         double ratio = Math.min(
-            (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
-            (double) MAX_PHOTO_SIZE / originalImage.getHeight()
-        );
-        
+                (double) MAX_PHOTO_SIZE / originalImage.getWidth(),
+                (double) MAX_PHOTO_SIZE / originalImage.getHeight());
+
         int newWidth = (int) (originalImage.getWidth() * ratio);
         int newHeight = (int) (originalImage.getHeight() * ratio);
-        
+
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = resizedImage.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
         g.dispose();
-        
+
         return resizedImage;
     }
 
@@ -265,7 +268,7 @@ public class PhysicianProfilePanel extends JPanel {
                 System.out.println("Error loading photo: " + ex.getMessage());
             }
         }
-        
+
         // Create placeholder if no photo exists or loading failed
         BufferedImage placeholder = new BufferedImage(MAX_PHOTO_SIZE, MAX_PHOTO_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = placeholder.createGraphics();
