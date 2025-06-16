@@ -9,10 +9,10 @@ Welcome to the **PhysicianConnect** static-site repository. This site presents o
 ---
 
 ## 📁 Repository Layout
-├── index.html # Landing page with all required sections
-├── style.css # Stand-alone stylesheet for the site
-├── assets/ # Images, video, and other media
-└── README.md # You are here 🙌
+├── index.html # Landing page with all required sections  
+├── style.css # Stand-alone stylesheet for the site  
+├── assets/ # Images, video, and other media  
+└── README.md # You are here 🙌  
 
 ---
 
@@ -22,10 +22,10 @@ Welcome to the **PhysicianConnect** static-site repository. This site presents o
 
 ---
 
-## 🚀 Contributors
+## Contributors
 
-1. Dolla Gagandeep
-2. Islam Mohammad Mujahidul
-3. Jhanji Pankaj
-4. Sarkar Arjun
+1. Gagandeep Dolla 
+2. Mohammad Mujahidul Islam 
+3. Pankaj Jhanji 
+4. Arjun Sarkar 
 5. Ibrahim Mamman
