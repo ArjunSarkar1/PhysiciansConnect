@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhysicianConnect – Project Presentation</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <!-- External stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!---- header ------------------------------------------------------------>
+    <header class="hero">
+        <div class="hero-inner container">
+            <a href="#top" class="logo">PhysicianConnect</a>
+
+            <nav aria-label="Primary navigation" id="site-nav">
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#users">Intended&nbsp;Users</a></li>
+                    <li><a href="#features">Major&nbsp;Features</a></li>
+                    <li><a href="#demo">Demo</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li><a href="#postmortem">Post-mortem</a></li>
+                    <li>
+                        <a href="https://code.cs.umanitoba.ca/comp3350-summer2025/a01-g08-todo-everything"
+                            target="_blank">Project&Tab;↗</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="home-banner" id="top">
+        <img src="assets/hero_banner.png" alt="Doctor with patients">
+    </section>
+
+    <section class="intro">
+        <div class="container">
+            <p class="subtitle">Your streamlined scheduling &amp; patient-management — built for doctors.</p>
+        </div>
+
+        <div class="features-highlight container">
+            <div class="highlight">
+                <div class="circle">
+                    <img src="assets/Patient_History_Viewer_Icon.png" alt=" Medical History Icon">
+                </div>
+                <h4>Patient History<br>Viewer</h4>
+                <p>Access a patient's entire visit and treatment history in one place.</p>
+            </div>
+
+            <div class="highlight">
+                <div class="circle">
+                    <img src="assets/Alerts_Notifications_Icon.png" alt="Notifications Icon">
+                </div>
+                <h4>Alerts &<br>Notifications</h4>
+                <p>Never miss key updates—get alerts for bookings, meds, and more.</p>
+            </div>
+
+            <div class="highlight">
+                <div class="circle">
+                    <img src="assets/Medication_Prescription_Icon.png" alt="Prescription Icon">
+                </div>
+                <h4>Medication<br>Prescription</h4>
+                <p>Quickly prescribe meds and manage dosage instructions securely.</p>
+            </div>
+
+            <div class="highlight">
+                <div class="circle">
+                    <img src="assets/Appointment_Slot_Management_Icon.png" alt="Appointments Icon">
+                </div>
+                <h4>Appointment Slot Management</h4>
+                <p>Manage availability and view upcoming bookings in a clean, calendar-based interface.</p>
+            </div>
+        </div>
+
+    </section>
+
+    <main>
+        <!-- Overview -->
+        <section id="overview" class="section">
+            <div class="container">
+                <h2>Project Overview &amp; Vision</h2>
+                <p><em>PhysicianConnect</em> is a centralized platform that simplifies communication between patients,
+                    physicians, and receptionists. We aim to reduce administrative friction, improve communication, and
+                    make it easier to manage appointments, billing, prescriptions, referrals and patient data in one
+                    place.</p>
+
+                <p>Physicians can set their availability, review pre-visit notes, and handle post-visit tasks like
+                    writing prescriptions, making referrals, and logging follow-ups all in one place. Patients can
+                    easily book appointments, receive updates, and access their medical information. Receptionists gain
+                    tools to coordinate visits, handle billing, and keep the clinic running smoothly.
+                </p>
+
+                <p>Fast, focused, and secure, PhysicianConnect cuts through the complexity of traditional EMRs so
+                    clinics can stay organized and deliver better care with less time spent on paperwork and more time
+                    focused on people.
+                </p>
+            </div>
+        </section>
+
+        <!-- Intended Users -->
+        <section id="users" class="section alt">
+            <div class="container">
+                <h2>Intended Users</h2>
+                <p><b>Physicians</b>, who need quick access to patient records, appointment schedules, prescribe
+                    medicine, managing patient referrals and internal messaging.
+                </p>
+                <p><b>Receptionists</b>, who handle appointment management, billing tasks, internal messaging and act as
+                    a bridge between patients and medical professionals.
+                </p>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features" class="section">
+            <div class="container">
+                <h2>Major Functionality</h2>
+                <ul class="feature-list">
+                    <li>Calendar-based schedule management with availability blocks</li>
+                    <li>Instant syncing of patient-booked appointments</li>
+                    <li>Pre-visit notes & history at a glance</li>
+                    <li>Medication prescription with dosage instructions</li>
+                    <li>Notification & alert system for doctors and patients</li>
+                    <li>Post-visit documentation: notes, prescriptions, and referrals</li>
+                    <li>Live messaging/chat between doctors and patients</li>
+                    <li>Billing & invoicing with patient-level detail</li>
+                    <li>Profile management for staff and users</li>
+                    <li>Secure, role-based data separation for doctors & patients</li>
+                    <li>Receptionist view with limited admin access</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Demo -->
+        <section id="demo" class="section alt">
+            <div class="container">
+                <h2>Feature Demo</h2>
+                <div class="video-wrapper">
+                    <!-- Replace src with your recorded demo file -->
+                    <video controls poster="assets/demo-poster.png">
+                        <source src="assets/demo.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team -->
+        <section id="team" class="section">
+            <div class="container">
+                <h2>Contributors</h2>
+                <ul class="team-list">
+                    <li>Dolla Gagandeep <span class="skill">Throughout the project, I focused a lot on maintaining clean
+                            Git workflows, managing feature branches, resolving tricky merge conflicts, and keeping our
+                            history organized. I also worked on writing meaningful tests using JUnit, which helped
+                            improve reliability as we added more features. Since we were working as a team, I got to
+                            apply what I’ve learned from past courses and work experience about writing modular,
+                            testable code and making sure my changes integrated smoothly with everyone else’s work. This
+                            project really helped me sharpen those collaboration and debugging skills that matter in
+                            real-world development.</span></li>
+                    <li>Islam Mohammad Mujahidul <span class="skill">Taking the summer version of 3350 gave me a good
+                            idea of how teams usually work day to day, since we were putting in hours similar to a
+                            normal job. Working with tight deadlines brought out a level of productivity in me I didn’t
+                            know I had. I learned most about persistence from 3350, since I didn’t take 3380. I also got
+                            a much better understanding of why testing is important and how to actually do it properly,
+                            something I almost completely ignored in older projects. In terms of implementing features,
+                            while my mindset was initially focused more on just building things, I gradually shifted
+                            toward writing code that followed solid principles. Planning features with user stories
+                            helped me structure ideas better, something I will keep using as a tool for future projects.
+                            I also got solid experience with Git, like handling branches, fixing merge conflicts, and
+                            working in a shared repo.</span></li>
+                    <li>Jhanji Pankaj <span class="skill"> I think for me it would definitely have to be learning to get
+                            into a more leadership role/ QA role. Learning to go through other people’s code and leave
+                            feedback as a TA but this time around I was able to have a back and forth with them which
+                            was very nice, alongside that there was also the idea of finding bugs and assigning tickets,
+                            having to jump into various parts of the project to help out wherever I could. All these
+                            were very fun skills that I think developed further. </span></li>
+                    <li>Sarkar Arjun <span class="skill">One specific development skill I gained through this project
+                            would be learning how to manage and fuse feature branches effectively in a team environment.
+                            Even though I was familiar with Git before, through this project it taught me how to manage
+                            more complex workflows that involve working with multiple contributors, code reviews and
+                            merge conflicts. I am getting better at writing cleaner commits, discussing merge conflict
+                            issues with the team and structuring branches logically. Another useful experience I gained
+                            working in this project is working with a variety of user types such as physicians, and
+                            receptionists (and patients too but time didn’t permit us to do so). It is cool to view each
+                            user’s unique views and permissions. To me, testing and building these user types assisted
+                            me into thinking deeply about access control, user interface, authentication and overall
+                            user experience. It made me think critically about how each feature as well as user stories
+                            should behave depending on who is using it.</span></li>
+                    <li>Ibrahim Mamman <span class="skill">This project gave me a much stronger understanding of how Git
+                            works in a real team setting. Before this, I had only used Git in a basic way, but now I
+                            feel confident using branches, resolving merge conflicts, and contributing to a shared repo.
+                            I also learned a lot about teamwork—how to communicate effectively, coordinate tasks, and
+                            make sure everyone's changes fit together. On top of that, I really came to appreciate the
+                            software development cycle, especially Agile. I liked the rhythm of working in sprints,
+                            writing user stories, and regularly checking in to adapt our plans. It made the whole
+                            process feel more organized and productive.</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Postmortem -->
+        <section id="postmortem" class="section alt">
+            <div class="container">
+                <h2>Development Post‑mortem</h2>
+                <p>[To be completed after project completion: architecture, wins, challenges, surprises, metrics,
+                    lessons learned &amp; future improvements.]</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PhysicianConnect Project Team</p>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener("scroll", () => {
+            const header = document.querySelector("header.hero");
+            if (window.scrollY > 40) {
+                header.classList.add("shrink");
+            } else {
+                header.classList.remove("shrink");
+            }
+        });
+
+        /* ---------------- Mobile-nav hamburger ---------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const nav = document.getElementById('site-nav');
+            const burger = document.createElement('button');
+
+            burger.className = 'burger';
+            burger.innerHTML = '☰';
+            burger.setAttribute('aria-label', 'Toggle menu');
+
+            /* append inside .hero-inner instead of before nav */
+            document.querySelector('.hero-inner').insertBefore(burger, nav);
+
+
+            /* insert burger just before the nav element */
+            nav.parentNode.insertBefore(burger, nav);
+
+            burger.addEventListener('click', () => {
+                nav.classList.toggle('open');
+            });
+
+        });
+
+    </script>
+
+</body>
+
+</html>
