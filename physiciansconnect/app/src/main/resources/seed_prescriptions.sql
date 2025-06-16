@@ -1,3 +1,0 @@
-DELETE FROM prescriptions;
-INSERT INTO prescriptions (physician_id, patient_name, medication_name, default_dosage, dosage, frequency, notes, date_prescribed) VALUES
-('1', 'Alice Johnson', 'Amoxicillin', '500mg', '500mg', '3x/day', 'Take after meals', '2025-05-25T10:00:00');

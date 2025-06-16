@@ -1,13 +1,13 @@
 package physicianconnect.persistence;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import physicianconnect.persistence.interfaces.*;
 import physicianconnect.persistence.sqlite.*;
-
-import physicianconnect.persistence.sqlite.SchemaInitializer;
 import physicianconnect.persistence.stub.StubFactory;
 
 public class PersistenceFactory {
@@ -17,14 +17,21 @@ public class PersistenceFactory {
     private static MedicationPersistence medicationPersistence;
     private static PrescriptionPersistence prescriptionPersistence;
     private static ReferralPersistence referralPersistence;
+    private static MessageRepository messageRepository;
+    private static ReceptionistPersistence receptionistPersistence;
+    private static InvoicePersistence invoicePersistence;
+    private static PaymentPersistence paymentPersistence;
+    private static NotificationPersistence notificationPersistence;
 
     public static void initialize(PersistenceType type, boolean seed) {
-        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null || prescriptionPersistence != null || referralPersistence != null)
+        if (physicianPersistence != null || appointmentPersistence != null || medicationPersistence != null
+                || prescriptionPersistence != null || referralPersistence != null || messageRepository != null
+                || receptionistPersistence != null || invoicePersistence != null || paymentPersistence != null 
+                || notificationPersistence != null)
             return;
 
         switch (type) {
             case PROD, TEST -> {
-                // Store in root dir like your teacher's version
                 String dbPath = type == PersistenceType.PROD ? "prod.db" : "test.db";
                 try {
                     ConnectionManager.initialize(dbPath);
@@ -34,12 +41,14 @@ public class PersistenceFactory {
 
                     if (seed) {
                         DatabaseSeeder.seed(conn, List.of(
-                            "seed_physicians.sql",
-                            "seed_appointments.sql",
-                            "seed_medications.sql",
-                            "seed_prescriptions.sql",
-                            "seed_referrals.sql"
-                        ));
+                                "database_seeds/seed_physicians.sql",
+                                "database_seeds/seed_appointments.sql",
+                                "database_seeds/seed_medications.sql",
+                                "database_seeds/seed_prescriptions.sql",
+                                "database_seeds/seed_referrals.sql",
+                                "database_seeds/seed_receptionists.sql",
+                                "database_seeds/seed_invoices.sql",
+                                "database_seeds/seed_payments.sql"));
                     }
 
                     physicianPersistence = new PhysicianDB(conn);
@@ -47,6 +56,11 @@ public class PersistenceFactory {
                     medicationPersistence = new MedicationDB(conn);
                     prescriptionPersistence = new PrescriptionDB(conn);
                     referralPersistence = new ReferralDB(conn);
+                    messageRepository = new MessageDB(conn);
+                    receptionistPersistence = new ReceptionistDB(conn);
+                    invoicePersistence = new InvoiceDB(conn);
+                    paymentPersistence = new PaymentDB(conn);
+                    notificationPersistence = new NotificationDB(conn, getReceptionistPersistence());
 
                     /*
                      * In production this line wouldn't exist but because we want to make
@@ -70,6 +84,11 @@ public class PersistenceFactory {
         medicationPersistence = StubFactory.createMedicationPersistence();
         prescriptionPersistence = StubFactory.createPrescriptionPersistence();
         referralPersistence = StubFactory.createReferralPersistence();
+        messageRepository = new InMemoryMessageRepository();
+        receptionistPersistence = StubFactory.createReceptionistPersistence();
+        invoicePersistence = StubFactory.createInvoicePersistence();
+        paymentPersistence = StubFactory.createPaymentPersistence();
+        notificationPersistence = StubFactory.createNotificationPersistence();
 
         if (e != null) {
             System.err.println("Falling back to stubs due to: " + e.getMessage());
@@ -96,6 +115,36 @@ public class PersistenceFactory {
         return referralPersistence;
     }
 
+    public static MessageRepository getMessageRepository() {
+        return messageRepository;
+    }
+
+    public static ReceptionistPersistence getReceptionistPersistence() {
+        return receptionistPersistence;
+    }
+
+    public static InvoicePersistence getInvoicePersistence() {
+        return invoicePersistence;
+    }
+
+    public static PaymentPersistence getPaymentPersistence() {
+        return paymentPersistence;
+
+    }
+
+    public static NotificationPersistence getNotificationPersistence() {
+        if (notificationPersistence == null) {
+            try {
+                Connection conn = ConnectionManager.get();
+                notificationPersistence = new NotificationDB(conn, getReceptionistPersistence());
+            } catch (Exception e) {
+                e.printStackTrace();
+                notificationPersistence = StubFactory.createNotificationPersistence();
+            }
+        }
+        return notificationPersistence;
+    }
+
     public static void reset() {
         ConnectionManager.close();
         physicianPersistence = null;
@@ -103,16 +152,28 @@ public class PersistenceFactory {
         medicationPersistence = null;
         prescriptionPersistence = null;
         referralPersistence = null;
+        messageRepository = null;
+        receptionistPersistence = null;
+        invoicePersistence = null;
+        paymentPersistence = null;
+        notificationPersistence = null;
     }
 
     private static void injectTestUserForGrader() {
-        String testEmail = "test@email.com";
-        String testId = "test-id";
+        String testEmail = "testP@email.com";
+        String testId = "0";
         String testName = "Dr. Stephen Vincent Strange";
         String testPassword = "test123";
 
+        String receptionistId = "0";
+        String receptionistEmail = "testR@email.com";
+        String receptionistName = "Mrs. Christine Palmer";
+
         boolean testUserExists = physicianPersistence.getAllPhysicians().stream()
                 .anyMatch(p -> p.getEmail().equalsIgnoreCase(testEmail));
+
+        boolean receptionistExists = receptionistPersistence.getAllReceptionists().stream()
+                .anyMatch(r -> r.getEmail().equalsIgnoreCase(receptionistEmail));
 
         if (!testUserExists) {
             physicianPersistence.addPhysician(
@@ -128,6 +189,13 @@ public class PersistenceFactory {
                         testId, "Wanda Maximoff", LocalDateTime.of(2025, 6, 3, 11, 0)));
             }
         }
+
+        if (!receptionistExists) {
+            receptionistPersistence.addReceptionist(
+                    new physicianconnect.objects.Receptionist(receptionistId, receptionistName, receptionistEmail,
+                            testPassword));
+        }
+
     }
 
 }

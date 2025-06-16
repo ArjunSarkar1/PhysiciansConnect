@@ -1,7 +1,16 @@
 # README
-# PhysicianConnect (Physician View)
 
-PhysicianConnect is a healthcare coordination platform designed to improve how physicians manage appointments, review patient history, and prescribe medications. This version focuses specifically on physician-facing features, supporting a streamlined and efficient experience for care providers. The system is structured with a 3-tier architecture, separating the presentation (UI), business logic (services), and persistence (database access) layers to ensure modularity, scalability, and testability.
+# Documentation 
+
+- [Vision](docs/VISION.md)
+- [Project Architecture](docs/ARCHITECTURE.md)
+- [Retrospective](docs/RESTROSPECTIVE.md)
+- [Credits](docs/CREDIT.md)
+
+
+# PhysicianConnect
+
+PhysicianConnect is a comprehensive health care coordination platform designed to facilitate medical practice operations for both physicians and receptionists. The system facilitates efficient appointment management, patient care coordination, and administrative tasks through a simple interface. Physicians can manage their schedules, review patient histories, prescribe medications, and handle referrals, while receptionists can coordinate appointments, manage billing, and handle patient communications. The platform features real-time notifications, integrated billing systems, and robust profile management for both user types. Built with a 3-tier architecture that separates the presentation (UI), business logic (services), and persistence (database access) layers, PhysicianConnect ensures modularity, scalability, and testability while maintaining a smooth user experience.
 
 ## Features
 
@@ -9,7 +18,13 @@ PhysicianConnect is a healthcare coordination platform designed to improve how p
 - **View Patient Medical History:** Access past visit summaries, detailed examination records, and patient health timelines.
 - **Prescribe Medication:** Search a dynamic formulary, select safe medications, add dosage details, and include prescription notes.
 - **Navigation Dashboard:** Tab-based physician interface offering access to all workflows from a centralized location.
-- **Health Education Resource Sharing:** *(Planned)* Share exercise plans, nutrition guides, and health tips directly with patients.
+- **Real-time Notifications:** Receive instant notifications for appointment updates, new messages, and billing events.
+- **Billing & Invoicing System:** Create and manage invoices, track payments, and handle insurance adjustments.
+- **Profile Management:** Customize profile information including specialty, office hours, contact details, and notification preferences.
+- **Messaging System:** Internal communication platform for physicians and receptionists.
+- **Referral Management:** Create and track patient referrals to specialists with detailed notes and history.
+- **Revenue Tracking:** Monitor practice revenue with detailed summaries and payment tracking.
+- **Insurance Integration:** Support for multiple insurance types with automatic adjustment calculations.
 
 ## Dependencies & Versions
 
@@ -18,6 +33,9 @@ PhysicianConnect is a healthcare coordination platform designed to improve how p
 - **SQLite JDBC:** org.xerial:sqlite-jdbc:3.36.0.3  
   *(Provides the SQLite driver for embedded database support)*
 - **JUnit 5:** For unit and integration testing
+- **Java Swing:** For GUI components and user interface
+- **Java Time API:** For handling dates, times, and scheduling
+- **Java ImageIO:** For profile photo management and image processing
 
 ## Setting Up & Running
 
@@ -66,7 +84,7 @@ Use forward slashes (/) for Unix-based systems (macOS, Linux) and backslashes (\
 # Run the Application
 To start the application using jar run:
 ```bash
-java -jar build/libs/physiciansconnect-1.0.jar
+java -jar build/libs/physiciansconnect-2.0.jar
 ```
 
 ## Database Management
@@ -149,10 +167,58 @@ PhysicianConnect is designed following a 3-tier architecture, which separates th
 - **Scalability & Maintainability:**  
   Clear separation of concerns makes the application easier to extend and troubleshoot over time.
 
+### Image Licensing Notice
+All images used in the physiciansconnect/app/src/main/java/physicianconnect/src directory are sourced from publicly available stock image libraries or licensed third-party providers. These images are used for illustrative and design purposes only and are not owned by the development team. Proper licensing and usage rights should be verified before using these images in production or commercial deployments.
+
+### Profile Photo Handling
+**PhysicianConnect** supports profile photos for both **physicians** and **receptionists**, which are displayed in areas like the dashboard and profile screens. Given this is a desktop-based project, photo management is handled entirely through **local file storage**.
+
+How It Works (In This Project)
+
+File Naming:
+Profile photos are saved using a **prefix and user ID** format:
+- **Physicians**: `p_<id>.png`  
+- **Receptionists**: `r_<id>.png`
+
+Example:
+- Physician with ID `123` → `p_123.png`
+- Receptionist with ID `456` → `r_456.png`
+
+All photos are stored in: src/main/resources/profile_photos/
+
+Saving
+- When a user uploads a new photo, it is **resized** to fit a maximum of **200×200 pixels**.
+- The resized image is saved to the `profile_photos` folder with the appropriate filename (e.g., `p_123.png`).
+
+Loading
+- On login or when the profile view is opened, the app checks for the appropriate photo file.
+- If the file exists, it is loaded and displayed.
+- If not, a **placeholder image** (gray box with "No Photo" text) is shown instead.
+
+Access Control
+- Since this is a **standalone desktop app**, images are stored locally.
+- No authentication or access control is applied to file storage — it assumes trusted local use.
+
+In a Real-World Web-Based Application
+If this system were deployed on a real server:
+
+- Photos would be stored on a secure server or cloud storage, not in local folders.
+- Authentication and file access control would ensure that users can only access their own images.
+- Images would likely be served over HTTPS and may be protected with access tokens or session-based permissions.
+- Images would be uploaded via HTTP endpoints and stored with unique paths or database references, not raw filenames.
+
+So why did we use Local Storage?
+- Because this application is a desktop-based project designed for offline use and classroom demonstration, we opted for: 
+- Simple local folder storage to reduce dependency on external servers.
+- Readable file paths to aid debugging and testing.
+- Easy manual file replacement for testing default or custom photos.
+
 ---
 
 ## Summary
 
-PhysicianConnect for Physicians empowers care providers with tools to manage their schedule, view patient history, and prescribe treatments — all within a clean, modular application. Designed using a 3-tier architecture and supported by SQLite, it balances simplicity with scalability, making it easy to extend and maintain over time.
+PhysicianConnect is a complete solution for medical practices that provides physicians and receptionists with key features for modern health care management. Physicians have the ability to schedule appointments, access patient history and track treatment options. Receptionists can accomplish administrative tasks, manage billing functions and coordinate patient needs. Practice efficiency and patient care quality enhance through notification systems, strong billing capabilities, and a user-friendly interface. With a use of a standard 3 tier architecture model and an SQLite backend, PhysicianConnect offers consistency and simplicity for medical practices while being scalable for larger operations.
 
 For questions, testing setup, or to contribute, please refer to the project documentation or contact the development team.
+
+

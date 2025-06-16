@@ -70,4 +70,47 @@ public class ReferralDBTest {
         assertTrue(db.getReferralsForPhysician("doc1").isEmpty());
         assertTrue(db.getReferralsForPhysician("doc2").isEmpty());
     }
+
+    // --- Catch/exception coverage ---
+
+    @Test
+    public void testAddReferralCatchesSQLException() throws Exception {
+        Referral r = new Referral(0, null, null, null, null, null);
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.addReferral(r));
+        assertTrue(ex.getMessage().contains("Failed to add referral"));
+    }
+
+    @Test
+    public void testGetReferralsForPhysicianCatchesSQLException() throws Exception {
+        db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getReferralsForPhysician("doc1"));
+        assertTrue(ex.getMessage().contains("Failed to fetch referrals"));
+    }
+
+    @Test
+    public void testGetReferralsForPatientCatchesSQLException() throws Exception {
+        db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getReferralsForPatient("Patient A"));
+        assertTrue(ex.getMessage().contains("Failed to fetch referrals"));
+    }
+
+    @Test
+    public void testDeleteReferralByIdCatchesSQLException() throws Exception {
+        db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
+        int id = db.getReferralsForPhysician("doc1").get(0).getId();
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteReferralById(id));
+        assertTrue(ex.getMessage().contains("Failed to delete referral"));
+    }
+
+    @Test
+    public void testDeleteAllReferralsCatchesSQLException() throws Exception {
+        db.addReferral(new Referral(0, "doc1", "Patient A", "Lab Test", "Fasting", "2025-06-01"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteAllReferrals());
+        assertTrue(ex.getMessage().contains("Failed to delete all referrals"));
+    }
 }

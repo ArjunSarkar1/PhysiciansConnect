@@ -3,35 +3,47 @@ package physicianconnect.persistence.stub;
 import org.junit.jupiter.api.*;
 import physicianconnect.objects.Medication;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MedicationPersistenceStubTest {
+class MedicationPersistenceStubTest {
 
     private MedicationPersistenceStub stub;
 
     @BeforeEach
-    public void setup() {
-        stub = new MedicationPersistenceStub(true);
+    void setUp() {
+        stub = new MedicationPersistenceStub(false);
     }
 
     @Test
-    public void testAddAndGetMedication() {
-        Medication m = new Medication("TestMed", "123mg", "Once a day", "Take with water");
+    void testAddAndGetMedication() {
+        Medication m = new Medication("Aspirin", "10mg", "daily", "notes");
         stub.addMedication(m);
-        assertTrue(stub.getAllMedications().stream().anyMatch(med -> med.getName().equals("TestMed")));
+        List<Medication> meds = stub.getAllMedications();
+        assertEquals(1, meds.size());
+        assertEquals("Aspirin", meds.get(0).getName());
     }
 
     @Test
-    public void testDeleteMedication() {
-        Medication m = new Medication("TestMed", "123mg", "Once a day", "Take with water");
+    void testDeleteMedication() {
+        Medication m = new Medication("Aspirin", "10mg", "daily", "notes");
         stub.addMedication(m);
         stub.deleteMedication(m);
-        assertFalse(stub.getAllMedications().stream().anyMatch(med -> med.getName().equals("TestMed")));
+        assertTrue(stub.getAllMedications().isEmpty());
     }
 
     @Test
-    public void testDeleteAllMedications() {
+    void testDeleteAllMedications() {
+        stub.addMedication(new Medication("Ibuprofen", "200mg", "Once a day", "Take with water"));
         stub.deleteAllMedications();
+        assertTrue(stub.getAllMedications().isEmpty());
+    }
+
+    @Test
+    void testCloseClearsMedications() {
+        stub.addMedication(new Medication("Ibuprofen", "200mg", "Once a day", "Take with water"));
+        stub.close();
         assertTrue(stub.getAllMedications().isEmpty());
     }
 }

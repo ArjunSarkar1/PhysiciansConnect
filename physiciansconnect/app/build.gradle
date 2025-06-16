@@ -2,10 +2,11 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'java'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'physicianconnect'
-version = '1.0'
+version = '2.0'
 
 sourceCompatibility = '21'
 
@@ -17,18 +18,21 @@ repositories {
 dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
 
-    // JUnit 5
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+  
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.1'
 
-    // Mockito for mocking in tests
-    testImplementation 'org.mockito:mockito-core:5.12.0'
+   
+    testImplementation 'org.mockito:mockito-core:5.18.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.18.0' 
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
 
-    // AssertJ Swing for GUI testing
-    testImplementation 'org.assertj:assertj-core:3.25.3'
+   
+    testImplementation 'org.assertj:assertj-core:3.27.3' 
     testImplementation 'org.assertj:assertj-swing-junit:3.17.1'
 
-    // Needed for some AWT-based tests to run reliably
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
+   
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.1'
 }
 
 test {
@@ -55,4 +59,9 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+javafx {
+    version = '17.0.2'
+    modules = ['javafx.controls', 'javafx.fxml']
 }

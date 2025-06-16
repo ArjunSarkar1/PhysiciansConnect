@@ -39,8 +39,8 @@ public class PrescriptionDBTest {
     @Test
     public void testAddAndFetchPrescription() {
         Prescription p = new Prescription(
-            0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once a day", "Take with food", "2025-06-01T10:00"
-        );
+                0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once a day", "Take with food",
+                "2025-06-01T10:00");
         db.addPrescription(p);
 
         List<Prescription> list = db.getPrescriptionsForPatient("Bruce Banner");
@@ -54,8 +54,8 @@ public class PrescriptionDBTest {
     @Test
     public void testDeletePrescriptionById() {
         Prescription p = new Prescription(
-            0, "doc2", "Tony Stark", "Amoxicillin", "500mg", "500mg", "Twice a day", "No alcohol", "2025-06-02T09:00"
-        );
+                0, "doc2", "Tony Stark", "Amoxicillin", "500mg", "500mg", "Twice a day", "No alcohol",
+                "2025-06-02T09:00");
         db.addPrescription(p);
         List<Prescription> list = db.getPrescriptionsForPatient("Tony Stark");
         assertEquals(1, list.size());
@@ -68,8 +68,10 @@ public class PrescriptionDBTest {
 
     @Test
     public void testDeleteAllPrescriptions() {
-        db.addPrescription(new Prescription(0, "doc1", "A", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
-        db.addPrescription(new Prescription(0, "doc2", "B", "Amoxicillin", "500mg", "500mg", "Twice", "", "2025-06-02T09:00"));
+        db.addPrescription(
+                new Prescription(0, "doc1", "A", "Ibuprofen", "200mg", "200mg", "Once", "", "2025-06-01T10:00"));
+        db.addPrescription(
+                new Prescription(0, "doc2", "B", "Amoxicillin", "500mg", "500mg", "Twice", "", "2025-06-02T09:00"));
         db.deleteAllPrescriptions();
         List<Prescription> all = db.getAllPrescriptions();
         assertTrue(all.isEmpty());
@@ -77,8 +79,10 @@ public class PrescriptionDBTest {
 
     @Test
     public void testGetAllPrescriptionsResultSetMapping() {
-        db.addPrescription(new Prescription(0, "doc1", "A", "Ibuprofen", "200mg", "200mg", "Once", "Note1", "2025-06-01T10:00"));
-        db.addPrescription(new Prescription(0, "doc2", "B", "Amoxicillin", "500mg", "500mg", "Twice", "Note2", "2025-06-02T09:00"));
+        db.addPrescription(
+                new Prescription(0, "doc1", "A", "Ibuprofen", "200mg", "200mg", "Once", "Note1", "2025-06-01T10:00"));
+        db.addPrescription(new Prescription(0, "doc2", "B", "Amoxicillin", "500mg", "500mg", "Twice", "Note2",
+                "2025-06-02T09:00"));
         List<Prescription> all = db.getAllPrescriptions();
         assertEquals(2, all.size());
         assertEquals("Ibuprofen", all.get(0).getMedicationName());
@@ -89,5 +93,42 @@ public class PrescriptionDBTest {
     public void testAddPrescriptionCatchesSQLException() {
         Prescription p = new Prescription(0, null, null, null, null, null, null, null, null);
         assertThrows(RuntimeException.class, () -> db.addPrescription(p));
+    }
+
+    @Test
+    public void testGetPrescriptionsForPatientCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "",
+                "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getPrescriptionsForPatient("Bruce Banner"));
+        assertTrue(ex.getCause() instanceof java.sql.SQLException);
+    }
+
+    @Test
+    public void testGetAllPrescriptionsCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "",
+                "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.getAllPrescriptions());
+        assertTrue(ex.getMessage().contains("Failed to get all prescriptions"));
+    }
+
+    @Test
+    public void testDeletePrescriptionByIdCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "",
+                "2025-06-01T10:00"));
+        int id = db.getAllPrescriptions().get(0).getId();
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deletePrescriptionById(id));
+        assertTrue(ex.getMessage().contains("Failed to delete prescription"));
+    }
+
+    @Test
+    public void testDeleteAllPrescriptionsCatchesSQLException() throws Exception {
+        db.addPrescription(new Prescription(0, "doc1", "Bruce Banner", "Ibuprofen", "200mg", "200mg", "Once", "",
+                "2025-06-01T10:00"));
+        conn.close();
+        Exception ex = assertThrows(RuntimeException.class, () -> db.deleteAllPrescriptions());
+        assertTrue(ex.getMessage().contains("Failed to delete all prescriptions"));
     }
 }
