@@ -13,6 +13,16 @@
 
 PhysicianConnect is a comprehensive health care coordination platform designed to facilitate medical practice operations for both physicians and receptionists. The system facilitates efficient appointment management, patient care coordination, and administrative tasks through a simple interface. Physicians can manage their schedules, review patient histories, prescribe medications, and handle referrals, while receptionists can coordinate appointments, manage billing, and handle patient communications. The platform features real-time notifications, integrated billing systems, and robust profile management for both user types. Built with a 3-tier architecture that separates the presentation (UI), business logic (services), and persistence (database access) layers, PhysicianConnect ensures modularity, scalability, and testability while maintaining a smooth user experience.
 
+# Usage & Features
+
+<img src="product-images/login.png" alt="alt1" width="500" />
+<img src="product-images/physician-view.png" alt="alt2" width="500" />
+<img src="product-images/receptionist-view.png" alt="alt1" width="500" />
+<img src="product-images/notifs-and-alerts.png" alt="alt2" width="500" />
+<img src="product-images/billing.png" alt="alt1" width="500" />
+<img src="product-images/messaging.png" alt="alt1" width="500" />
+
+
 ## Features
 
 - **Appointment Slot Management:** Add, update, or remove available time slots for patient bookings.
