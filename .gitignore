@@ -26,3 +26,4 @@ build
 Thumbs.db
 physiciansconnect/app/.gradle/
 physiciansconnect/app/prod.db
+website/assets/presentation.mp4
